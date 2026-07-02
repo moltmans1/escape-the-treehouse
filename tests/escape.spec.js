@@ -1,6 +1,16 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Escape the Treehouse E2E Tests', () => {
+  // Helper to programmatically hover over coordinates using trusted mouse events
+  const hoverPosition = async (page, x, y) => {
+    const canvas = page.locator('canvas');
+    const box = await canvas.boundingBox();
+    if (!box) return;
+    const cx = box.x + x * (box.width / 960);
+    const cy = box.y + y * (box.height / 540);
+    await page.mouse.move(cx, cy, { steps: 5 });
+  };
+
   // Helper to wait for and dismiss a dialog directly via GameScene method
   const dismissDialog = async (page) => {
     await page.waitForTimeout(50);
@@ -58,16 +68,30 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.evaluate((btnChar) => {
       const gameScene = window.__game.scene.keys.GameScene;
       if (gameScene && gameScene.zoomContainer) {
-        const textIdx = gameScene.zoomContainer.list.findIndex(c => c.text === btnChar);
-        if (textIdx !== -1) {
-          const btnBox = gameScene.zoomContainer.list[textIdx - 1];
-          if (btnBox) {
-            btnBox.emit('pointerdown');
+        if (btnChar === 'E') {
+          // Click the submit handle/lever
+          const handle = gameScene.zoomContainer.list.find(c => c.name === 'safe_handle');
+          if (handle) {
+            handle.emit('pointerdown');
+          }
+        } else {
+          // We have a 4-dial safe now.
+          // Map digits to dial indices: '1' -> dial 0, '7' -> dial 1, '5' -> dial 2, '9' -> dial 3
+          const charMap = { '1': 0, '7': 1, '5': 2, '9': 3 };
+          const dialIdx = charMap[btnChar];
+          if (dialIdx !== undefined && gameScene.safeDials && gameScene.safeDials[dialIdx]) {
+            const dial = gameScene.safeDials[dialIdx];
+            const targetVal = parseInt(btnChar, 10);
+            // Simulate clicking/interacting until value matches
+            while (dial.value !== targetVal) {
+              dial.emit('pointerdown');
+            }
           }
         }
       }
     }, char);
   };
+
 
   test.beforeEach(async ({ page }) => {
     // Log console messages and errors from the browser
@@ -91,8 +115,8 @@ test.describe('Escape the Treehouse E2E Tests', () => {
   });
 
   test('Test Case 1: Item Collection', async ({ page }) => {
-    // 1. Click the Hammock in the North View (200, 240)
-    await page.locator('canvas').click({ position: { x: 200, y: 240 } });
+    // 1. Click the Hammock in the North View (260, 290)
+    await page.locator('canvas').click({ position: { x: 260, y: 290 } });
     
     // Expected: Dialogue box displays: "Underneath the pillow, you find a sheet of paper."
     let dialogText = await page.evaluate(() => window.__gameState.dialogText);
@@ -106,7 +130,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await dismissDialog(page);
 
     // 2. Click the Hammock again
-    await page.locator('canvas').click({ position: { x: 200, y: 240 } });
+    await page.locator('canvas').click({ position: { x: 260, y: 290 } });
     
     // Expected: Dialogue box displays: "A comfortable hammock. There's nothing else under the pillow."
     dialogText = await page.evaluate(() => window.__gameState.dialogText);
@@ -119,8 +143,8 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     // Dismiss the dialog
     await dismissDialog(page);
 
-    // 3. Click the Bookshelf in the North View (900, 150)
-    await page.locator('canvas').click({ position: { x: 900, y: 150 } });
+    // 3. Click the Bookshelf in the North View (860, 180)
+    await page.locator('canvas').click({ position: { x: 860, y: 180 } });
     
     // Expected: Dialogue box displays: "You search the bookshelves and find an Origami Guide."
     dialogText = await page.evaluate(() => window.__gameState.dialogText);
@@ -134,7 +158,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await dismissDialog(page);
 
     // 4. Click the Bookshelf again
-    await page.locator('canvas').click({ position: { x: 900, y: 150 } });
+    await page.locator('canvas').click({ position: { x: 860, y: 180 } });
     
     // Expected: Dialogue box displays: "Various novels and guides about forest lore."
     dialogText = await page.evaluate(() => window.__gameState.dialogText);
@@ -147,9 +171,9 @@ test.describe('Escape the Treehouse E2E Tests', () => {
 
   test('Test Case 2: Origami Folding', async ({ page }) => {
     // First, collect the paper and the book
-    await page.locator('canvas').click({ position: { x: 200, y: 240 } }); // Hammock
+    await page.locator('canvas').click({ position: { x: 260, y: 290 } }); // Hammock
     await dismissDialog(page);
-    await page.locator('canvas').click({ position: { x: 900, y: 150 } }); // Bookshelf
+    await page.locator('canvas').click({ position: { x: 860, y: 180 } }); // Bookshelf
     await dismissDialog(page);
 
     // 1. Click the Origami Book in the inventory.
@@ -186,9 +210,9 @@ test.describe('Escape the Treehouse E2E Tests', () => {
 
   test('Test Case 3: Dartboard & Safe Puzzle', async ({ page }) => {
     // Prep: Fold the paper airplane
-    await page.locator('canvas').click({ position: { x: 200, y: 240 } }); // Hammock
+    await page.locator('canvas').click({ position: { x: 260, y: 290 } }); // Hammock
     await dismissDialog(page);
-    await page.locator('canvas').click({ position: { x: 900, y: 150 } }); // Bookshelf
+    await page.locator('canvas').click({ position: { x: 860, y: 180 } }); // Bookshelf
     await dismissDialog(page);
     await page.locator('canvas').click({ position: { x: 200, y: 490 } }); // Open book
     await page.locator('canvas').click({ position: { x: 120, y: 490 } }); // Select paper
@@ -204,7 +228,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.waitForFunction(() => window.__gameState.currentView === 'south');
 
     // Solve dartboard
-    await page.locator('canvas').click({ position: { x: 385, y: 200 } });
+    await page.locator('canvas').click({ position: { x: 380, y: 205 } });
     await page.waitForFunction(() => window.__gameState.zoomView === 'dartboard');
     await page.waitForTimeout(200);
 
@@ -218,16 +242,16 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     let solved = await page.evaluate(() => window.__gameState.solvedPuzzles.includes ? window.__gameState.solvedPuzzles.includes('dartboard_solved') : new Set(window.__gameState.solvedPuzzles).has('dartboard_solved'));
     expect(solved).toBe(true);
 
-    // 1. Collect Binoculars from South desk (790, 320)
-    await page.locator('canvas').click({ position: { x: 790, y: 320 } });
+    // 1. Collect Binoculars from East Window Sill (go to East View first)
+    await page.locator('canvas').click({ position: { x: 40, y: 220 } });
+    await page.waitForFunction(() => window.__gameState.currentView === 'east');
+    await page.locator('canvas').click({ position: { x: 605, y: 260 } });
     await dismissDialog(page);
     let inventory = await page.evaluate(() => window.__gameState.inventory);
     expect(inventory).toContain('binoculars');
 
-    // 2. Collect Trees Book from East Top-Left Wall (go to East View)
-    await page.locator('canvas').click({ position: { x: 40, y: 220 } });
-    await page.waitForFunction(() => window.__gameState.currentView === 'east');
-    await page.locator('canvas').click({ position: { x: 150, y: 120 } });
+    // 2. Collect Trees Book from East Top-Left Wall (already in East View)
+    await page.locator('canvas').click({ position: { x: 75, y: 85 } });
     await dismissDialog(page);
     inventory = await page.evaluate(() => window.__gameState.inventory);
     expect(inventory).toContain('trees_book');
@@ -236,8 +260,8 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.locator('canvas').click({ position: { x: 920, y: 220 } });
     await page.waitForFunction(() => window.__gameState.currentView === 'south');
 
-    // 3. Inspect South Window (600, 150)
-    await page.locator('canvas').click({ position: { x: 600, y: 150 } });
+    // 3. Inspect South Window (715, 190)
+    await page.locator('canvas').click({ position: { x: 715, y: 190 } });
     await page.waitForFunction(() => window.__gameState.zoomView === 'south_window_zoom');
 
     // Try clicking Oak tree (left) without binoculars
@@ -279,8 +303,8 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.locator('canvas').click({ position: { x: 900, y: 30 } }); // Close book zoom
     await page.waitForFunction(() => window.__gameState.zoomView === null);
 
-    // 5. Open Safe Keypad (385, 200)
-    await page.locator('canvas').click({ position: { x: 385, y: 200 } });
+    // 5. Open Safe Keypad (380, 205)
+    await page.locator('canvas').click({ position: { x: 380, y: 205 } });
     await page.waitForFunction(() => window.__gameState.zoomView === 'safe_input');
 
     // Click keypad buttons programmatically: 1 -> 7 -> 5 -> 9 -> E
@@ -299,7 +323,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await dismissDialog(page);
 
     // 6. Click open safe to collect Rusty Old Key
-    await page.locator('canvas').click({ position: { x: 385, y: 200 } });
+    await page.locator('canvas').click({ position: { x: 380, y: 205 } });
     await dismissDialog(page);
     
     inventory = await page.evaluate(() => window.__gameState.inventory);
@@ -311,9 +335,9 @@ test.describe('Escape the Treehouse E2E Tests', () => {
 
   test('Test Case 4: Final Escape', async ({ page }) => {
     // Setup Origami
-    await page.locator('canvas').click({ position: { x: 200, y: 240 } }); // Hammock
+    await page.locator('canvas').click({ position: { x: 260, y: 290 } }); // Hammock
     await dismissDialog(page);
-    await page.locator('canvas').click({ position: { x: 900, y: 150 } }); // Bookshelf
+    await page.locator('canvas').click({ position: { x: 860, y: 180 } }); // Bookshelf
     await dismissDialog(page);
     await page.locator('canvas').click({ position: { x: 200, y: 490 } }); // Open book
     await page.locator('canvas').click({ position: { x: 120, y: 490 } }); // Select paper
@@ -329,7 +353,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.waitForFunction(() => window.__gameState.currentView === 'south');
 
     // Solve dartboard
-    await page.locator('canvas').click({ position: { x: 385, y: 200 } });
+    await page.locator('canvas').click({ position: { x: 380, y: 205 } });
     await page.waitForFunction(() => window.__gameState.zoomView === 'dartboard');
     await page.waitForTimeout(200);
 
@@ -339,14 +363,14 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await clickDartboardNumber(page, 10);
     await page.waitForFunction(() => window.__gameState.zoomView === null);
 
-    // Collect Binoculars
-    await page.locator('canvas').click({ position: { x: 790, y: 320 } });
-    await dismissDialog(page);
-
-    // Collect Trees Book (go to East View)
+    // Collect Binoculars (go to East View)
     await page.locator('canvas').click({ position: { x: 40, y: 220 } });
     await page.waitForFunction(() => window.__gameState.currentView === 'east');
-    await page.locator('canvas').click({ position: { x: 150, y: 120 } });
+    await page.locator('canvas').click({ position: { x: 605, y: 260 } });
+    await dismissDialog(page);
+
+    // Collect Trees Book
+    await page.locator('canvas').click({ position: { x: 75, y: 85 } });
     await dismissDialog(page);
 
     // Go back to South View
@@ -354,7 +378,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.waitForFunction(() => window.__gameState.currentView === 'south');
 
     // Solve Safe
-    await page.locator('canvas').click({ position: { x: 385, y: 200 } });
+    await page.locator('canvas').click({ position: { x: 380, y: 205 } });
     await page.waitForFunction(() => window.__gameState.zoomView === 'safe_input');
     
     // Click keypad buttons programmatically
@@ -367,11 +391,11 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await dismissDialog(page);
 
     // Collect key from open safe
-    await page.locator('canvas').click({ position: { x: 385, y: 200 } });
+    await page.locator('canvas').click({ position: { x: 380, y: 205 } });
     await dismissDialog(page);
 
-    // 1. Click the Exit Door in the South View (190, 250) without selecting the key
-    await page.locator('canvas').click({ position: { x: 190, y: 250 } });
+    // 1. Click the Exit Door in the South View (185, 270) without selecting the key
+    await page.locator('canvas').click({ position: { x: 185, y: 270 } });
 
     // Expected: Dialogue box displays: "The exit door is locked tight. The padlock is extremely old and rusty."
     let dialogText = await page.evaluate(() => window.__gameState.dialogText);
@@ -388,8 +412,8 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     let selectedItem = await page.evaluate(() => window.__gameState.selectedItem);
     expect(selectedItem).toBe('rusty_key');
 
-    // 3. Click the Exit Door (190, 250)
-    await page.locator('canvas').click({ position: { x: 190, y: 250 } });
+    // 3. Click the Exit Door (185, 270)
+    await page.locator('canvas').click({ position: { x: 185, y: 270 } });
 
     // Expected: heavy creak dialog
     dialogText = await page.evaluate(() => window.__gameState.dialogText);
@@ -398,11 +422,13 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     // Dismiss the dialog
     await dismissDialog(page);
 
-    // 4. Click the Exit Door again (190, 250)
-    await page.locator('canvas').click({ position: { x: 190, y: 250 } });
+    // 4. Click the Exit Door again (185, 270)
+    await page.locator('canvas').click({ position: { x: 185, y: 270 } });
 
     // Expected: The Victory Screen is shown (door_unlocked in solvedPuzzles)
     const doorUnlocked = await page.evaluate(() => window.__gameState.solvedPuzzles.includes ? window.__gameState.solvedPuzzles.includes('door_unlocked') : new Set(window.__gameState.solvedPuzzles).has('door_unlocked'));
     expect(doorUnlocked).toBe(true);
   });
+
+
 });

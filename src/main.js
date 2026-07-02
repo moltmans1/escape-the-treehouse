@@ -65,6 +65,13 @@ class PreloadScene extends Phaser.Scene {
     this.load.image('bg_east', 'assets/bg_east.jpg');
     this.load.image('bg_south', 'assets/bg_south.jpg');
     this.load.image('paper_airplane_clue', 'assets/paper_airplane.jpg');
+    this.load.image('dartboard', 'assets/dartboard.jpg');
+    this.load.image('open_book', 'assets/open_book.jpg');
+    this.load.image('oak_leaf', 'assets/oak_leaf.jpg');
+    this.load.image('white_pine_needles', 'assets/white_pine_needles.jpg');
+    this.load.image('sugar_maple_leaf', 'assets/sugar_maple_leaf.jpg');
+    this.load.image('binoculars', 'assets/binoculars.png');
+    this.load.image('open_origami_book', 'assets/open_origami_book.jpg');
     
     // Load navigation arrow
     this.createArrowTexture();
@@ -157,6 +164,11 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
+
+
+    // Set the default cursor state initially
+    this.input.setDefaultCursor('default');
+
     // Main room background
     this.bg = this.add.sprite(0, 0, `bg_${gameState.currentView}`).setOrigin(0, 0);
     this.bg.setDisplaySize(960, 440);
@@ -196,6 +208,14 @@ class GameScene extends Phaser.Scene {
       }
     };
 
+    // Rotated dartboard sprite (initially invisible, used when solved)
+    this.rotatedDartboardSprite = this.add.image(380, 250, 'dartboard')
+      .setDisplaySize(60, 60)
+      .setAngle(180)
+      .setVisible(false)
+      .setDepth(2);
+
+
     this.updateHotspots();
     this.updateDynamicGraphics();
 
@@ -219,10 +239,22 @@ class GameScene extends Phaser.Scene {
 
     [this.leftArrow, this.rightArrow].forEach(arrow => {
       arrow.on('pointerover', () => {
-        arrow.setAlpha(1.0).setScale(1.1);
+        arrow.setAlpha(1.0);
+        this.tweens.add({
+          targets: arrow,
+          scale: 1.15,
+          duration: 100
+        });
         this.updateCanvasCursor();
       });
-      arrow.on('pointerout', () => arrow.setAlpha(0.8).setScale(1.0));
+      arrow.on('pointerout', () => {
+        arrow.setAlpha(0.8);
+        this.tweens.add({
+          targets: arrow,
+          scale: 1.0,
+          duration: 100
+        });
+      });
     });
 
     this.leftArrow.on('pointerdown', () => this.rotateRoom(-1));
@@ -324,6 +356,21 @@ class GameScene extends Phaser.Scene {
         }).setOrigin(0.5);
 
         itemText.setInteractive({ useHandCursor: true });
+        
+        itemText.on('pointerover', () => {
+          this.tweens.add({
+            targets: itemText,
+            scale: 1.08,
+            duration: 100
+          });
+        });
+        itemText.on('pointerout', () => {
+          this.tweens.add({
+            targets: itemText,
+            scale: 1.0,
+            duration: 100
+          });
+        });
         
         itemText.on('pointerdown', () => {
           if (gameState.selectedItem === item) {
@@ -434,6 +481,20 @@ class GameScene extends Phaser.Scene {
     this.zoomContainer.add(closeBtn);
 
     drawCallback();
+
+    // Fade-in animation for all items in the zoom view
+    this.zoomContainer.list.forEach(item => {
+      if (item) {
+        const targetAlpha = item.alpha !== undefined ? item.alpha : 1;
+        item.alpha = 0;
+        this.tweens.add({
+          targets: item,
+          alpha: targetAlpha,
+          duration: 150,
+          ease: 'Quad.easeOut'
+        });
+      }
+    });
   }
 
   exitZoomView() {
@@ -450,59 +511,49 @@ class GameScene extends Phaser.Scene {
   updateDynamicGraphics() {
     this.compartmentGraphic.clear();
 
-    // Draw binoculars on the desk (desk hotspot is 790, 320, size 260 x 160)
-    if (gameState.currentView === 'south' && !gameState.solvedPuzzles.has('found_binoculars')) {
-      this.compartmentGraphic.fillStyle(0x2d3748, 1); // Dark blue-gray
-      this.compartmentGraphic.fillRect(780, 310, 10, 20);
-      this.compartmentGraphic.fillRect(795, 310, 10, 20);
-      this.compartmentGraphic.fillStyle(0x4a5568, 1);
-      this.compartmentGraphic.fillRect(790, 317, 5, 6);
-    }
 
-    // Draw book on East wall shelf (shelf hotspot is 150, 120, size 100 x 150)
+    // Draw book on East wall shelf (shelf hotspot is 75, 85)
     if (gameState.currentView === 'east' && !gameState.solvedPuzzles.has('found_trees_book')) {
       this.compartmentGraphic.fillStyle(0x276749, 1); // Forest green
-      this.compartmentGraphic.fillRect(140, 100, 20, 35);
+      this.compartmentGraphic.fillRect(65, 65, 20, 35);
       this.compartmentGraphic.fillStyle(0xf7fafc, 1);
-      this.compartmentGraphic.fillRect(142, 102, 16, 2);
+      this.compartmentGraphic.fillRect(67, 67, 16, 2);
     }
 
-    // Draw safe / rotated dartboard on the South View if solved
+    // Draw safe / rotated dartboard on the South View if solved (dartboard hotspot is 380, 205)
     if (gameState.currentView === 'south' && gameState.solvedPuzzles.has('dartboard_solved')) {
       // Draw safe compartment behind dartboard
       this.compartmentGraphic.fillStyle(0x1a1a1a, 1);
-      this.compartmentGraphic.fillRect(355, 150, 60, 60);
+      this.compartmentGraphic.fillRect(350, 155, 60, 60);
       this.compartmentGraphic.lineStyle(2, 0x555555, 1);
-      this.compartmentGraphic.strokeRect(355, 150, 60, 60);
+      this.compartmentGraphic.strokeRect(350, 155, 60, 60);
 
       if (gameState.solvedPuzzles.has('safe_unlocked')) {
         // Open safe
         this.compartmentGraphic.fillStyle(0x0a0a0a, 1);
-        this.compartmentGraphic.fillRect(358, 153, 54, 54);
+        this.compartmentGraphic.fillRect(353, 158, 54, 54);
         
         if (gameState.hasKeyInCompartment) {
           // Draw key inside
           this.compartmentGraphic.lineStyle(2, 0xc8b7a6, 1);
-          this.compartmentGraphic.strokeCircle(385, 175, 5);
-          this.compartmentGraphic.lineBetween(385, 180, 385, 195);
-          this.compartmentGraphic.lineBetween(385, 187, 389, 187);
-          this.compartmentGraphic.lineBetween(385, 192, 389, 192);
+          this.compartmentGraphic.strokeCircle(380, 180, 5);
+          this.compartmentGraphic.lineBetween(380, 185, 380, 200);
+          this.compartmentGraphic.lineBetween(380, 192, 384, 192);
+          this.compartmentGraphic.lineBetween(380, 197, 384, 197);
         }
       } else {
         // Closed safe (draw dial/keypad)
         this.compartmentGraphic.fillStyle(0x333333, 1);
-        this.compartmentGraphic.fillRect(360, 155, 50, 50);
+        this.compartmentGraphic.fillRect(355, 160, 50, 50);
         this.compartmentGraphic.fillStyle(0x111111, 1);
-        this.compartmentGraphic.fillRect(375, 170, 20, 20); // dial/keypad
+        this.compartmentGraphic.fillRect(370, 175, 20, 20); // dial/keypad
       }
 
-      // Draw rotated down dartboard hanging upside down under safe
-      this.compartmentGraphic.lineStyle(2, 0x8f7155, 0.8);
-      this.compartmentGraphic.fillStyle(0x0e0a08, 0.9);
-      this.compartmentGraphic.fillCircle(385, 245, 30);
-      this.compartmentGraphic.strokeCircle(385, 245, 30);
-      this.compartmentGraphic.strokeCircle(385, 245, 20);
-      this.compartmentGraphic.strokeCircle(385, 245, 10);
+      this.rotatedDartboardSprite.setVisible(true);
+    } else {
+      if (this.rotatedDartboardSprite) {
+        this.rotatedDartboardSprite.setVisible(false);
+      }
     }
   }
 
@@ -515,7 +566,7 @@ class GameScene extends Phaser.Scene {
     switch (gameState.currentView) {
       case 'north':
         // Hammock
-        this.addHotspot(200, 240, 250, 160, "Underneath the pillow, you find a sheet of paper.", () => {
+        this.addHotspot(260, 290, 370, 180, "Underneath the pillow, you find a sheet of paper.", () => {
           if (!gameState.solvedPuzzles.has('found_paper')) {
             gameState.solvedPuzzles.add('found_paper');
             this.addToInventory('origami_paper');
@@ -526,7 +577,7 @@ class GameScene extends Phaser.Scene {
         });
 
         // Bookshelves
-        this.addHotspot(900, 150, 100, 180, "A shelf full of books.", () => {
+        this.addHotspot(860, 180, 200, 260, "A shelf full of books.", () => {
           if (!gameState.solvedPuzzles.has('found_book')) {
             gameState.solvedPuzzles.add('found_book');
             this.addToInventory('origami_book');
@@ -537,17 +588,15 @@ class GameScene extends Phaser.Scene {
         });
 
         // Trunk (Decorative)
-        this.addHotspot(820, 340, 220, 140, "A sturdy wooden trunk. It is locked with a heavy brass padlock.", () => {
+        this.addHotspot(820, 370, 260, 140, "A sturdy wooden trunk. It is locked with a heavy brass padlock.", () => {
           this.showDialog("It's a heavy iron-banded trunk. The padlock is rusted shut and won't budge. There doesn't seem to be a way to open it.");
         });
         break;
 
       case 'east':
-        // Window
-        this.addHotspot(500, 170, 320, 320, "A large circular window looking out into the forest canopy. The sun is beginning to set, casting a golden glow.", null);
 
         // Trees Book Shelf (Top-Left Wall)
-        this.addHotspot(150, 120, 100, 150, "A small wooden shelf on the wall.", () => {
+        this.addHotspot(75, 85, 150, 130, "A small wooden shelf on the wall.", () => {
           if (!gameState.solvedPuzzles.has('found_trees_book')) {
             gameState.solvedPuzzles.add('found_trees_book');
             this.addToInventory('trees_book');
@@ -557,11 +606,23 @@ class GameScene extends Phaser.Scene {
             this.showDialog("A small wooden shelf on the wall.");
           }
         });
+
+        // Window Sill / Binoculars
+        this.addHotspot(605, 260, 60, 60, "On the window sill, you find a pair of binoculars.", () => {
+          if (!gameState.solvedPuzzles.has('found_binoculars')) {
+            gameState.solvedPuzzles.add('found_binoculars');
+            this.addToInventory('binoculars');
+            this.updateDynamicGraphics();
+            this.showDialog("On the window sill, you find a pair of binoculars.");
+          } else {
+            this.showDialog("Various plants sit on the window sill.");
+          }
+        });
         break;
 
       case 'south':
         // Exit Door
-        this.addHotspot(190, 250, 180, 320, "A heavy wooden door leading out of the treehouse. It is locked with a rusty old padlock.", () => {
+        this.addHotspot(185, 270, 230, 340, "A heavy wooden door leading out of the treehouse. It is locked with a rusty old padlock.", () => {
           if (gameState.solvedPuzzles.has('door_unlocked')) {
             this.triggerVictory();
           } else if (gameState.selectedItem === 'rusty_key') {
@@ -573,25 +634,18 @@ class GameScene extends Phaser.Scene {
           }
         });
 
-        // Writing Desk / Binoculars
-        this.addHotspot(790, 320, 260, 160, "A cozy writing desk with some inkwells and loose sheets of scrap paper.", () => {
-          if (!gameState.solvedPuzzles.has('found_binoculars')) {
-            gameState.solvedPuzzles.add('found_binoculars');
-            this.addToInventory('binoculars');
-            this.updateDynamicGraphics();
-            this.showDialog("On the corner of the writing desk, you find a pair of binoculars.");
-          } else {
-            this.showDialog("A cozy writing desk with some inkwells and loose sheets of scrap paper.");
-          }
+        // Writing Desk
+        this.addHotspot(780, 355, 360, 170, "A cozy writing desk with some inkwells and loose sheets of scrap paper.", () => {
+          this.showDialog("A cozy writing desk with some inkwells and loose sheets of scrap paper.");
         });
 
         // South Window
-        this.addHotspot(600, 150, 160, 200, "The window looks out into the forest canopy.", () => {
+        this.addHotspot(715, 190, 370, 180, "The window looks out into the forest canopy.", () => {
           this.inspectSouthWindow();
         });
 
         // Dartboard / Safe
-        this.addHotspot(385, 200, 100, 100, "A circular dartboard hanging on the wall.", () => {
+        this.addHotspot(380, 205, 120, 120, "A circular dartboard hanging on the wall.", () => {
           if (gameState.solvedPuzzles.has('dartboard_solved')) {
             if (gameState.solvedPuzzles.has('safe_unlocked')) {
               if (gameState.hasKeyInCompartment) {
@@ -639,31 +693,32 @@ class GameScene extends Phaser.Scene {
   inspectOrigamiPaper() {
     this.enterZoomView('origami_paper', () => {
       const paper = this.add.graphics();
-      paper.fillStyle(0xfefcf0, 1);
-      paper.fillRoundedRect(280, 60, 400, 300, 10);
-      paper.lineStyle(2, 0xd4a373, 1);
-      paper.strokeRoundedRect(280, 60, 400, 300, 10);
+      // Draw a plain square paper sheet in the center
+      paper.fillStyle(0xfaf6ee, 1);
+      paper.fillRect(330, 70, 300, 300);
+      paper.lineStyle(2, 0x8f7155, 1);
+      paper.strokeRect(330, 70, 300, 300);
 
-      // Doodles and fold lines
-      paper.lineStyle(1, 0xd4a373, 0.3);
-      paper.lineBetween(480, 60, 480, 360);
-      paper.lineBetween(280, 210, 680, 210);
-      
-      const title = this.add.text(480, 85, 'A sheet of paper', {
+      // Fold/crease lines
+      paper.lineStyle(1, 0x8f7155, 0.2);
+      paper.lineBetween(480, 70, 480, 370);
+      paper.lineBetween(330, 220, 630, 220);
+
+      const title = this.add.text(480, 45, 'A sheet of paper', {
         fontFamily: 'Playfair Display',
         fontSize: '20px',
-        fill: '#3d2b1f',
+        fill: '#f4eade',
         fontWeight: 'bold'
       }).setOrigin(0.5);
 
       // Scrambled numbers at different rotations and positions
       const nums = [
-        { text: '13', x: 340, y: 140, angle: 45 },
-        { text: '5', x: 380, y: 280, angle: 90 },
-        { text: '20', x: 600, y: 130, angle: -60 },
+        { text: '13', x: 380, y: 130, angle: 45 },
+        { text: '5', x: 390, y: 280, angle: 90 },
+        { text: '20', x: 570, y: 130, angle: -60 },
         { text: '8', x: 440, y: 170, angle: 120 },
         { text: '10', x: 520, y: 310, angle: 180 },
-        { text: '42', x: 620, y: 250, angle: 15 }
+        { text: '42', x: 580, y: 250, angle: 15 }
       ];
 
       const numObjects = nums.map(n => {
@@ -682,39 +737,10 @@ class GameScene extends Phaser.Scene {
   // --- ZOOM PUZZLE: ORIGAMI BOOK ---
   inspectOrigamiBook() {
     this.enterZoomView('origami_book', () => {
-      const book = this.add.graphics();
-      // Draw left page
-      book.fillStyle(0xfaf6ee, 1);
-      book.fillRoundedRect(200, 60, 270, 300, { tl: 10, bl: 10, tr: 0, br: 0 });
-      book.lineStyle(2, 0x8f7155, 1);
-      book.strokeRoundedRect(200, 60, 270, 300, { tl: 10, bl: 10, tr: 0, br: 0 });
-
-      // Draw right page
-      book.fillStyle(0xfaf6ee, 1);
-      book.fillRoundedRect(470, 60, 270, 300, { tl: 0, bl: 0, tr: 10, br: 10 });
-      book.strokeRoundedRect(470, 60, 270, 300, { tl: 0, bl: 0, tr: 10, br: 10 });
-
-      // Left page text
-      const title = this.add.text(335, 100, 'Origami Guide', {
-        fontFamily: 'Playfair Display',
-        fontSize: '22px',
-        fill: '#3d2b1f',
-        fontWeight: 'bold'
-      }).setOrigin(0.5);
-
-      const instructions = this.add.text(335, 200, 'Chapter 4:\nThe Paper Airplane', {
-        fontFamily: 'Outfit',
-        fontSize: '14px',
-        fill: '#5c4d3c',
-        align: 'center',
-        wordWrap: { width: 220 }
-      }).setOrigin(0.5);
-
-      // Right page drawing (Paper Airplane folding outline)
-      const outline = this.add.graphics();
-      outline.lineStyle(2, 0x8f7155, 0.6);
-      outline.strokeTriangle(520, 220, 680, 220, 600, 140);
-      outline.lineBetween(600, 140, 600, 220);
+      // Draw high-fidelity open origami book image
+      const bookImage = this.add.image(470, 210, 'open_origami_book')
+        .setDisplaySize(540, 360);
+      this.zoomContainer.add(bookImage);
 
       // Interactive folding zone on the right page
       const foldZone = this.add.rectangle(605, 210, 240, 280, 0xffffff, 0.0)
@@ -739,7 +765,7 @@ class GameScene extends Phaser.Scene {
         }
       });
 
-      this.zoomContainer.add([book, title, instructions, outline, foldZone]);
+      this.zoomContainer.add(foldZone);
     });
   }
 
@@ -786,16 +812,10 @@ class GameScene extends Phaser.Scene {
       }).setOrigin(0.5);
       this.zoomContainer.add(title);
 
-      // Draw standard dartboard rings
-      const db = this.add.graphics();
-      db.lineStyle(2, 0x8f7155, 1);
-      db.fillStyle(0x0e0a08, 1);
-      db.fillCircle(480, 220, 120);
-      db.strokeCircle(480, 220, 120);
-      db.strokeCircle(480, 220, 80);
-      db.strokeCircle(480, 220, 40);
-      db.strokeCircle(480, 220, 10);
-      this.zoomContainer.add(db);
+      // Draw high-fidelity dartboard image
+      const dbImage = this.add.image(480, 220, 'dartboard')
+        .setDisplaySize(240, 240);
+      this.zoomContainer.add(dbImage);
 
       // Dartboard standard numbers sequence clockwise from top
       const boardNumbers = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
@@ -807,18 +827,26 @@ class GameScene extends Phaser.Scene {
         const x = 480 + radius * Math.cos(angle);
         const y = 220 + radius * Math.sin(angle);
 
-        // Clickable number text
+        // Clickable overlay text over the visual numbers.
+        // It starts slightly transparent, and highlights fully on hover.
         const numText = this.add.text(x, y, num.toString(), {
           fontFamily: 'Outfit',
-          fontSize: '16px',
+          fontSize: '15px',
           fill: '#f4eade',
-          fontWeight: '600'
+          fontWeight: 'bold'
         })
         .setOrigin(0.5)
+        .setAlpha(0.6)
         .setInteractive({ useHandCursor: true });
 
-        numText.on('pointerover', () => numText.setStyle({ fill: '#d4a373', fontSize: '20px' }));
-        numText.on('pointerout', () => numText.setStyle({ fill: '#f4eade', fontSize: '16px' }));
+        numText.on('pointerover', () => {
+          numText.setStyle({ fill: '#d4a373', fontSize: '18px' });
+          numText.setAlpha(1.0);
+        });
+        numText.on('pointerout', () => {
+          numText.setStyle({ fill: '#f4eade', fontSize: '15px' });
+          numText.setAlpha(0.6);
+        });
 
         numText.on('pointerdown', () => {
           if (gameState.solvedPuzzles.has('dartboard_solved')) return;
@@ -853,58 +881,26 @@ class GameScene extends Phaser.Scene {
   // --- ADDITIONAL ZOOM PUZZLES: BOOK, WINDOW, BRANCHES, SAFE ---
   inspectTreesBook() {
     this.enterZoomView('trees_book', () => {
-      const book = this.add.graphics();
-      // Draw left page
-      book.fillStyle(0xfaf6ee, 1);
-      book.fillRoundedRect(200, 60, 270, 300, { tl: 10, bl: 10, tr: 0, br: 0 });
-      book.lineStyle(2, 0x8f7155, 1);
-      book.strokeRoundedRect(200, 60, 270, 300, { tl: 10, bl: 10, tr: 0, br: 0 });
+      // Draw high-fidelity open book image
+      const bookImage = this.add.image(470, 210, 'open_book')
+        .setDisplaySize(540, 360);
+      this.zoomContainer.add(bookImage);
 
-      // Draw right page
-      book.fillStyle(0xfaf6ee, 1);
-      book.fillRoundedRect(470, 60, 270, 300, { tl: 0, bl: 0, tr: 10, br: 10 });
-      book.strokeRoundedRect(470, 60, 270, 300, { tl: 0, bl: 0, tr: 10, br: 10 });
-
-      // Left page text
-      const title = this.add.text(335, 100, 'Trees of North America', {
-        fontFamily: 'Playfair Display',
-        fontSize: '20px',
-        fill: '#1a365d',
-        fontWeight: 'bold',
-        align: 'center',
-        wordWrap: { width: 220 }
-      }).setOrigin(0.5);
-
-      const intro = this.add.text(335, 200, 'An identification guide for common forest trees and their foliage features.', {
+      // Overlay page numbers next to visual tree labels on the page mockup
+      const numberStyle = {
         fontFamily: 'Outfit',
         fontSize: '13px',
-        fill: '#4a5568',
-        align: 'center',
-        wordWrap: { width: 220 }
-      }).setOrigin(0.5);
-
-      // Right page text: Page index table
-      const indexTitle = this.add.text(605, 95, 'Index of Common Trees', {
-        fontFamily: 'Playfair Display',
-        fontSize: '16px',
-        fill: '#1a365d',
+        fill: '#5c4d3c',
         fontWeight: 'bold'
-      }).setOrigin(0.5);
+      };
 
-      const indexText = this.add.text(605, 210, 
-        "Oak (Lobed Leaves) ........... Page 17\n\n" +
-        "White Pine (Needles) ......... Page 5\n\n" +
-        "Sugar Maple (Palmate) ........ Page 9\n\n" +
-        "Birch (Double Serrate) ....... Page 23\n\n" +
-        "Redwood (Scale-like) ......... Page 48", {
-        fontFamily: 'Outfit',
-        fontSize: '12px',
-        fill: '#2d3748',
-        align: 'left',
-        wordWrap: { width: 240 }
-      }).setOrigin(0.5);
+      const oakPage = this.add.text(260, 310, 'Page 17', numberStyle).setOrigin(0.5);
+      const birchPage = this.add.text(390, 310, 'Page 23', numberStyle).setOrigin(0.5);
+      const pinePage = this.add.text(560, 240, 'Page 5', numberStyle).setOrigin(0.5);
+      const maplePage = this.add.text(680, 240, 'Page 9', numberStyle).setOrigin(0.5);
+      const redwoodPage = this.add.text(630, 350, 'Page 48', numberStyle).setOrigin(0.5);
 
-      this.zoomContainer.add([book, title, intro, indexTitle, indexText]);
+      this.zoomContainer.add([oakPage, birchPage, pinePage, maplePage, redwoodPage]);
     });
   }
 
@@ -1003,189 +999,177 @@ class GameScene extends Phaser.Scene {
   inspectTreeBranch(viewName) {
     this.enterZoomView(viewName, () => {
       const card = this.add.graphics();
-      card.fillStyle(0xfefcf0, 1);
+      card.fillStyle(0xfaf6ee, 1);
       card.fillRoundedRect(280, 60, 400, 300, 10);
       card.lineStyle(2, 0xd4a373, 1);
       card.strokeRoundedRect(280, 60, 400, 300, 10);
 
       this.zoomContainer.add(card);
 
-      let titleText = '';
-      let descText = '';
-      
-      const branchGraphic = this.add.graphics();
-      branchGraphic.lineStyle(4, 0x718096, 1); // branch stem
+      let key = '';
+      if (viewName === 'oak_leaf_zoom') key = 'oak_leaf';
+      else if (viewName === 'white_pine_zoom') key = 'white_pine_needles';
+      else if (viewName === 'sugar_maple_zoom') key = 'sugar_maple_leaf';
 
-      if (viewName === 'oak_leaf_zoom') {
-        titleText = 'Oak Tree Zoom';
-        descText = 'Oak branch - Lobed leaves.\nRef: Page 17';
-        
-        branchGraphic.lineBetween(320, 280, 460, 180);
-        branchGraphic.fillStyle(0x2f855a, 1);
-        branchGraphic.fillCircle(400, 190, 20);
-        branchGraphic.fillCircle(420, 175, 15);
-        branchGraphic.fillCircle(440, 160, 10);
-        
-      } else if (viewName === 'white_pine_zoom') {
-        titleText = 'White Pine Zoom';
-        descText = 'White Pine branch - Needles in clusters of 5.\nRef: Page 5';
-        
-        branchGraphic.lineBetween(320, 280, 460, 180);
-        branchGraphic.lineStyle(1.5, 0x22543d, 1);
-        for (let i = 0; i < 5; i++) {
-          const angle = (i * 15 - 30) * (Math.PI / 180);
-          branchGraphic.lineBetween(400, 222, 400 + 40 * Math.cos(angle), 222 + 40 * Math.sin(angle));
-        }
-      } else if (viewName === 'sugar_maple_zoom') {
-        titleText = 'Sugar Maple Zoom';
-        descText = 'Sugar Maple branch - Palmate leaves.\nRef: Page 9';
-        
-        branchGraphic.lineBetween(320, 280, 460, 180);
-        branchGraphic.fillStyle(0xdd6b20, 1);
-        branchGraphic.fillTriangle(410, 210, 430, 185, 390, 190);
-        branchGraphic.fillTriangle(400, 220, 415, 175, 430, 210);
-      }
-
-      this.zoomContainer.add(branchGraphic);
-
-      const title = this.add.text(480, 90, titleText, {
-        fontFamily: 'Playfair Display',
-        fontSize: '22px',
-        fill: '#3d2b1f',
-        fontWeight: 'bold'
-      }).setOrigin(0.5);
-
-      const description = this.add.text(480, 310, descText, {
-        fontFamily: 'Outfit',
-        fontSize: '14px',
-        fill: '#5c4d3c',
-        align: 'center',
-        fontWeight: '600'
-      }).setOrigin(0.5);
-
-      this.zoomContainer.add([title, description]);
+      const leafImage = this.add.image(480, 210, key)
+        .setDisplaySize(280, 280);
+      this.zoomContainer.add(leafImage);
     }, () => this.inspectSouthWindow());
   }
 
   enterSafeInputView() {
     this.enterZoomView('safe_input', () => {
-      this.safeInputBuffer = '';
+      this.safeDials = [];
 
-      const keypadPanel = this.add.graphics();
-      keypadPanel.fillStyle(0x1a1512, 1);
-      keypadPanel.fillRoundedRect(320, 50, 320, 340, 10);
-      keypadPanel.lineStyle(3, 0x8f7155, 1);
-      keypadPanel.strokeRoundedRect(320, 50, 320, 340, 10);
+      const safePanel = this.add.graphics();
+      // Style the safe door to look like old rusted metal
+      safePanel.fillStyle(0x2b2522, 1);
+      safePanel.fillRoundedRect(320, 50, 320, 340, 10);
+      safePanel.lineStyle(4, 0x1b1512, 1);
+      safePanel.strokeRoundedRect(320, 50, 320, 340, 10);
+      
+      // Outer brass rivets
+      safePanel.fillStyle(0x8f7155, 1);
+      const rivets = [
+        {x: 335, y: 65}, {x: 625, y: 65},
+        {x: 335, y: 375}, {x: 625, y: 375},
+        {x: 335, y: 220}, {x: 625, y: 220}
+      ];
+      rivets.forEach(r => safePanel.fillCircle(r.x, r.y, 4));
 
-      keypadPanel.fillStyle(0x0e0a08, 1);
-      keypadPanel.fillRect(350, 75, 260, 45);
-      keypadPanel.strokeRect(350, 75, 260, 45);
+      this.zoomContainer.add(safePanel);
 
-      this.zoomContainer.add(keypadPanel);
-
-      const title = this.add.text(480, 35, 'ENTER SAFE CODE', {
-        fontFamily: 'Outfit',
-        fontSize: '12px',
-        fill: '#8f7155',
-        fontWeight: '600',
-        letterSpacing: 1.5
+      const title = this.add.text(480, 85, 'OLD DIAL SAFE', {
+        fontFamily: 'Playfair Display',
+        fontSize: '18px',
+        fill: '#d4a373',
+        fontWeight: 'bold',
+        letterSpacing: 2
       }).setOrigin(0.5);
       this.zoomContainer.add(title);
 
-      const displayText = this.add.text(480, 97, '----', {
+      const subtitle = this.add.text(480, 110, 'Click dials to rotate values', {
         fontFamily: 'Outfit',
-        fontSize: '28px',
-        fill: '#68d391',
-        letterSpacing: 6
+        fontSize: '11px',
+        fill: '#8f7155'
       }).setOrigin(0.5);
-      this.zoomContainer.add(displayText);
+      this.zoomContainer.add(subtitle);
 
-      const buttons = [
-        { label: '1', x: 380, y: 160 },
-        { label: '2', x: 480, y: 160 },
-        { label: '3', x: 580, y: 160 },
-        { label: '4', x: 380, y: 220 },
-        { label: '5', x: 480, y: 220 },
-        { label: '6', x: 580, y: 220 },
-        { label: '7', x: 380, y: 280 },
-        { label: '8', x: 480, y: 280 },
-        { label: '9', x: 580, y: 280 },
-        { label: 'C', x: 380, y: 340, color: '#e53e3e' },
-        { label: '0', x: 480, y: 340 },
-        { label: 'E', x: 580, y: 340, color: '#38a169' }
-      ];
+      // Create 4 rotary dials
+      const dialRadius = 25;
+      const dialSpacing = 68;
+      const startX = 480 - (dialSpacing * 1.5);
+      const dialY = 190;
 
-      buttons.forEach(btn => {
-        const btnBox = this.add.rectangle(btn.x, btn.y, 60, 40, 0x2d231e, 1)
-          .setInteractive({ useHandCursor: true });
+      for (let i = 0; i < 4; i++) {
+        const x = startX + i * dialSpacing;
+
+        // Dial base graphics (rotary circle)
+        const dialGraphics = this.add.graphics();
         
-        const btnText = this.add.text(btn.x, btn.y, btn.label, {
+        // Draw the indicator mark line
+        const drawDialIndicator = (val) => {
+          dialGraphics.clear();
+          // Draw dial outer border
+          dialGraphics.lineStyle(3, 0x8f7155, 1);
+          dialGraphics.fillStyle(0x1a1512, 1);
+          dialGraphics.fillCircle(x, dialY, dialRadius);
+          dialGraphics.strokeCircle(x, dialY, dialRadius);
+
+          // Draw tic marks around dial
+          dialGraphics.lineStyle(1.5, 0x8f7155, 0.5);
+          for (let tick = 0; tick < 10; tick++) {
+            const tickAngle = (tick * 36 - 90) * (Math.PI / 180);
+            const startR = dialRadius - 4;
+            const endR = dialRadius;
+            dialGraphics.lineBetween(
+              x + startR * Math.cos(tickAngle),
+              dialY + startR * Math.sin(tickAngle),
+              x + endR * Math.cos(tickAngle),
+              dialY + endR * Math.sin(tickAngle)
+            );
+          }
+
+          // Active indicator line
+          const angle = (val * 36 - 90) * (Math.PI / 180);
+          dialGraphics.lineStyle(3, 0xd4a373, 1);
+          dialGraphics.lineBetween(x, dialY, x + (dialRadius - 6) * Math.cos(angle), dialY + (dialRadius - 6) * Math.sin(angle));
+        };
+
+        drawDialIndicator(0);
+        this.zoomContainer.add(dialGraphics);
+
+        // Display value text in the center
+        const dialText = this.add.text(x, dialY, '0', {
           fontFamily: 'Outfit',
-          fontSize: '18px',
-          fill: btn.color || '#f4eade',
+          fontSize: '16px',
+          fill: '#f4eade',
           fontWeight: 'bold'
         }).setOrigin(0.5);
+        this.zoomContainer.add(dialText);
 
-        btnBox.on('pointerover', () => {
-          btnBox.setFillStyle(0x3e3029, 1);
+        // Create an interactive transparent hit zone over the dial
+        const hitZone = this.add.circle(x, dialY, dialRadius, 0xffffff, 0)
+          .setInteractive({ useHandCursor: true });
+        
+        hitZone.value = 0;
+        hitZone.index = i;
+
+        hitZone.on('pointerdown', () => {
+          hitZone.value = (hitZone.value + 1) % 10;
+          dialText.setText(hitZone.value);
+          drawDialIndicator(hitZone.value);
           this.updateCanvasCursor();
         });
-        btnBox.on('pointerout', () => btnBox.setFillStyle(0x2d231e, 1));
-        
-        btnBox.on('pointerdown', () => {
-          if (btn.label === 'C') {
-            this.safeInputBuffer = '';
-            displayText.setText('----');
-          } else if (btn.label === 'E') {
-            if (this.safeInputBuffer === '1759') {
-              gameState.solvedPuzzles.add('safe_unlocked');
-              this.updateDynamicGraphics();
-              this.showDialog("With a heavy mechanical click, the safe swings open, revealing a Rusty Old Key inside!");
-              this.exitZoomView();
-            } else {
-              this.safeInputBuffer = '';
-              displayText.setText('WRONG');
-              this.time.delayedCall(800, () => {
-                if (displayText.text === 'WRONG') displayText.setText('----');
-              });
-            }
-          } else {
-            if (this.safeInputBuffer.length < 4) {
-              this.safeInputBuffer += btn.label;
-              displayText.setText(this.safeInputBuffer.padEnd(4, '-'));
-            }
-          }
-        });
 
-        this.zoomContainer.add([btnBox, btnText]);
+        this.zoomContainer.add(hitZone);
+        this.safeDials.push(hitZone);
+      }
+
+      // Safe Lock Handle / Lever at the bottom
+      const handleBox = this.add.rectangle(480, 290, 140, 40, 0x8f7155, 1)
+        .setInteractive({ useHandCursor: true })
+        .setName('safe_handle');
+      
+      const handleText = this.add.text(480, 290, 'OPEN HANDLE', {
+        fontFamily: 'Outfit',
+        fontSize: '14px',
+        fill: '#1c1212',
+        fontWeight: 'bold'
+      }).setOrigin(0.5);
+
+      handleBox.on('pointerover', () => {
+        handleBox.setFillStyle(0xa38465, 1);
+        this.updateCanvasCursor();
       });
+      handleBox.on('pointerout', () => handleBox.setFillStyle(0x8f7155, 1));
+
+      handleBox.on('pointerdown', () => {
+        const combo = this.safeDials.map(d => d.value).join('');
+        if (combo === '1759') {
+          gameState.solvedPuzzles.add('safe_unlocked');
+          this.updateDynamicGraphics();
+          this.showDialog("With a heavy mechanical click, the safe swings open, revealing a Rusty Old Key inside!");
+          this.exitZoomView();
+        } else {
+          // Jiggle animation for the handle
+          this.tweens.add({
+            targets: [handleBox, handleText],
+            x: { from: 475, to: 480 },
+            duration: 50,
+            yoyo: true,
+            repeat: 3
+          });
+          this.showDialog("The handle won't budge. The dials must be in the wrong position.");
+        }
+      });
+
+      this.zoomContainer.add([handleBox, handleText]);
     });
   }
 
   updateCanvasCursor() {
-    if (gameState.selectedItem) {
-      let cursorStyle = 'default';
-      if (gameState.selectedItem === 'binoculars') {
-        cursorStyle = "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' style='font-size: 24px;'><text y='24'>🔭</text></svg>\") 16 16, pointer";
-      } else if (gameState.selectedItem === 'origami_paper') {
-        cursorStyle = "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' style='font-size: 24px;'><text y='24'>📄</text></svg>\") 16 16, pointer";
-      } else if (gameState.selectedItem === 'paper_airplane') {
-        cursorStyle = "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' style='font-size: 24px;'><text y='24'>✈️</text></svg>\") 16 16, pointer";
-      } else if (gameState.selectedItem === 'origami_book' || gameState.selectedItem === 'trees_book') {
-        cursorStyle = "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' style='font-size: 24px;'><text y='24'>📖</text></svg>\") 16 16, pointer";
-      } else if (gameState.selectedItem === 'rusty_key') {
-        cursorStyle = "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' style='font-size: 24px;'><text y='24'>🔑</text></svg>\") 16 16, pointer";
-      }
-      this.input.setDefaultCursor(cursorStyle);
-      if (this.game && this.game.canvas) {
-        this.game.canvas.style.cursor = cursorStyle;
-      }
-    } else {
-      this.input.setDefaultCursor('default');
-      if (this.game && this.game.canvas) {
-        this.game.canvas.style.cursor = 'default';
-      }
-    }
+    // Custom cursor styling disabled
   }
 
   // --- DYNAMIC GRAPHICS ---
@@ -1194,6 +1178,9 @@ class GameScene extends Phaser.Scene {
     this.leftArrow.setVisible(false);
     this.rightArrow.setVisible(false);
     this.zoomContainer.removeAll(true);
+    if (this.rotatedDartboardSprite) {
+      this.rotatedDartboardSprite.setVisible(false);
+    }
 
     const width = this.cameras.main.width;
     const height = this.cameras.main.height;

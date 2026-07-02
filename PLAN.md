@@ -26,14 +26,13 @@ graph TD
     A4 --> A5[Open Dartboard close-up view]
     A5 -->|Ref: Dartboard Spec| A6[Click Dartboard Sections: 13 -> 20 -> 10]
     A6 --> A7[Dartboard rotates down to reveal Locked Safe]
-    
-    %% Phase 3: Binoculars & Trees Puzzle
-    B1[Find Binoculars on South Desk] --> B3[Open South Window Zoom View]
+    # Phase 3: Binoculars & Trees Puzzle
+    B1[Find Binoculars on East Window Sill] --> B3[Open South Window Zoom View]
     B2[Find Trees Book on East Wall] --> B4[Correlate leaf shapes with Book pages]
     B3 -->|Use Binoculars to inspect trees| B4
     
     %% Unlocking Safe (Convergence of Phase 2 and Phase 3)
-    A7 --> B5[Enter code 1759 on Safe Keypad]
+    A7 --> B5[Set 4 dials to combo 1759 on Safe]
     B4 -->|Ref: Binoculars Spec| B5
     B5 --> B6[Safe opens and reveals Rusty Old Key]
     
@@ -64,18 +63,13 @@ For details on ideas and mechanics deferred to later phases, see [updates-for-la
 ## 🖼️ Environment & Views
 The game is a point-and-click escape room containing multiple navigation angles (views):
 *   **North (Cozy Corner):** Hammock (origami paper), bookshelves (origami guide), and a decorative wooden trunk.
-*   **East (The Window):** A large circular window looking out into the forest canopy, and a "Trees of North America" book on the top left wall.
-*   **South (The Desk & Wall):** Desk (binoculars), the south window, the dartboard (revealing the hidden safe behind it), and the locked exit door.
+*   **East (The Window):** A large circular window looking out into the forest canopy, the Binoculars sitting on the window sill, and a "Trees of North America" book on the top left wall.
+*   **South (The Desk & Wall):** A cozy writing desk, the south window, the dartboard (revealing the hidden safe behind it), and the locked exit door.
 
 ---
 
 ## 🖱️ Selected Item Cursors
-When an inventory item is active/selected (i.e. `gameState.selectedItem` is not null), the mouse cursor style updates to reflect that item:
-*   Selecting `binoculars` updates the cursor style to look like binoculars.
-*   Selecting `origami_paper` or `paper_airplane` updates the cursor to a paper sheet/airplane graphic.
-*   Selecting `trees_book` or `origami_book` updates the cursor to a book icon.
-*   Selecting `rusty_key` updates the cursor to a key.
-*   Deselecting the item or closing the zoom views resets the cursor to the default pointer/hand icon.
+Custom cursor overrides have been removed to ensure maximum compatibility in headless testing environments. The game uses standard browser pointers and hand cursors.
 
 ---
 

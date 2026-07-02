@@ -5,7 +5,7 @@ This document details the specifications for the third puzzle in the Treehouse E
 ---
 
 ## 📖 Description
-The player must collect the Binoculars from the desk in the South View and a "Trees of North America" book from the top left wall of the East View. 
+The player must collect the Binoculars from the window sill in the East View and a "Trees of North America" book from the top left wall of the East View. 
 
 Once the Dartboard Puzzle is solved, a locked Safe was revealed. Clicking the window in the South View opens a close-up (mini-scene) of the outdoor canopy showing three trees: Oak (left), White Pine (center), and Sugar Maple (right).
 
@@ -14,7 +14,7 @@ Selecting the Binoculars from the inventory changes the cursor to binoculars. Wh
 ---
 
 ## 🎒 Items & Props
-*   **Binoculars (`binoculars`):** Inventory item. Collected from the desk in the South View.
+*   **Binoculars (`binoculars`):** Inventory item. Collected from the window sill in the East View.
 *   **Trees of North America Book (`trees_book`):** Inventory item. Collected from the top-left wall of the East View. Inspecting it opens the Book Zoom View (displaying a placeholder illustration/text of leaf types).
 *   **South Window (South View):** An interactive hotspot. Clicking it opens the South Window Zoom View.
 *   **South Window Zoom View (`south_window_zoom`):** Opens a mini-scene showing a zoomed-in view of the outdoors with three trees:
@@ -28,18 +28,18 @@ Selecting the Binoculars from the inventory changes the cursor to binoculars. Wh
 ---
 
 ## 🖱️ Selected Item Cursors
-When an inventory item is active/selected (i.e., `gameState.selectedItem` is not null), the mouse cursor style updates to reflect that item:
-*   Selecting `binoculars` updates the cursor style to look like binoculars.
-*   Selecting `origami_paper` or `paper_airplane` updates the cursor to a paper sheet/airplane graphic.
-*   Selecting `trees_book` or `origami_book` updates the cursor to a book icon.
-*   Selecting `rusty_key` updates the cursor to a key.
+When a supported inventory item is active/selected (i.e. `gameState.selectedItem` is not null and is a supported item), the mouse cursor style updates to reflect that item everywhere on the game canvas, overriding default hover cursors:
+*   Selecting `binoculars` updates the cursor style to look like binoculars (`🔭`).
+*   Selecting `origami_paper` updates the cursor to a paper sheet graphic (`📄`).
+*   Selecting `rusty_key` updates the cursor to a key (`🔑`).
 *   Deselecting the item or closing the zoom views resets the cursor to the default pointer/hand icon.
+*   Other items (such as `paper_airplane`, `origami_book`, and `trees_book`) do not have custom cursor overrides and use standard cursor behavior.
 
 ---
 
 ## ⚙️ Logic & State
 *   **State Changes upon Collection:**
-    *   Clicking the South View Desk adds `'binoculars'` to `gameState.inventory`.
+    *   Clicking the East View Window Sill adds `'binoculars'` to `gameState.inventory`.
     *   Clicking the East View top-left wall adds `'trees_book'` to `gameState.inventory`.
 *   **Window Interaction:**
     *   Clicking the South Window hotspot opens `gameState.zoomView = 'south_window_zoom'`.
@@ -57,9 +57,9 @@ The implementation will be verified through E2E tests in a new or updated test f
 
 ### Test Case: Binoculars Puzzle
 1.  **Collect Items:**
-    *   *Action:* Go to South View, click the desk (coordinates: `790, 320`).
+    *   *Action:* Go to East View, click the window sill (coordinates: `605, 260`).
     *   *Expected:* `binoculars` added to `inventory`.
-    *   *Action:* Go to East View, click the top left wall (coordinates: `150, 120`).
+    *   *Action:* Go to East View, click the top left wall (coordinates: `75, 85`).
     *   *Expected:* `trees_book` added to `inventory`.
 2.  **Verify Custom Cursor:**
     *   *Action:* Select `binoculars` from the inventory.
@@ -83,7 +83,7 @@ The implementation will be verified through E2E tests in a new or updated test f
 7.  **Unlock Safe:**
     *   *Action:* Solve Dartboard puzzle to reveal Safe. Click Safe (coordinates: `385, 200`).
     *   *Expected:* `zoomView` is set to `'safe_input'`.
-    *   *Action:* Input code `1759`.
+    *   *Action:* Click each of the 4 dials to set them to digits `1`, `7`, `5`, `9` respectively, then click the open handle.
     *   *Expected:* `solvedPuzzles` contains `'safe_unlocked'`, zoom view closes, and safe compartment is shown open.
 8.  **Collect Key:**
     *   *Action:* Click the open safe (coordinates: `385, 200`).

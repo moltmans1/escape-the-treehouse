@@ -14,7 +14,7 @@ The player must inspect the dartboard in the South View and click standard dartb
 *   **Paper Airplane (`paper_airplane`):** Inventory item containing the clue.
 *   **Locked Safe:** A secret safe built behind the dartboard. Displays once the puzzle is solved. The graphic should update to show the dartboard rotated down to reveal the safe behind it (i.e., the dartboard will be upside down, rotated around the bottom edge of the original dartboard position).
 *   **Hidden Safe (South View):** Revealed behind the dartboard once the dartboard puzzle is solved. Clicking it opens the Safe Input Zoom View.
-*   **Safe Input Zoom View (`safe_input`):** A keypad or input lock interface taking a 4-digit code.
+*   **Safe Input Zoom View (`safe_input`):** An old-fashioned lock interface featuring 4 rotary dials (each from 0 to 9) and a handle/lever to open the safe.
 *   **Rusty Old Key (`rusty_key`):** The key hidden inside the safe, used to open the exit door.
 ---
 
@@ -31,7 +31,7 @@ The player must inspect the dartboard in the South View and click standard dartb
     *   `paper_airplane` is removed from `gameState.inventory`.
     **Safe Interaction:**
     *   Once the safe is revealed (after `gameState.solvedPuzzles` contains `'dartboard_solved'`), clicking the safe opens `gameState.zoomView = 'safe_input'`.
-    *   Entering the code `1759` transitions the state:
+    *   Setting the 4 dials to `1`, `7`, `5`, `9` respectively and clicking the safe handle/lever transitions the state:
         *   `gameState.solvedPuzzles` receives `'safe_unlocked'`.
         *   The safe graphics update to "Open Safe".
         *   `gameState.zoomView` is set to `null` (closes).
