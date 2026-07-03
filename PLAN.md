@@ -76,32 +76,36 @@ Custom cursor overrides have been removed to ensure maximum compatibility in hea
 ## 🛠️ Technical Stack & Architecture
 
 ### Tech Stack
-*   **Engine:** Phaser 3 (for canvas rendering, input handling, and assets).
+*   **Decoupled Logic Core:** Platform-agnostic JavaScript state and rule evaluator.
+*   **Rendering Shell:** Phaser 3 (handles asset loading, rendering, animations, and inputs).
 *   **Build Tool:** Vite (for development server and production build).
-*   **Testing:** Playwright (for E2E verification of state and UI flows).
+*   **Testing:** Playwright (E2E verification of UI flows) + Vitest (headless unit testing of logic).
 *   **Styling:** Vanilla CSS.
 
 ### Key Files
-*   **Code base:** [src/main.js](file:///home/moltmans/escape-the-treehouse/src/main.js) (contains all scenes, layout, game loop, and event handling).
-*   **Style sheet:** [src/style.css](file:///home/moltmans/escape-the-treehouse/src/style.css) (custom Outfit/Playfair fonts and page layout).
-*   **E2E Tests:** [tests/escape.spec.js](file:///home/moltmans/escape-the-treehouse/tests/escape.spec.js) (fully automates the walkthrough and state assertions).
+*   **Headless State:** [src/engine/StateManager.js](file:///home/moltmans/escape-the-treehouse/src/engine/StateManager.js) (maintains state, emits events, executes action commands).
+*   **Logic Interpreter:** [src/engine/Interpreter.js](file:///home/moltmans/escape-the-treehouse/src/engine/Interpreter.js) (evaluates logic rules headlessly).
+*   **Game Configuration:** [src/game/treehouse.config.js](file:///home/moltmans/escape-the-treehouse/src/game/treehouse.config.js) (hotspots, dimensions, views, interaction chains, minigame criteria).
+*   **Visual Interface:** [src/main.js](file:///home/moltmans/escape-the-treehouse/src/main.js) (Phaser-specific rendering engine, animations, and input listeners).
+*   **Style sheet:** [src/style.css](file:///home/moltmans/escape-the-treehouse/src/style.css).
+*   **Unit Tests:** [tests/engine.test.js](file:///home/moltmans/escape-the-treehouse/tests/engine.test.js) (headless logic verifications).
+*   **E2E Tests:** [tests/escape.spec.js](file:///home/moltmans/escape-the-treehouse/tests/escape.spec.js) (full walkthrough and interface assertions).
 
 ---
 
-## 💾 Global Game State Structure
-For reference during development sessions, here is the structure of the `gameState` object managed in [src/main.js](file:///home/moltmans/escape-the-treehouse/src/main.js#L4-L16):
+## 💾 Decoupled Game State Structure
+For reference during development, game state is stored inside `stateManager.state`. A window-level compatibility proxy `window.__gameState` maps directly to this structure in [src/main.js](file:///home/moltmans/escape-the-treehouse/src/main.js):
 
 ```javascript
-const gameState = {
-  inventory: [],               // Array of strings (e.g., 'origami_paper', 'origami_book', 'paper_airplane', 'binoculars', 'trees_book', 'rusty_key')
+const state = {
+  inventory: [],               // Array of strings (e.g., 'origami_paper', 'origami_book')
   selectedItem: null,          // String representing the active selected inventory item (or null)
-  solvedPuzzles: new Set(),    // Set containing tags of solved puzzles (e.g., 'dartboard_solved', 'safe_unlocked', 'door_unlocked')
+  solvedPuzzles: new Set(),    // Set containing flags (e.g., 'dartboard_solved', 'safe_unlocked', 'found_paper')
   currentView: 'north',        // Active view: 'north', 'east', 'south'
   zoomView: null,              // Active zoom view identifier (or null if looking at main room)
   dialogText: '',              // Dialogue text displayed in the message box
   dialogActive: false,         // Boolean indicating whether a dialog box is overlaying interaction
-  dartboardSequence: [],       // Array storing current dartboard click sequences (e.g., [13, 20])
-  hasKeyInCompartment: true    // Boolean indicating if the rusty_key is still inside the safe/compartment
+  hasKeyInCompartment: true    // Boolean indicating if the rusty_key is still inside the safe
 };
 ```
 
@@ -109,10 +113,14 @@ const gameState = {
 
 ## 🧪 Testing & Verification commands
 
-To verify that the current implementation of all specifications remains fully functional, run:
-
+To run all unit tests for the headless core engine:
 ```bash
-npm run test
+npm run test:unit
+```
+
+To verify the full point-and-click walkthrough using E2E Playwright:
+```bash
+npm run test:e2e
 ```
 
 Or run individual Playwright UI tests:

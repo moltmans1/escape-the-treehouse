@@ -1,21 +1,39 @@
 import Phaser from 'phaser';
+import { StateManager } from './engine/StateManager.js';
+import { Interpreter } from './engine/Interpreter.js';
+import { TreehouseConfig } from './game/treehouse.config.js';
 
-// Global Game State
+// Instantiate core engine
+const stateManager = new StateManager();
+const interpreter = new Interpreter(stateManager);
+
+// Global Game State Proxy/Wrapper for compatibility
 const gameState = {
-  inventory: [],
-  selectedItem: null,
-  solvedPuzzles: new Set(),
-  currentView: 'north', // 'north', 'east', 'south'
-  zoomView: null,       // null or name of zoomed-in view
-  dialogText: '',
-  dialogActive: false,
+  get inventory() { return stateManager.state.inventory; },
+  set inventory(v) { stateManager.state.inventory = v; },
   
-  // Puzzle-specific states
-  dartboardSequence: [], // Player's click sequence on the dartboard
-  hasKeyInCompartment: true
-};
+  get selectedItem() { return stateManager.state.selectedItem; },
+  set selectedItem(v) { stateManager.state.selectedItem = v; },
+  
+  get solvedPuzzles() { return stateManager.state.solvedPuzzles; },
+  
+  get currentView() { return stateManager.state.currentView; },
+  set currentView(v) { stateManager.state.currentView = v; },
+  
+  get zoomView() { return stateManager.state.zoomView; },
+  set zoomView(v) { stateManager.state.zoomView = v; },
+  
+  get dialogText() { return stateManager.state.dialogText; },
+  set dialogText(v) { stateManager.state.dialogText = v; },
+  
+  get dialogActive() { return stateManager.state.dialogActive; },
+  set dialogActive(v) { stateManager.state.dialogActive = v; },
+  
+  get hasKeyInCompartment() { return stateManager.state.hasKeyInCompartment; },
+  set hasKeyInCompartment(v) { stateManager.state.hasKeyInCompartment = v; },
 
-const DARTBOARD_CORRECT_SEQUENCE = [13, 20, 10];
+  dartboardSequence: []
+};
 
 // --- BOOT SCENE ---
 class BootScene extends Phaser.Scene {
@@ -142,14 +160,8 @@ class MainMenuScene extends Phaser.Scene {
     startButton.on('pointerdown', () => {
       window.__mainMenuReady = false;
       window.__gameReady = false;
-      // Reset game state
-      gameState.inventory = [];
-      gameState.selectedItem = null;
-      gameState.solvedPuzzles.clear();
-      gameState.currentView = 'north';
-      gameState.zoomView = null;
+      stateManager.reset();
       gameState.dartboardSequence = [];
-      gameState.hasKeyInCompartment = true;
       this.scene.start('GameScene');
     });
 
@@ -216,11 +228,27 @@ class GameScene extends Phaser.Scene {
       .setDepth(2);
 
 
+    // Clear previous listeners to avoid duplicates on restart
+    stateManager.listeners = {};
+
+    // Register engine event listeners
+    stateManager.on('state_changed', (state) => {
+      this.handleStateChanged(state);
+    });
+
+    stateManager.on('inventory_changed', () => {
+      this.updateInventoryUI();
+    });
+
+    stateManager.on('actions_executed', (actions) => {
+      this.handleActionsExecuted(actions);
+    });
+
     this.updateHotspots();
     this.updateDynamicGraphics();
 
     // Start dialogue
-    this.showDialog("You wake up in a cozy, sunlit treehouse. The wind rustles the leaves outside. The door is locked, and the ladder down is nowhere to be seen. You need to find another way down.");
+    stateManager.showDialog("You wake up in a cozy, sunlit treehouse. The wind rustles the leaves outside. The door is locked, and the ladder down is nowhere to be seen. You need to find another way down.");
     window.__gameReady = true;
   }
 
@@ -262,16 +290,16 @@ class GameScene extends Phaser.Scene {
   }
 
   rotateRoom(direction) {
-    if (gameState.dialogActive || gameState.zoomView) return;
+    if (stateManager.state.dialogActive || stateManager.state.zoomView) return;
 
     const views = ['north', 'east', 'south'];
-    let index = views.indexOf(gameState.currentView);
+    let index = views.indexOf(stateManager.state.currentView);
     index = (index + direction + views.length) % views.length;
-    gameState.currentView = views[index];
+    stateManager.setView(views[index]);
 
     this.cameras.main.fadeOut(150, 18, 14, 10);
     this.cameras.main.once('camerafadeoutcomplete', () => {
-      this.bg.setTexture(`bg_${gameState.currentView}`);
+      this.bg.setTexture(`bg_${stateManager.state.currentView}`);
       this.bg.setDisplaySize(960, 440);
       this.updateHotspots();
       this.updateDynamicGraphics();
@@ -312,17 +340,11 @@ class GameScene extends Phaser.Scene {
   }
 
   addToInventory(itemId) {
-    if (gameState.inventory.includes(itemId)) return;
-    gameState.inventory.push(itemId);
-    this.updateInventoryUI();
+    stateManager.addItem(itemId);
   }
 
   removeFromInventory(itemId) {
-    gameState.inventory = gameState.inventory.filter(item => item !== itemId);
-    if (gameState.selectedItem === itemId) {
-      gameState.selectedItem = null;
-    }
-    this.updateInventoryUI();
+    stateManager.removeItem(itemId);
   }
 
   updateInventoryUI() {
@@ -334,7 +356,7 @@ class GameScene extends Phaser.Scene {
       slot.item = null;
     });
 
-    gameState.inventory.forEach((item, idx) => {
+    stateManager.state.inventory.forEach((item, idx) => {
       if (idx < this.inventorySlots.length) {
         const slot = this.inventorySlots[idx];
         slot.item = item;
@@ -348,8 +370,8 @@ class GameScene extends Phaser.Scene {
           fontFamily: 'Outfit',
           fontSize: '10px',
           fill: '#f4eade',
-          backgroundColor: (gameState.selectedItem === item) ? '#d4a373' : '#3d2b1f',
-          color: (gameState.selectedItem === item) ? '#12100e' : '#f4eade',
+          backgroundColor: (stateManager.state.selectedItem === item) ? '#d4a373' : '#3d2b1f',
+          color: (stateManager.state.selectedItem === item) ? '#12100e' : '#f4eade',
           align: 'center',
           padding: { x: 5, y: 5 },
           wordWrap: { width: 50 }
@@ -373,17 +395,13 @@ class GameScene extends Phaser.Scene {
         });
         
         itemText.on('pointerdown', () => {
-          if (gameState.selectedItem === item) {
-            gameState.selectedItem = null;
-            this.updateInventoryUI();
-          } else {
-            gameState.selectedItem = item;
-            this.updateInventoryUI();
-            
-            // Inspect item ONLY if no zoom view is currently active.
-            // If a zoom view (like the book) is open, clicking another item (like the paper)
-            // should ONLY select it to allow combining, and NOT trigger its own zoom view.
-            if (!gameState.zoomView) {
+          stateManager.selectItem(item);
+          
+          // Inspect item ONLY if no zoom view is currently active.
+          // If a zoom view (like the book) is open, clicking another item (like the paper)
+          // should ONLY select it to allow combining, and NOT trigger its own zoom view.
+          if (!stateManager.state.zoomView) {
+            if (stateManager.state.selectedItem === item) {
               if (item === 'origami_paper') {
                 this.inspectOrigamiPaper();
               } else if (item === 'origami_book') {
@@ -429,31 +447,16 @@ class GameScene extends Phaser.Scene {
   }
 
   showDialog(text) {
-    gameState.dialogText = text;
-    gameState.dialogActive = true;
-    
-    this.dialogTxt.setText(text);
-    this.dialogBg.setVisible(true);
-    this.dialogTxt.setVisible(true);
-
-    this.leftArrow.setVisible(false);
-    this.rightArrow.setVisible(false);
+    stateManager.showDialog(text);
   }
 
   hideDialog() {
-    gameState.dialogActive = false;
-    this.dialogBg.setVisible(false);
-    this.dialogTxt.setVisible(false);
-
-    if (!gameState.zoomView) {
-      this.leftArrow.setVisible(true);
-      this.rightArrow.setVisible(true);
-    }
+    stateManager.hideDialog();
   }
 
   // --- ZOOM VIEWS ---
   enterZoomView(viewName, drawCallback, closeCallback) {
-    gameState.zoomView = viewName;
+    stateManager.setZoomView(viewName);
     this.leftArrow.setVisible(false);
     this.rightArrow.setVisible(false);
 
@@ -487,7 +490,7 @@ class GameScene extends Phaser.Scene {
       if (item) {
         const targetAlpha = item.alpha !== undefined ? item.alpha : 1;
         item.alpha = 0;
-        this.tweens.add({
+         this.tweens.add({
           targets: item,
           alpha: targetAlpha,
           duration: 150,
@@ -498,7 +501,7 @@ class GameScene extends Phaser.Scene {
   }
 
   exitZoomView() {
-    gameState.zoomView = null;
+    stateManager.setZoomView(null);
     this.zoomContainer.removeAll(true);
     this.updateHotspots();
     this.updateCanvasCursor();
@@ -513,7 +516,7 @@ class GameScene extends Phaser.Scene {
 
 
     // Draw book on East wall shelf (shelf hotspot is 75, 85)
-    if (gameState.currentView === 'east' && !gameState.solvedPuzzles.has('found_trees_book')) {
+    if (stateManager.state.currentView === 'east' && !stateManager.hasFlag('found_trees_book')) {
       this.compartmentGraphic.fillStyle(0x276749, 1); // Forest green
       this.compartmentGraphic.fillRect(65, 65, 20, 35);
       this.compartmentGraphic.fillStyle(0xf7fafc, 1);
@@ -521,19 +524,19 @@ class GameScene extends Phaser.Scene {
     }
 
     // Draw safe / rotated dartboard on the South View if solved (dartboard hotspot is 380, 205)
-    if (gameState.currentView === 'south' && gameState.solvedPuzzles.has('dartboard_solved')) {
+    if (stateManager.state.currentView === 'south' && stateManager.hasFlag('dartboard_solved')) {
       // Draw safe compartment behind dartboard
       this.compartmentGraphic.fillStyle(0x1a1a1a, 1);
       this.compartmentGraphic.fillRect(350, 155, 60, 60);
       this.compartmentGraphic.lineStyle(2, 0x555555, 1);
       this.compartmentGraphic.strokeRect(350, 155, 60, 60);
 
-      if (gameState.solvedPuzzles.has('safe_unlocked')) {
+      if (stateManager.hasFlag('safe_unlocked')) {
         // Open safe
         this.compartmentGraphic.fillStyle(0x0a0a0a, 1);
         this.compartmentGraphic.fillRect(353, 158, 54, 54);
         
-        if (gameState.hasKeyInCompartment) {
+        if (stateManager.state.hasKeyInCompartment) {
           // Draw key inside
           this.compartmentGraphic.lineStyle(2, 0xc8b7a6, 1);
           this.compartmentGraphic.strokeCircle(380, 180, 5);
@@ -561,109 +564,17 @@ class GameScene extends Phaser.Scene {
   updateHotspots() {
     this.hotspots.clear(true, true);
 
-    if (gameState.zoomView) return;
+    if (stateManager.state.zoomView) return;
 
-    switch (gameState.currentView) {
-      case 'north':
-        // Hammock
-        this.addHotspot(260, 290, 370, 180, "Underneath the pillow, you find a sheet of paper.", () => {
-          if (!gameState.solvedPuzzles.has('found_paper')) {
-            gameState.solvedPuzzles.add('found_paper');
-            this.addToInventory('origami_paper');
-            this.showDialog("Underneath the pillow, you find a sheet of paper.");
-          } else {
-            this.showDialog("A comfortable hammock. There's nothing else under the pillow.");
-          }
+    const currentViewConfig = TreehouseConfig.views[stateManager.state.currentView];
+    if (currentViewConfig && currentViewConfig.hotspots) {
+      currentViewConfig.hotspots.forEach(hotspot => {
+        const [x, y, w, h] = hotspot.rect;
+        this.addHotspot(x, y, w, h, null, () => {
+          const actions = interpreter.evaluateInteraction(hotspot.interactions);
+          stateManager.executeActions(actions);
         });
-
-        // Bookshelves
-        this.addHotspot(860, 180, 200, 260, "A shelf full of books.", () => {
-          if (!gameState.solvedPuzzles.has('found_book')) {
-            gameState.solvedPuzzles.add('found_book');
-            this.addToInventory('origami_book');
-            this.showDialog("You search the bookshelves and find an Origami Guide.");
-          } else {
-            this.showDialog("Various novels and guides about forest lore.");
-          }
-        });
-
-        // Trunk (Decorative)
-        this.addHotspot(820, 370, 260, 140, "A sturdy wooden trunk. It is locked with a heavy brass padlock.", () => {
-          this.showDialog("It's a heavy iron-banded trunk. The padlock is rusted shut and won't budge. There doesn't seem to be a way to open it.");
-        });
-        break;
-
-      case 'east':
-
-        // Trees Book Shelf (Top-Left Wall)
-        this.addHotspot(75, 85, 150, 130, "A small wooden shelf on the wall.", () => {
-          if (!gameState.solvedPuzzles.has('found_trees_book')) {
-            gameState.solvedPuzzles.add('found_trees_book');
-            this.addToInventory('trees_book');
-            this.updateDynamicGraphics();
-            this.showDialog("On a small wooden shelf on the wall, you find a book titled 'Trees of North America'.");
-          } else {
-            this.showDialog("A small wooden shelf on the wall.");
-          }
-        });
-
-        // Window Sill / Binoculars
-        this.addHotspot(605, 260, 60, 60, "On the window sill, you find a pair of binoculars.", () => {
-          if (!gameState.solvedPuzzles.has('found_binoculars')) {
-            gameState.solvedPuzzles.add('found_binoculars');
-            this.addToInventory('binoculars');
-            this.updateDynamicGraphics();
-            this.showDialog("On the window sill, you find a pair of binoculars.");
-          } else {
-            this.showDialog("Various plants sit on the window sill.");
-          }
-        });
-        break;
-
-      case 'south':
-        // Exit Door
-        this.addHotspot(185, 270, 230, 340, "A heavy wooden door leading out of the treehouse. It is locked with a rusty old padlock.", () => {
-          if (gameState.solvedPuzzles.has('door_unlocked')) {
-            this.triggerVictory();
-          } else if (gameState.selectedItem === 'rusty_key') {
-            gameState.solvedPuzzles.add('door_unlocked');
-            this.removeFromInventory('rusty_key');
-            this.showDialog("You insert the rusty old key into the padlock. With a heavy creak, the lock snaps open and the door swings open! Click again to exit.");
-          } else {
-            this.showDialog("The exit door is locked tight. The padlock is extremely old and rusty.");
-          }
-        });
-
-        // Writing Desk
-        this.addHotspot(780, 355, 360, 170, "A cozy writing desk with some inkwells and loose sheets of scrap paper.", () => {
-          this.showDialog("A cozy writing desk with some inkwells and loose sheets of scrap paper.");
-        });
-
-        // South Window
-        this.addHotspot(715, 190, 370, 180, "The window looks out into the forest canopy.", () => {
-          this.inspectSouthWindow();
-        });
-
-        // Dartboard / Safe
-        this.addHotspot(380, 205, 120, 120, "A circular dartboard hanging on the wall.", () => {
-          if (gameState.solvedPuzzles.has('dartboard_solved')) {
-            if (gameState.solvedPuzzles.has('safe_unlocked')) {
-              if (gameState.hasKeyInCompartment) {
-                gameState.hasKeyInCompartment = false;
-                this.addToInventory('rusty_key');
-                this.updateDynamicGraphics();
-                this.showDialog("You pick up the Rusty Old Key from the open safe.");
-              } else {
-                this.showDialog("The safe is open and empty.");
-              }
-            } else {
-              this.enterSafeInputView();
-            }
-          } else {
-            this.enterDartboardView();
-          }
-        });
-        break;
+      });
     }
   }
 
@@ -678,7 +589,7 @@ class GameScene extends Phaser.Scene {
     rect.on('pointerout', () => rect.setFillStyle(0xffffff, 0.0));
     
     rect.on('pointerdown', () => {
-      if (gameState.dialogActive || gameState.zoomView) return;
+      if (stateManager.state.dialogActive || stateManager.state.zoomView) return;
       if (callback) {
         callback();
       } else if (description) {
@@ -687,6 +598,62 @@ class GameScene extends Phaser.Scene {
     });
 
     this.hotspots.add(rect);
+  }
+
+  handleStateChanged(state) {
+    if (state.dialogActive) {
+      this.dialogTxt.setText(state.dialogText);
+      this.dialogBg.setVisible(true);
+      this.dialogTxt.setVisible(true);
+      this.leftArrow.setVisible(false);
+      this.rightArrow.setVisible(false);
+    } else {
+      this.dialogBg.setVisible(false);
+      this.dialogTxt.setVisible(false);
+      if (!state.zoomView) {
+        this.leftArrow.setVisible(true);
+        this.rightArrow.setVisible(true);
+      }
+    }
+    this.updateDynamicGraphics();
+  }
+
+  handleActionsExecuted(actions) {
+    actions.forEach(action => {
+      const splitIdx = action.indexOf(':');
+      let command = action;
+      let arg = '';
+      if (splitIdx !== -1) {
+        command = action.substring(0, splitIdx).trim();
+        arg = action.substring(splitIdx + 1).trim();
+      }
+      
+      switch (command) {
+        case 'OPEN_ZOOM_VIEW':
+          if (arg === 'south_window_zoom') this.inspectSouthWindow();
+          else if (arg === 'safe_input') this.enterSafeInputView();
+          else if (arg === 'dartboard_view') this.enterDartboardView();
+          break;
+        case 'LAUNCH_MINIGAME':
+          if (arg === 'open_safe_compartment') {
+            if (stateManager.state.hasKeyInCompartment) {
+              stateManager.state.hasKeyInCompartment = false;
+              stateManager.addItem('rusty_key');
+              this.updateDynamicGraphics();
+              stateManager.showDialog("You pick up the Rusty Old Key from the open safe.");
+            } else {
+              stateManager.showDialog("The safe is open and empty.");
+            }
+          }
+          break;
+        case 'TRIGGER_WIN':
+          this.triggerVictory();
+          break;
+        case 'REFRESH_GRAPHICS':
+          this.updateDynamicGraphics();
+          break;
+      }
+    });
   }
 
   // --- ZOOM PUZZLE: UNFOLDED ORIGAMI PAPER ---
@@ -750,18 +717,18 @@ class GameScene extends Phaser.Scene {
       foldZone.on('pointerout', () => foldZone.setFillStyle(0xffffff, 0.0));
       
       foldZone.on('pointerdown', () => {
-        if (gameState.selectedItem === 'origami_paper') {
+        if (stateManager.state.selectedItem === 'origami_paper') {
           // Perform folding
-          this.removeFromInventory('origami_paper');
-          this.removeFromInventory('origami_book');
-          this.addToInventory('paper_airplane');
+          stateManager.removeItem('origami_paper');
+          stateManager.removeItem('origami_book');
+          stateManager.addItem('paper_airplane');
           
           // Instantly transition to the Paper Airplane Zoom View
           this.inspectPaperAirplane();
           
-          this.showDialog("Using the instructions in the book, you fold the paper into a neat Paper Airplane!");
+          stateManager.showDialog("Using the instructions in the book, you fold the paper into a neat Paper Airplane!");
         } else {
-          this.showDialog("You need to select the sheet of paper in your inventory first to fold it here.");
+          stateManager.showDialog("You need to select the sheet of paper in your inventory first to fold it here.");
         }
       });
 
@@ -849,21 +816,19 @@ class GameScene extends Phaser.Scene {
         });
 
         numText.on('pointerdown', () => {
-          if (gameState.solvedPuzzles.has('dartboard_solved')) return;
+          if (stateManager.hasFlag('dartboard_solved')) return;
 
           gameState.dartboardSequence.push(num);
           this.showDialog(`You click on segment: ${num}.`);
 
+          const minigameConfig = TreehouseConfig.minigames.dartboard_view;
           // Check sequence
           const seqLen = gameState.dartboardSequence.length;
-          const targetSeq = DARTBOARD_CORRECT_SEQUENCE.slice(0, seqLen);
+          const targetSeq = minigameConfig.target.slice(0, seqLen);
 
           if (gameState.dartboardSequence.every((val, i) => val === targetSeq[i])) {
-            if (seqLen === DARTBOARD_CORRECT_SEQUENCE.length) {
-              gameState.solvedPuzzles.add('dartboard_solved');
-              this.removeFromInventory('paper_airplane');
-              this.updateDynamicGraphics();
-              this.showDialog("With a soft click, a secret compartment slides open behind the dartboard, revealing a Rusty Old Key.");
+            if (seqLen === minigameConfig.target.length) {
+              stateManager.executeActions(minigameConfig.onSuccess);
               this.exitZoomView();
             }
           } else {
@@ -1146,10 +1111,9 @@ class GameScene extends Phaser.Scene {
 
       handleBox.on('pointerdown', () => {
         const combo = this.safeDials.map(d => d.value).join('');
-        if (combo === '1759') {
-          gameState.solvedPuzzles.add('safe_unlocked');
-          this.updateDynamicGraphics();
-          this.showDialog("With a heavy mechanical click, the safe swings open, revealing a Rusty Old Key inside!");
+        const minigameConfig = TreehouseConfig.minigames.safe_input;
+        if (combo === minigameConfig.combination) {
+          stateManager.executeActions(minigameConfig.onSuccess);
           this.exitZoomView();
         } else {
           // Jiggle animation for the handle
@@ -1160,7 +1124,7 @@ class GameScene extends Phaser.Scene {
             yoyo: true,
             repeat: 3
           });
-          this.showDialog("The handle won't budge. The dials must be in the wrong position.");
+          stateManager.showDialog("The handle won't budge. The dials must be in the wrong position.");
         }
       });
 
