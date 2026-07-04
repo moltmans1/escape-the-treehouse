@@ -38,11 +38,11 @@ Once the Dartboard Puzzle is solved, a locked safe is revealed on the wall in th
     *   The four thumb wheels are hidden or destroyed (non-interactive).
     *   `rusty_key` is added to `inventory` immediately.
     *   `hasKeyInCompartment` is set to `false` immediately.
-    *   A success dialog is shown: *"With a heavy mechanical click, the safe swings open, revealing a Rusty Old Key inside! The Rusty Old Key has been added to your inventory."*
+    *   A success dialog is shown: *"The safe is open, a Rusty Old Key is inside! It has been added to your inventory."*
     *   The zoom view remains active. The player manually closes the zoom view by clicking the **Close** button, which sets `zoomView` to `null`.
 
 ### Post-Unlock Interaction
-*   If the player clicks the open safe hotspot in the main South View (coordinates: `380, 205`) after the key is collected, a dialog is shown: *"The safe is open and empty."*, and the zoom view `safe_view` is opened.
+*   If the player clicks the open safe hotspot in the main South View (coordinates: `380, 205`) after the key is collected, a dialog is shown: *"The unlocked safe is empty."*, and the zoom view `safe_view` is opened.
 
 ---
 
@@ -61,7 +61,7 @@ The implementation of this puzzle is verified through E2E tests.
         *   Thumb wheels are hidden.
         *   `rusty_key` is added to `inventory`.
         *   `hasKeyInCompartment` is `false`.
-        *   Dialogue displays: *"With a heavy mechanical click, the safe swings open, revealing a Rusty Old Key inside! The Rusty Old Key has been added to your inventory."*
+        *   Dialogue displays: *"The safe is open, a Rusty Old Key is inside! It has been added to your inventory."*
 3.  **Close Zoom View:**
     *   *Action:* Click the Close button (coordinates: `900, 30`).
     *   *Expected:*
@@ -69,5 +69,5 @@ The implementation of this puzzle is verified through E2E tests.
 4.  **Verify Safe in South View:**
     *   *Action:* Click the open safe in South View (coordinates: `380, 205`).
     *   *Expected:*
-        *   Dialogue displays: *"The safe is open and empty."*
+        *   Dialogue displays: *"The unlocked safe is empty."*
         *   `zoomView` is set to `'safe_view'`.

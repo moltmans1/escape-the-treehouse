@@ -251,7 +251,7 @@ class GameScene extends Phaser.Scene {
     this.updateDynamicGraphics();
 
     // Start dialogue
-    stateManager.showDialog("You wake up in a cozy, sunlit treehouse. The wind rustles the leaves outside. The door is locked, and the ladder down is nowhere to be seen. You need to find another way down.");
+    stateManager.showDialog("You are trapped in a cozy, sunlit treehouse. The wind rustles the leaves outside.");
     window.__gameReady = true;
   }
 
@@ -427,12 +427,24 @@ class GameScene extends Phaser.Scene {
 
   // --- DIALOG / TEXT BOX ---
   createDialogBox() {
+    // Transparent full-screen input blocker overlay
+    this.dialogBlocker = this.add.rectangle(480, 270, 960, 540, 0x000000, 0.0)
+      .setInteractive()
+      .setVisible(false)
+      .setDepth(99);
+
+    this.dialogBlocker.on('pointerdown', (pointer, localX, localY, event) => {
+      if (event) event.stopPropagation();
+      this.hideDialog();
+    });
+
     this.dialogBg = this.add.graphics();
     this.dialogBg.fillStyle(0x1c1212, 0.95);
     this.dialogBg.fillRect(100, 280, 760, 120);
     this.dialogBg.lineStyle(2, 0xd4a373, 0.8);
     this.dialogBg.strokeRect(100, 280, 760, 120);
     this.dialogBg.setVisible(false);
+    this.dialogBg.setDepth(100);
 
     this.dialogTxt = this.add.text(130, 300, '', {
       fontFamily: 'Outfit',
@@ -441,12 +453,7 @@ class GameScene extends Phaser.Scene {
       wordWrap: { width: 700 },
       lineSpacing: 6
     }).setVisible(false);
-
-    this.input.on('pointerdown', () => {
-      if (gameState.dialogActive) {
-        this.hideDialog();
-      }
-    });
+    this.dialogTxt.setDepth(101);
   }
 
   showDialog(text) {
@@ -568,11 +575,17 @@ class GameScene extends Phaser.Scene {
       this.dialogTxt.setText(state.dialogText);
       this.dialogBg.setVisible(true);
       this.dialogTxt.setVisible(true);
+      if (this.dialogBlocker) {
+        this.dialogBlocker.setVisible(true);
+      }
       this.leftArrow.setVisible(false);
       this.rightArrow.setVisible(false);
     } else {
       this.dialogBg.setVisible(false);
       this.dialogTxt.setVisible(false);
+      if (this.dialogBlocker) {
+        this.dialogBlocker.setVisible(false);
+      }
       if (!state.zoomView) {
         this.leftArrow.setVisible(true);
         this.rightArrow.setVisible(true);
@@ -603,9 +616,9 @@ class GameScene extends Phaser.Scene {
               stateManager.state.hasKeyInCompartment = false;
               stateManager.addItem('rusty_key');
               this.updateDynamicGraphics();
-              stateManager.showDialog("You pick up the Rusty Old Key from the open safe.");
+              stateManager.showDialog("You found a Rusty Old Key in the safe.");
             } else {
-              stateManager.showDialog("The safe is open and empty.");
+              stateManager.showDialog("The unlocked safe is empty.");
             }
           }
           break;
@@ -689,7 +702,7 @@ class GameScene extends Phaser.Scene {
           // Instantly transition to the Paper Airplane Zoom View
           this.inspectPaperAirplane();
           
-          stateManager.showDialog("Using the instructions in the book, you fold the paper into a neat Paper Airplane!");
+          stateManager.showDialog("Using the instructions in the book, you fold the paper into a Paper Airplane!");
         }
       });
 
@@ -1007,7 +1020,7 @@ class GameScene extends Phaser.Scene {
               alpha: 1,
               duration: 200,
               onComplete: () => {
-                stateManager.showDialog("With a heavy mechanical click, the safe swings open, revealing a Rusty Old Key inside! The Rusty Old Key has been added to your inventory.");
+                stateManager.showDialog("The safe is open, a Rusty Old Key is inside! It has been added to your inventory.");
               }
             });
           }

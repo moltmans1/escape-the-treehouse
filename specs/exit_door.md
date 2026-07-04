@@ -39,13 +39,13 @@ The implementation of this puzzle is verified through E2E tests in [escape.spec.
 ### Test Case 4: Final Escape
 1.  **Locked Door Check:**
     *   *Action:* Click the Exit Door (coordinates: `190, 250`) without selecting the key.
-    *   *Expected:* `dialogText` equals `"The exit door is locked tight. The padlock is extremely old and rusty."`.
+    *   *Expected:* `dialogText` equals `"The door is locked."`.
 2.  **Select Rusty Old Key:**
     *   *Action:* Select `rusty_key` in the inventory.
     *   *Expected:* `selectedItem` is set to `'rusty_key'`.
 3.  **Unlock Door:**
     *   *Action:* Click the Exit Door (coordinates: `190, 250`) with the key selected.
-    *   *Expected:* `dialogText` equals `"You insert the rusty old key into the padlock. With a heavy creak, the lock snaps open and the door swings open! Click again to exit."`, and the door unlocks (`solvedPuzzles` contains `'door_unlocked'`).
+    *   *Expected:* `dialogText` equals `"You have inserted the rusty old key into the lock. The door is now unlocked, click again to go through."`, and the door unlocks (`solvedPuzzles` contains `'door_unlocked'`).
 4.  **Escape:**
     *   *Action:* Click the Exit Door again (coordinates: `190, 250`).
     *   *Expected:* The Victory Screen is shown, displaying `"YOU ESCAPED!"`.

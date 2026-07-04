@@ -154,9 +154,9 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     // 3. Click the Bookshelf in the North View (860, 180)
     await page.locator('canvas').click({ position: { x: 860, y: 180 } });
     
-    // Expected: Dialogue box displays: "You search the bookshelves and find an Origami Guide."
+    // Expected: Dialogue box displays: "You found an Origami book."
     dialogText = await page.evaluate(() => window.__gameState.dialogText);
-    expect(dialogText).toBe('You search the bookshelves and find an Origami Guide.');
+    expect(dialogText).toBe('You found an Origami book.');
     
     // Expected: origami_book is added to the inventory
     inventory = await page.evaluate(() => window.__gameState.inventory);
@@ -168,9 +168,9 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     // 4. Click the Bookshelf again
     await page.locator('canvas').click({ position: { x: 860, y: 180 } });
     
-    // Expected: Dialogue box displays: "Various novels and guides about forest lore."
+    // Expected: Dialogue box displays: "Various novels and guides."
     dialogText = await page.evaluate(() => window.__gameState.dialogText);
-    expect(dialogText).toBe('Various novels and guides about forest lore.');
+    expect(dialogText).toBe('Various novels and guides.');
     
     // Expected: No duplicate items are added
     inventory = await page.evaluate(() => window.__gameState.inventory);
@@ -325,7 +325,8 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await clickKeypadButton(page, '5');
     await clickKeypadButton(page, '9');
 
-    // Dismiss safe unlocked dialog (displays immediately when 9 is entered)
+    // Dismiss safe unlocked dialog (displays after 200ms tween completes)
+    await page.waitForFunction(() => window.__gameState.dialogActive === true);
     await dismissDialog(page);
 
     // Close zoom view manually
@@ -344,7 +345,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     // 6. Click open safe to verify it is empty and opens the safe view
     await page.locator('canvas').click({ position: { x: 380, y: 205 } });
     const emptyDialogText = await page.evaluate(() => window.__gameState.dialogText);
-    expect(emptyDialogText).toBe("The safe is open and empty.");
+    expect(emptyDialogText).toBe("The unlocked safe is empty.");
     await dismissDialog(page);
 
     await page.waitForFunction(() => window.__gameState.zoomView === 'safe_view');
@@ -406,6 +407,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await clickKeypadButton(page, '7');
     await clickKeypadButton(page, '5');
     await clickKeypadButton(page, '9');
+    await page.waitForFunction(() => window.__gameState.dialogActive === true);
     await dismissDialog(page);
 
     // Close zoom view manually
@@ -424,9 +426,9 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     // 1. Click the Exit Door in the South View (185, 270) without selecting the key
     await page.locator('canvas').click({ position: { x: 185, y: 270 } });
 
-    // Expected: Dialogue box displays: "The exit door is locked tight. The padlock is extremely old and rusty."
+    // Expected: Dialogue box displays: "The door is locked."
     let dialogText = await page.evaluate(() => window.__gameState.dialogText);
-    expect(dialogText).toBe('The exit door is locked tight. The padlock is extremely old and rusty.');
+    expect(dialogText).toBe('The door is locked.');
 
     // Dismiss the dialog
     await dismissDialog(page);
@@ -444,7 +446,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
 
     // Expected: heavy creak dialog
     dialogText = await page.evaluate(() => window.__gameState.dialogText);
-    expect(dialogText).toBe('You insert the rusty old key into the padlock. With a heavy creak, the lock snaps open and the door swings open! Click again to exit.');
+    expect(dialogText).toBe('You have inserted the rusty old key into the lock. The door is now unlocked, click again to go through.');
 
     // Dismiss the dialog
     await dismissDialog(page);
@@ -457,5 +459,42 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     expect(doorUnlocked).toBe(true);
   });
 
+  test('Test Case 5: Dialogue Blocking & Dismissal Behavior', async ({ page }) => {
+    // Trigger dialogue by clicking the hammock (260, 290).
+    await page.locator('canvas').click({ position: { x: 260, y: 290 } });
+
+    // Verify dialogue is active and displaying the expected text.
+    let isActive = await page.evaluate(() => window.__gameState.dialogActive);
+    expect(isActive).toBe(true);
+    let dialogText = await page.evaluate(() => window.__gameState.dialogText);
+    expect(dialogText).toBe('Underneath the pillow, you find a sheet of paper.');
+
+    // While dialogue is active, try clicking the hammock again (260, 290).
+    // The dialog blocker should intercept the click, dismissing the dialogue.
+    // It should NOT re-trigger the hammock's secondary description.
+    await page.locator('canvas').click({ position: { x: 260, y: 290 } });
+
+    // Verify dialogue is now dismissed.
+    isActive = await page.evaluate(() => window.__gameState.dialogActive);
+    expect(isActive).toBe(false);
+
+    // Verify dialogue text hasn't changed to the secondary description, indicating the blocker worked.
+    dialogText = await page.evaluate(() => window.__gameState.dialogText);
+    expect(dialogText).toBe('Underneath the pillow, you find a sheet of paper.');
+
+    // Now that dialogue is inactive, clicking the hammock again should trigger the secondary description.
+    await page.locator('canvas').click({ position: { x: 260, y: 290 } });
+
+    // Verify description dialogue is active.
+    isActive = await page.evaluate(() => window.__gameState.dialogActive);
+    expect(isActive).toBe(true);
+    dialogText = await page.evaluate(() => window.__gameState.dialogText);
+    expect(dialogText).toBe("A comfortable hammock. There's nothing else under the pillow.");
+
+    // Dismiss by clicking on a non-hotspot blank area of the room (500, 100).
+    await page.locator('canvas').click({ position: { x: 500, y: 100 } });
+    isActive = await page.evaluate(() => window.__gameState.dialogActive);
+    expect(isActive).toBe(false);
+  });
 
 });

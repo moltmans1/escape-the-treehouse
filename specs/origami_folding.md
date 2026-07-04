@@ -46,10 +46,10 @@ The implementation of this puzzle is verified through E2E tests in [escape.spec.
     *   *Expected:* `dialogText` equals `"A comfortable hammock. There's nothing else under the pillow."`, and `inventory` does not contain duplicate `origami_paper`.
 3.  **Bookshelf Interaction:**
     *   *Action:* Click the bookshelf (coordinates: `900, 150`).
-    *   *Expected:* `dialogText` equals `"You search the bookshelves and find an Origami Guide."`, and `origami_book` is present in `inventory`.
+    *   *Expected:* `dialogText` equals `"You found an Origami book."`, and `origami_book` is present in `inventory`.
 4.  **Duplicate Prevention (Bookshelf):**
     *   *Action:* Dismiss the dialog, click the bookshelf again.
-    *   *Expected:* `dialogText` equals `"Various novels and guides about forest lore."`, and `inventory` does not contain duplicate `origami_book`.
+    *   *Expected:* `dialogText` equals `"Various novels and guides."`, and `inventory` does not contain duplicate `origami_book`.
 
 ### Test Case 2: Origami Folding
 1.  **Open Origami Book:**

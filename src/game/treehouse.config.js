@@ -34,12 +34,12 @@ export const TreehouseConfig = {
               then: [
                 "SET_FLAG: found_book",
                 "ADD_INVENTORY: origami_book",
-                "SHOW_DIALOG: You search the bookshelves and find an Origami Guide."
+                "SHOW_DIALOG: You found an Origami book."
               ]
             },
             {
               else: [
-                "SHOW_DIALOG: Various novels and guides about forest lore."
+                "SHOW_DIALOG: Various novels and guides."
               ]
             }
           ]
@@ -50,7 +50,7 @@ export const TreehouseConfig = {
           interactions: [
             {
               else: [
-                "SHOW_DIALOG: It's a heavy iron-banded trunk. The padlock is rusted shut and won't budge. There doesn't seem to be a way to open it."
+                "SHOW_DIALOG: It's a heavy iron-banded trunk. It is locked and you don't have a key."
               ]
             }
           ]
@@ -71,7 +71,7 @@ export const TreehouseConfig = {
                 "SET_FLAG: found_trees_book",
                 "ADD_INVENTORY: trees_book",
                 "REFRESH_GRAPHICS",
-                "SHOW_DIALOG: On a small wooden shelf on the wall, you find a book titled 'Trees of North America'."
+                "SHOW_DIALOG: There was a book titled 'Trees of North America' on the shelf."
               ]
             },
             {
@@ -91,12 +91,12 @@ export const TreehouseConfig = {
                 "SET_FLAG: found_binoculars",
                 "ADD_INVENTORY: binoculars",
                 "REFRESH_GRAPHICS",
-                "SHOW_DIALOG: On the window sill, you find a pair of binoculars."
+                "SHOW_DIALOG: You found a pair of binoculars on the window sill."
               ]
             },
             {
               else: [
-                "SHOW_DIALOG: Various plants sit on the window sill."
+                "SHOW_DIALOG: A shelf under the window sill."
               ]
             }
           ]
@@ -120,12 +120,12 @@ export const TreehouseConfig = {
               then: [
                 "SET_FLAG: door_unlocked",
                 "REMOVE_INVENTORY: rusty_key",
-                "SHOW_DIALOG: You insert the rusty old key into the padlock. With a heavy creak, the lock snaps open and the door swings open! Click again to exit."
+                "SHOW_DIALOG: You have inserted the rusty old key into the lock. The door is now unlocked, click again to go through."
               ]
             },
             {
               else: [
-                "SHOW_DIALOG: The exit door is locked tight. The padlock is extremely old and rusty."
+                "SHOW_DIALOG: The door is locked."
               ]
             }
           ]
@@ -136,7 +136,7 @@ export const TreehouseConfig = {
           interactions: [
             {
               else: [
-                "SHOW_DIALOG: A cozy writing desk with some inkwells and loose sheets of scrap paper."
+                "SHOW_DIALOG: A cozy writing desk with inkwells and scrap paper."
               ]
             }
           ]
