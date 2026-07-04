@@ -5,7 +5,7 @@ This document details the specifications for the second puzzle in the Treehouse 
 ---
 
 ## 📖 Description
-The player must inspect the dartboard in the South View and click standard dartboard numbers in the correct sequence (`13` -> `20` -> `10`) as indicated by the folded paper airplane clue. Successfully entering the sequence rotates the dartboard down to reveal a locked Safe behind it.
+The player must inspect the dartboard in the South View and click standard dartboard numbers in the correct sequence (`13` -> `20` -> `10`) as indicated by the folded paper airplane clue. Successfully entering the sequence reveals a locked Safe behind it. The safe will be shown in the zoom view of the dartboard after it's solved, but it will not update the visual appearance in the room view. Clicking on the the dartboard after the dartboard puzzle is solved will instead open the safe zoom view.
 
 ---
 
@@ -15,6 +15,11 @@ The player must inspect the dartboard in the South View and click standard dartb
 *   **Locked Safe:** A secret safe built behind the dartboard. Displays once the puzzle is solved. The graphic updates to show the dartboard rotated down (upside down, rotated around its bottom edge) to reveal the safe behind it.
 
 ---
+
+## Dartboard zoom view
+* Appearance: The dartboard is a nicely rendered image, in the same style as the one shown in the background. It should have a background the same color as the zoom view background.
+* Hotspots: there should be pie shaped hotspots over each of the numbered sections of the dartboard. Each hotspot should correspond to the number for that wedge.
+* The numbers should have a high contrast and be as big as reasonable so the user can see them clearly.
 
 ## ⚙️ Logic & State
 
@@ -27,7 +32,7 @@ The player must inspect the dartboard in the South View and click standard dartb
 *   Clicks are recorded in `gameState.dartboardSequence`.
 
 ### State Changes upon Solution
-*   `gameState.zoomView` closes (set to `null`).
+*   `gameState.zoomView` changes to `safe_view`.
 *   `gameState.solvedPuzzles` receives the value `'dartboard_solved'`.
 *   `paper_airplane` is removed from `gameState.inventory`.
 
@@ -43,7 +48,6 @@ The implementation of this puzzle is verified through E2E tests.
 2.  **Input Sequence:**
     *   *Action:* Click dartboard number sections in sequence: `13` -> `20` -> `10`.
     *   *Expected:* 
-        *   `zoomView` is set to `null` (closes).
+        *   `zoomView` is set to `'safe_view'`.
         *   `solvedPuzzles` contains `'dartboard_solved'`.
         *   `paper_airplane` is removed from `inventory`.
-        *   The visual representation shows the dartboard rotated down, revealing the locked safe behind it.
