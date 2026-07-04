@@ -783,29 +783,12 @@ class GameScene extends Phaser.Scene {
     });
   }
 
-  // --- ADDITIONAL ZOOM PUZZLES: BOOK, WINDOW, BRANCHES, SAFE ---
   inspectTreesBook() {
     this.enterZoomView('trees_book', () => {
       // Draw high-fidelity open book image
       const bookImage = this.add.image(470, 210, 'open_book')
         .setDisplaySize(540, 360);
       this.zoomContainer.add(bookImage);
-
-      // Overlay page numbers next to visual tree labels on the page mockup
-      const numberStyle = {
-        fontFamily: 'Outfit',
-        fontSize: '13px',
-        fill: '#5c4d3c',
-        fontWeight: 'bold'
-      };
-
-      const oakPage = this.add.text(260, 310, 'Page 17', numberStyle).setOrigin(0.5);
-      const birchPage = this.add.text(390, 310, 'Page 23', numberStyle).setOrigin(0.5);
-      const pinePage = this.add.text(560, 240, 'Page 5', numberStyle).setOrigin(0.5);
-      const maplePage = this.add.text(680, 240, 'Page 9', numberStyle).setOrigin(0.5);
-      const redwoodPage = this.add.text(630, 350, 'Page 48', numberStyle).setOrigin(0.5);
-
-      this.zoomContainer.add([oakPage, birchPage, pinePage, maplePage, redwoodPage]);
     });
   }
 
