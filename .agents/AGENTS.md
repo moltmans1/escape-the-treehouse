@@ -4,7 +4,7 @@ All coding assistants working on this codebase must follow these project-wide ru
 
 ## 📋 Essential Specifications to Reference
 
-* **Global Game State & Cursors**: Always read and adhere to [specs/game_state.md](file:///home/moltmans/escape-the-treehouse/specs/game_state.md) to ensure all state manipulations and cursor overrides are consistent with the project standards.
+* **Global Game State**: Always read and adhere to [specs/game_state.md](file:///home/moltmans/escape-the-treehouse/specs/game_state.md) to ensure all state manipulations are consistent with the project standards.
 * **Master Game Plan**: Consult [PLAN.md](file:///home/moltmans/escape-the-treehouse/PLAN.md) for overall game design, layout, and navigation.
 
 ## 🛠️ Testing Invariants
