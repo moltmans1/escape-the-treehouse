@@ -514,15 +514,6 @@ class GameScene extends Phaser.Scene {
   updateDynamicGraphics() {
     this.compartmentGraphic.clear();
 
-
-    // Draw book on East wall shelf (shelf hotspot is 75, 85)
-    if (stateManager.state.currentView === 'east' && !stateManager.hasFlag('found_trees_book')) {
-      this.compartmentGraphic.fillStyle(0x276749, 1); // Forest green
-      this.compartmentGraphic.fillRect(65, 65, 20, 35);
-      this.compartmentGraphic.fillStyle(0xf7fafc, 1);
-      this.compartmentGraphic.fillRect(67, 67, 16, 2);
-    }
-
     if (this.rotatedDartboardSprite) {
       this.rotatedDartboardSprite.setVisible(false);
     }
