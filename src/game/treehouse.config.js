@@ -157,7 +157,8 @@ export const TreehouseConfig = {
             {
               if_flag: "safe_unlocked",
               then: [
-                "LAUNCH_MINIGAME: open_safe_compartment"
+                "LAUNCH_MINIGAME: open_safe_compartment",
+                "OPEN_ZOOM_VIEW: safe_view"
               ]
             },
             {
@@ -195,12 +196,12 @@ export const TreehouseConfig = {
       ]
     },
     safe_view: {
-      type: "rotary_dials",
+      type: "thumb_wheels",
       combination: "1759",
       onSuccess: [
         "SET_FLAG: safe_unlocked",
         "REFRESH_GRAPHICS",
-        "SHOW_DIALOG: With a heavy mechanical click, the safe swings open, revealing a Rusty Old Key inside!"
+        "SHOW_DIALOG: With a heavy mechanical click, the safe swings open, revealing a Rusty Old Key inside! The Rusty Old Key has been added to your inventory."
       ]
     }
   }

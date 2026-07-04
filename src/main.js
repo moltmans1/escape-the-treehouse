@@ -91,6 +91,8 @@ class PreloadScene extends Phaser.Scene {
     this.load.image('binoculars', 'assets/binoculars.png');
     this.load.image('open_origami_book', 'assets/open_origami_book.jpg');
     this.load.image('south_window_view', 'assets/south_window_view.jpg');
+    this.load.image('safe_bg', 'assets/safe.png');
+    this.load.image('safe_open', 'assets/safe_open.jpg');
     
     // Load navigation arrow
     this.createArrowTexture();
@@ -474,6 +476,7 @@ class GameScene extends Phaser.Scene {
       padding: { x: 10, y: 5 }
     })
     .setInteractive({ useHandCursor: true })
+    .setDepth(10)
     .on('pointerdown', () => {
       if (closeCallback) {
         closeCallback();
@@ -885,23 +888,18 @@ class GameScene extends Phaser.Scene {
     this.enterZoomView('safe_view', () => {
       this.safeDials = [];
 
-      const safePanel = this.add.graphics();
-      // Style the safe door to look like old rusted metal
-      safePanel.fillStyle(0x2b2522, 1);
-      safePanel.fillRoundedRect(320, 50, 320, 340, 10);
-      safePanel.lineStyle(4, 0x1b1512, 1);
-      safePanel.strokeRoundedRect(320, 50, 320, 340, 10);
-      
-      // Outer brass rivets
-      safePanel.fillStyle(0x8f7155, 1);
-      const rivets = [
-        {x: 335, y: 65}, {x: 625, y: 65},
-        {x: 335, y: 375}, {x: 625, y: 375},
-        {x: 335, y: 220}, {x: 625, y: 220}
-      ];
-      rivets.forEach(r => safePanel.fillCircle(r.x, r.y, 4));
+      const isUnlocked = stateManager.hasFlag('safe_unlocked');
 
-      this.zoomContainer.add(safePanel);
+      if (isUnlocked) {
+        const openBg = this.add.image(480, 220, 'safe_open');
+        openBg.setDisplaySize(535, 535).setDepth(2);
+        this.zoomContainer.add(openBg);
+        return;
+      }
+
+      const lockedBg = this.add.image(480, 220, 'safe_bg');
+      lockedBg.setDisplaySize(960, 535).setDepth(1);
+      this.zoomContainer.add(lockedBg);
 
       const title = this.add.text(480, 85, 'OLD DIAL SAFE', {
         fontFamily: 'Playfair Display',
@@ -909,125 +907,116 @@ class GameScene extends Phaser.Scene {
         fill: '#d4a373',
         fontWeight: 'bold',
         letterSpacing: 2
-      }).setOrigin(0.5);
+      }).setOrigin(0.5).setDepth(3);
       this.zoomContainer.add(title);
 
       const subtitle = this.add.text(480, 110, 'Click dials to rotate values', {
         fontFamily: 'Outfit',
         fontSize: '11px',
         fill: '#8f7155'
-      }).setOrigin(0.5);
+      }).setOrigin(0.5).setDepth(3);
       this.zoomContainer.add(subtitle);
 
-      // Create 4 rotary dials
-      const dialRadius = 25;
-      const dialSpacing = 68;
-      const startX = 480 - (dialSpacing * 1.5);
-      const dialY = 190;
+      const startX = 360;
+      const spacing = 80;
+      const slotGraphics = [];
+      const wheelTexts = [];
+      const hitZones = [];
 
       for (let i = 0; i < 4; i++) {
-        const x = startX + i * dialSpacing;
+        const x = startX + i * spacing;
 
-        // Dial base graphics (rotary circle)
-        const dialGraphics = this.add.graphics();
-        
-        // Draw the indicator mark line
-        const drawDialIndicator = (val) => {
-          dialGraphics.clear();
-          // Draw dial outer border
-          dialGraphics.lineStyle(3, 0x8f7155, 1);
-          dialGraphics.fillStyle(0x1a1512, 1);
-          dialGraphics.fillCircle(x, dialY, dialRadius);
-          dialGraphics.strokeCircle(x, dialY, dialRadius);
+        // Draw a dark rounded slot casing behind each wheel
+        const slotCasing = this.add.graphics();
+        slotCasing.fillStyle(0x1a1512, 1);
+        slotCasing.fillRoundedRect(x - 20, 140, 40, 160, 5);
+        slotCasing.lineStyle(2, 0x8f7155, 0.5);
+        slotCasing.strokeRoundedRect(x - 20, 140, 40, 160, 5);
+        slotCasing.setDepth(3);
+        this.zoomContainer.add(slotCasing);
+        slotGraphics.push(slotCasing);
 
-          // Draw tic marks around dial
-          dialGraphics.lineStyle(1.5, 0x8f7155, 0.5);
-          for (let tick = 0; tick < 10; tick++) {
-            const tickAngle = (tick * 36 - 90) * (Math.PI / 180);
-            const startR = dialRadius - 4;
-            const endR = dialRadius;
-            dialGraphics.lineBetween(
-              x + startR * Math.cos(tickAngle),
-              dialY + startR * Math.sin(tickAngle),
-              x + endR * Math.cos(tickAngle),
-              dialY + endR * Math.sin(tickAngle)
-            );
-          }
-
-          // Active indicator line
-          const angle = (val * 36 - 90) * (Math.PI / 180);
-          dialGraphics.lineStyle(3, 0xd4a373, 1);
-          dialGraphics.lineBetween(x, dialY, x + (dialRadius - 6) * Math.cos(angle), dialY + (dialRadius - 6) * Math.sin(angle));
+        // Value text styling
+        const digitStyle = {
+          fontFamily: 'Outfit',
+          fontWeight: 'bold'
         };
 
-        drawDialIndicator(0);
-        this.zoomContainer.add(dialGraphics);
+        const prevText = this.add.text(x, 175, '9', { ...digitStyle, fontSize: '20px', fill: '#c8b7a6' })
+          .setOrigin(0.5)
+          .setAlpha(0.4)
+          .setDepth(4);
+        
+        const activeText = this.add.text(x, 220, '0', { ...digitStyle, fontSize: '32px', fill: '#d4a373' })
+          .setOrigin(0.5)
+          .setDepth(4);
+        
+        const nextText = this.add.text(x, 265, '1', { ...digitStyle, fontSize: '20px', fill: '#c8b7a6' })
+          .setOrigin(0.5)
+          .setAlpha(0.4)
+          .setDepth(4);
 
-        // Display value text in the center
-        const dialText = this.add.text(x, dialY, '0', {
-          fontFamily: 'Outfit',
-          fontSize: '16px',
-          fill: '#f4eade',
-          fontWeight: 'bold'
-        }).setOrigin(0.5);
-        this.zoomContainer.add(dialText);
+        this.zoomContainer.add([prevText, activeText, nextText]);
+        wheelTexts.push(prevText, activeText, nextText);
 
-        // Create an interactive transparent hit zone over the dial
-        const hitZone = this.add.circle(x, dialY, dialRadius, 0xffffff, 0)
-          .setInteractive({ useHandCursor: true });
+        const hitZone = this.add.rectangle(x, 220, 40, 160, 0xffffff, 0)
+          .setInteractive({ useHandCursor: true })
+          .setDepth(5);
         
         hitZone.value = 0;
         hitZone.index = i;
 
         hitZone.on('pointerdown', () => {
           hitZone.value = (hitZone.value + 1) % 10;
-          dialText.setText(hitZone.value);
-          drawDialIndicator(hitZone.value);
+          activeText.setText(hitZone.value);
+          prevText.setText((hitZone.value - 1 + 10) % 10);
+          nextText.setText((hitZone.value + 1) % 10);
           this.updateCanvasCursor();
+
+          const combo = this.safeDials.map(d => d.value).join('');
+          const minigameConfig = TreehouseConfig.minigames.safe_view;
+          if (combo === minigameConfig.combination) {
+            // Disable all hit zones immediately to prevent double clicking
+            hitZones.forEach(hz => hz.disableInteractive());
+
+            stateManager.setFlag('safe_unlocked');
+            stateManager.state.hasKeyInCompartment = false;
+            stateManager.addItem('rusty_key');
+
+            const openBg = this.add.image(480, 220, 'safe_open');
+            openBg.setDisplaySize(535, 535).setDepth(2);
+            openBg.alpha = 0;
+            this.zoomContainer.add(openBg);
+
+            this.tweens.add({
+              targets: [lockedBg, title, subtitle, ...slotGraphics, ...wheelTexts],
+              alpha: 0,
+              duration: 200,
+              onComplete: () => {
+                lockedBg.destroy();
+                title.destroy();
+                subtitle.destroy();
+                slotGraphics.forEach(sg => sg.destroy());
+                wheelTexts.forEach(wt => wt.destroy());
+                hitZones.forEach(hz => hz.destroy());
+              }
+            });
+
+            this.tweens.add({
+              targets: openBg,
+              alpha: 1,
+              duration: 200,
+              onComplete: () => {
+                stateManager.showDialog("With a heavy mechanical click, the safe swings open, revealing a Rusty Old Key inside! The Rusty Old Key has been added to your inventory.");
+              }
+            });
+          }
         });
 
         this.zoomContainer.add(hitZone);
+        hitZones.push(hitZone);
         this.safeDials.push(hitZone);
       }
-
-      // Safe Lock Handle / Lever at the bottom
-      const handleBox = this.add.rectangle(480, 290, 140, 40, 0x8f7155, 1)
-        .setInteractive({ useHandCursor: true })
-        .setName('safe_handle');
-      
-      const handleText = this.add.text(480, 290, 'OPEN HANDLE', {
-        fontFamily: 'Outfit',
-        fontSize: '14px',
-        fill: '#1c1212',
-        fontWeight: 'bold'
-      }).setOrigin(0.5);
-
-      handleBox.on('pointerover', () => {
-        handleBox.setFillStyle(0xa38465, 1);
-        this.updateCanvasCursor();
-      });
-      handleBox.on('pointerout', () => handleBox.setFillStyle(0x8f7155, 1));
-
-      handleBox.on('pointerdown', () => {
-        const combo = this.safeDials.map(d => d.value).join('');
-        const minigameConfig = TreehouseConfig.minigames.safe_view;
-        if (combo === minigameConfig.combination) {
-          stateManager.executeActions(minigameConfig.onSuccess);
-          this.exitZoomView();
-        } else {
-          // Jiggle animation for the handle
-          this.tweens.add({
-            targets: [handleBox, handleText],
-            x: { from: 475, to: 480 },
-            duration: 50,
-            yoyo: true,
-            repeat: 3
-          });
-          stateManager.showDialog("The handle won't budge. The dials must be in the wrong position.");
-        }
-      });
-
-      this.zoomContainer.add([handleBox, handleText]);
     });
   }
 

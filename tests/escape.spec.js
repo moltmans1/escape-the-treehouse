@@ -319,30 +319,35 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.locator('canvas').click({ position: { x: 380, y: 205 } });
     await page.waitForFunction(() => window.__gameState.zoomView === 'safe_view');
 
-    // Click keypad buttons programmatically: 1 -> 7 -> 5 -> 9 -> E
+    // Click keypad buttons programmatically: 1 -> 7 -> 5 -> 9
     await clickKeypadButton(page, '1');
     await clickKeypadButton(page, '7');
     await clickKeypadButton(page, '5');
     await clickKeypadButton(page, '9');
-    await clickKeypadButton(page, 'E');
 
-    // Expected: safe unlocked
+    // Dismiss safe unlocked dialog (displays immediately when 9 is entered)
+    await dismissDialog(page);
+
+    // Close zoom view manually
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
     await page.waitForFunction(() => window.__gameState.zoomView === null);
+
     let safeUnlocked = await page.evaluate(() => window.__gameState.solvedPuzzles.includes ? window.__gameState.solvedPuzzles.includes('safe_unlocked') : new Set(window.__gameState.solvedPuzzles).has('safe_unlocked'));
     expect(safeUnlocked).toBe(true);
 
-    // Dismiss safe unlocked dialog
-    await dismissDialog(page);
-
-    // 6. Click open safe to collect Rusty Old Key
-    await page.locator('canvas').click({ position: { x: 380, y: 205 } });
-    await dismissDialog(page);
-    
     inventory = await page.evaluate(() => window.__gameState.inventory);
     expect(inventory).toContain('rusty_key');
 
     const hasKey = await page.evaluate(() => window.__gameState.hasKeyInCompartment);
     expect(hasKey).toBe(false);
+
+    // 6. Click open safe to verify it is empty and opens the safe view
+    await page.locator('canvas').click({ position: { x: 380, y: 205 } });
+    const emptyDialogText = await page.evaluate(() => window.__gameState.dialogText);
+    expect(emptyDialogText).toBe("The safe is open and empty.");
+    await dismissDialog(page);
+
+    await page.waitForFunction(() => window.__gameState.zoomView === 'safe_view');
   });
 
   test('Test Case 4: Final Escape', async ({ page }) => {
@@ -401,13 +406,20 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await clickKeypadButton(page, '7');
     await clickKeypadButton(page, '5');
     await clickKeypadButton(page, '9');
-    await clickKeypadButton(page, 'E');
-    await page.waitForFunction(() => window.__gameState.zoomView === null);
     await dismissDialog(page);
 
-    // Collect key from open safe
+    // Close zoom view manually
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
+
+    // Click the safe again after solving it to verify it opens the safe view
     await page.locator('canvas').click({ position: { x: 380, y: 205 } });
     await dismissDialog(page);
+    await page.waitForFunction(() => window.__gameState.zoomView === 'safe_view');
+
+    // Close zoom view again
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
 
     // 1. Click the Exit Door in the South View (185, 270) without selecting the key
     await page.locator('canvas').click({ position: { x: 185, y: 270 } });
