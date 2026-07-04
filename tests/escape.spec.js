@@ -41,7 +41,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.evaluate((treeSide) => {
       const gameScene = window.__game.scene.keys.GameScene;
       if (gameScene && gameScene.zoomContainer) {
-        const rects = gameScene.zoomContainer.list.filter(c => c.width === 100 && c.height === 140);
+        const rects = gameScene.zoomContainer.list.filter(c => c.width === 60 && c.height === 140);
         if (treeSide === 'left' && rects[0]) rects[0].emit('pointerdown');
         if (treeSide === 'center' && rects[1]) rects[1].emit('pointerdown');
         if (treeSide === 'right' && rects[2]) rects[2].emit('pointerdown');
@@ -279,7 +279,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     // Try clicking Oak tree (left) without binoculars
     await clickTree(page, 'left');
     let dialogText = await page.evaluate(() => window.__gameState.dialogText);
-    expect(dialogText).toBe('A tall deciduous tree with wide branches.');
+    expect(dialogText).toBe('A leafy tree standing in the middle of the canopy.');
     await dismissDialog(page);
 
     // Select Binoculars

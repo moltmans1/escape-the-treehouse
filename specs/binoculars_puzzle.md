@@ -40,9 +40,9 @@ Selecting the Binoculars from the inventory makes it the active item. When selec
 ### Binoculars Leaf Zooming
 *   If `gameState.selectedItem === 'binoculars'`, clicking the Left, Center, or Right tree in the South Window Zoom View transitions `gameState.zoomView` to `'oak_leaf_zoom'`, `'white_pine_zoom'`, or `'sugar_maple_zoom'` respectively.
 *   Clicking these trees without selecting `binoculars` displays a neutral description text. It does not give any hints about needing more detail or using binoculars:
-    *   Oak Tree: *"A tall deciduous tree with wide branches."*
-    *   White Pine Tree: *"A tall evergreen tree with soft needles."*
-    *   Sugar Maple Tree: *"A colorful maple tree with dense foliage."*
+    *   Oak Tree (Left): *"A leafy tree standing in the middle of the canopy."*
+    *   White Pine Tree (Center): *"A tall green tree rustling in the wind."*
+    *   Sugar Maple Tree (Right): *"A lush tree with dense foliage."*
 
 ---
 
@@ -59,14 +59,14 @@ The implementation is verified through E2E tests.
     *   *Action:* Go to South View, click the South Window (coordinates: `715, 190`).
     *   *Expected:* `zoomView` is set to `'south_window_zoom'`.
 3.  **Try Inspecting Trees Without Binoculars:**
-    *   *Action:* Clear selected item, click the Oak Tree (coordinates: `280, 220` relative inside window zoom).
-    *   *Expected:* Dialog shows: *"A tall deciduous tree with wide branches."*
+    *   *Action:* Clear selected item, click the Oak Tree (coordinates: `415, 200` relative inside window zoom).
+    *   *Expected:* Dialog shows: *"A leafy tree standing in the middle of the canopy."*
 4.  **Use Binoculars to Inspect Trees:**
     *   *Action:* Select `binoculars`, click the Oak Tree.
     *   *Expected:* `zoomView` is set to `'oak_leaf_zoom'`.
-    *   *Action:* Close zoom, select `binoculars`, click the White Pine.
+    *   *Action:* Close zoom, select `binoculars`, click the White Pine (coordinates: `502, 190` relative inside window zoom).
     *   *Expected:* `zoomView` is set to `'white_pine_zoom'`.
-    *   *Action:* Close zoom, select `binoculars`, click the Sugar Maple.
+    *   *Action:* Close zoom, select `binoculars`, click the Sugar Maple (coordinates: `590, 200` relative inside window zoom).
     *   *Expected:* `zoomView` is set to `'sugar_maple_zoom'`.
 5.  **Read Trees Book:**
     *   *Action:* Close zoom, select/click `trees_book` in inventory.

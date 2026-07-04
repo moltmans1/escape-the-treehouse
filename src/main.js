@@ -90,6 +90,7 @@ class PreloadScene extends Phaser.Scene {
     this.load.image('sugar_maple_leaf', 'assets/sugar_maple_leaf.jpg');
     this.load.image('binoculars', 'assets/binoculars.png');
     this.load.image('open_origami_book', 'assets/open_origami_book.jpg');
+    this.load.image('south_window_view', 'assets/south_window_view.jpg');
     
     // Load navigation arrow
     this.createArrowTexture();
@@ -810,14 +811,19 @@ class GameScene extends Phaser.Scene {
 
   inspectSouthWindow() {
     this.enterZoomView('south_window_zoom', () => {
-      // Draw background panel
+      // Draw background panel border
       const winPanel = this.add.graphics();
-      winPanel.fillStyle(0x1a202c, 1); // Dark blue sky
+      winPanel.fillStyle(0x1a202c, 1); // Dark blue sky fallback
       winPanel.fillRect(180, 40, 600, 360);
       winPanel.lineStyle(3, 0x8f7155, 1);
       winPanel.strokeRect(180, 40, 600, 360);
 
       this.zoomContainer.add(winPanel);
+
+      // Load and add the new window view image
+      const winImage = this.add.image(480, 220, 'south_window_view')
+        .setDisplaySize(600, 360);
+      this.zoomContainer.add(winImage);
 
       const title = this.add.text(480, 65, 'South Window View', {
         fontFamily: 'Playfair Display',
@@ -827,41 +833,12 @@ class GameScene extends Phaser.Scene {
       }).setOrigin(0.5);
       this.zoomContainer.add(title);
 
-      // Draw the three trees: Left (Oak), Center (White Pine), Right (Sugar Maple)
-      const treesGraphics = this.add.graphics();
-      
-      // Oak Tree (Left) - Broad leafy green canopy
-      treesGraphics.fillStyle(0x718096, 1); // Trunk
-      treesGraphics.fillRect(275, 240, 10, 60);
-      treesGraphics.fillStyle(0x2f855a, 1); // Leaves
-      treesGraphics.fillCircle(280, 210, 40);
-      treesGraphics.fillCircle(255, 220, 30);
-      treesGraphics.fillCircle(305, 220, 30);
-
-      // White Pine Tree (Center) - Evergreen tall triangular shape
-      treesGraphics.fillStyle(0x718096, 1);
-      treesGraphics.fillRect(475, 250, 10, 60);
-      treesGraphics.fillStyle(0x22543d, 1); // Pine green
-      treesGraphics.fillTriangle(480, 140, 430, 220, 530, 220);
-      treesGraphics.fillTriangle(480, 170, 440, 250, 520, 250);
-
-      // Sugar Maple Tree (Right) - Colorful orange/red maple
-      treesGraphics.fillStyle(0x718096, 1);
-      treesGraphics.fillRect(675, 240, 10, 60);
-      treesGraphics.fillStyle(0xc53030, 1); // Reddish-orange
-      treesGraphics.fillCircle(680, 205, 45);
-      treesGraphics.fillStyle(0xdd6b20, 1);
-      treesGraphics.fillCircle(660, 215, 30);
-      treesGraphics.fillCircle(700, 215, 30);
-
-      this.zoomContainer.add(treesGraphics);
-
-      // Hotspots for the three trees: Left (Oak: 280, 220), Center (White Pine: 480, 220), Right (Sugar Maple: 680, 220)
-      const leftTreeHotspot = this.add.rectangle(280, 220, 100, 140, 0xffffff, 0.0)
+      // Hotspots for the three trees adjusted to match the generated image
+      const leftTreeHotspot = this.add.rectangle(415, 200, 60, 140, 0xffffff, 0.0)
         .setInteractive({ useHandCursor: true });
-      const centerTreeHotspot = this.add.rectangle(480, 220, 100, 140, 0xffffff, 0.0)
+      const centerTreeHotspot = this.add.rectangle(502, 190, 60, 140, 0xffffff, 0.0)
         .setInteractive({ useHandCursor: true });
-      const rightTreeHotspot = this.add.rectangle(680, 220, 100, 140, 0xffffff, 0.0)
+      const rightTreeHotspot = this.add.rectangle(590, 200, 60, 140, 0xffffff, 0.0)
         .setInteractive({ useHandCursor: true });
 
       [leftTreeHotspot, centerTreeHotspot, rightTreeHotspot].forEach(hot => {
@@ -876,7 +853,7 @@ class GameScene extends Phaser.Scene {
         if (gameState.selectedItem === 'binoculars') {
           this.inspectTreeBranch('oak_leaf_zoom');
         } else {
-          this.showDialog("A tall deciduous tree with wide branches.");
+          this.showDialog("A leafy tree standing in the middle of the canopy.");
         }
       });
 
@@ -884,7 +861,7 @@ class GameScene extends Phaser.Scene {
         if (gameState.selectedItem === 'binoculars') {
           this.inspectTreeBranch('white_pine_zoom');
         } else {
-          this.showDialog("A tall evergreen tree with soft needles.");
+          this.showDialog("A tall green tree rustling in the wind.");
         }
       });
 
@@ -892,7 +869,7 @@ class GameScene extends Phaser.Scene {
         if (gameState.selectedItem === 'binoculars') {
           this.inspectTreeBranch('sugar_maple_zoom');
         } else {
-          this.showDialog("A colorful maple tree with dense foliage.");
+          this.showDialog("A lush tree with dense foliage.");
         }
       });
 
