@@ -54,9 +54,17 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.evaluate((numToClick) => {
       const gameScene = window.__game.scene.keys.GameScene;
       if (gameScene && gameScene.zoomContainer) {
-        const child = gameScene.zoomContainer.list.find(c => c.text === numToClick.toString());
-        if (child) {
-          child.emit('pointerdown');
+        const dbImage = gameScene.zoomContainer.list.find(c => c.texture && c.texture.key === 'dartboard');
+        if (dbImage) {
+          const boardNumbers = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
+          const idx = boardNumbers.indexOf(numToClick);
+          if (idx !== -1) {
+            const angle = (idx * 18 - 90) * (Math.PI / 180);
+            const radius = 80; // Click at radius 80 inside the wedge
+            const px = 480 + radius * Math.cos(angle);
+            const py = 220 + radius * Math.sin(angle);
+            dbImage.emit('pointerdown', { worldX: px, worldY: py });
+          }
         }
       }
     }, num);

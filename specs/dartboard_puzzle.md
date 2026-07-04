@@ -18,8 +18,7 @@ The player must inspect the dartboard in the South View and click standard dartb
 
 ## Dartboard zoom view
 * Appearance: The dartboard is a nicely rendered image, in the same style as the one shown in the background. It should have a background the same color as the zoom view background.
-* Hotspots: there should be pie shaped hotspots over each of the numbered sections of the dartboard. Each hotspot should correspond to the number for that wedge.
-* The numbers should have a high contrast and be as big as reasonable so the user can see them clearly.
+* Interaction: The entire dartboard image is interactive. Clicking on a section of the board calculates the angle of the click relative to the center to identify which numbered wedge (1-20) was selected. This removes the need for overlapping text overlays, ensuring the visual image remains clean and legible.
 
 ## ⚙️ Logic & State
 

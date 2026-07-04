@@ -745,65 +745,48 @@ class GameScene extends Phaser.Scene {
       }).setOrigin(0.5);
       this.zoomContainer.add(title);
 
-      // Draw high-fidelity dartboard image
+      // Draw high-fidelity dartboard image and make it interactive
       const dbImage = this.add.image(480, 220, 'dartboard')
-        .setDisplaySize(240, 240);
+        .setDisplaySize(240, 240)
+        .setInteractive({ useHandCursor: true });
       this.zoomContainer.add(dbImage);
 
       // Dartboard standard numbers sequence clockwise from top
       const boardNumbers = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
-      const radius = 100;
 
-      boardNumbers.forEach((num, idx) => {
-        // Calculate angle (0 is 12 o'clock, which is the number 20)
-        const angle = (idx * 18 - 90) * (Math.PI / 180);
-        const x = 480 + radius * Math.cos(angle);
-        const y = 220 + radius * Math.sin(angle);
+      dbImage.on('pointerdown', (pointer) => {
+        if (stateManager.hasFlag('dartboard_solved')) return;
 
-        // Clickable overlay text over the visual numbers.
-        // It starts slightly transparent, and highlights fully on hover.
-        const numText = this.add.text(x, y, num.toString(), {
-          fontFamily: 'Outfit',
-          fontSize: '15px',
-          fill: '#f4eade',
-          fontWeight: 'bold'
-        })
-        .setOrigin(0.5)
-        .setAlpha(0.6)
-        .setInteractive({ useHandCursor: true });
+        // Calculate click coordinates relative to dartboard center (480, 220)
+        const clickX = pointer.worldX;
+        const clickY = pointer.worldY;
 
-        numText.on('pointerover', () => {
-          numText.setStyle({ fill: '#d4a373', fontSize: '18px' });
-          numText.setAlpha(1.0);
-        });
-        numText.on('pointerout', () => {
-          numText.setStyle({ fill: '#f4eade', fontSize: '15px' });
-          numText.setAlpha(0.6);
-        });
+        const angleRad = Math.atan2(clickY - 220, clickX - 480);
+        let angleDeg = angleRad * (180 / Math.PI);
+        let rotatedDeg = angleDeg + 90;
+        if (rotatedDeg < 0) rotatedDeg += 360;
+        let shiftedDeg = rotatedDeg + 9;
+        if (shiftedDeg >= 360) shiftedDeg -= 360;
+        const wedgeIndex = Math.floor(shiftedDeg / 18);
+        const num = boardNumbers[wedgeIndex];
 
-        numText.on('pointerdown', () => {
-          if (stateManager.hasFlag('dartboard_solved')) return;
+        gameState.dartboardSequence.push(num);
+        this.showDialog(`You click on segment: ${num}.`);
 
-          gameState.dartboardSequence.push(num);
-          this.showDialog(`You click on segment: ${num}.`);
+        const minigameConfig = TreehouseConfig.minigames.dartboard_view;
+        // Check sequence
+        const seqLen = gameState.dartboardSequence.length;
+        const targetSeq = minigameConfig.target.slice(0, seqLen);
 
-          const minigameConfig = TreehouseConfig.minigames.dartboard_view;
-          // Check sequence
-          const seqLen = gameState.dartboardSequence.length;
-          const targetSeq = minigameConfig.target.slice(0, seqLen);
-
-          if (gameState.dartboardSequence.every((val, i) => val === targetSeq[i])) {
-            if (seqLen === minigameConfig.target.length) {
-              stateManager.executeActions(minigameConfig.onSuccess);
-            }
-          } else {
-            // Reset on mistake
-            gameState.dartboardSequence = [];
-            this.showDialog("Nothing happens. Maybe the order was wrong?");
+        if (gameState.dartboardSequence.every((val, i) => val === targetSeq[i])) {
+          if (seqLen === minigameConfig.target.length) {
+            stateManager.executeActions(minigameConfig.onSuccess);
           }
-        });
-
-        this.zoomContainer.add(numText);
+        } else {
+          // Reset on mistake
+          gameState.dartboardSequence = [];
+          this.showDialog("Nothing happens. Maybe the order was wrong?");
+        }
       });
     });
   }
