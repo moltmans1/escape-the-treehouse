@@ -43,6 +43,7 @@ graph TD
     click A3 "file:///home/moltmans/escape-the-treehouse/specs/origami_folding.md" "Origami Folding Spec"
     click A6 "file:///home/moltmans/escape-the-treehouse/specs/dartboard_puzzle.md" "Dartboard Puzzle Spec"
     click B5 "file:///home/moltmans/escape-the-treehouse/specs/binoculars_puzzle.md" "Binoculars Puzzle Spec"
+    click B6 "file:///home/moltmans/escape-the-treehouse/specs/safe_puzzle.md" "Safe Puzzle Spec"
     click A8 "file:///home/moltmans/escape-the-treehouse/specs/exit_door.md" "Exit Door Spec"
 ```
 
@@ -53,8 +54,9 @@ Each active puzzle is modularized and detailed in its own specification file und
 
 1.  **[Origami Folding Spec](file:///home/moltmans/escape-the-treehouse/specs/origami_folding.md):** Details finding the origami materials, the custom folding combination zone mechanics, and creating the paper airplane.
 2.  **[Dartboard Puzzle Spec](file:///home/moltmans/escape-the-treehouse/specs/dartboard_puzzle.md):** Details opening the dartboard zoom, solving the combination `13 -> 20 -> 10`, and revealing the Safe behind the dartboard.
-3.  **[Binoculars & Trees Spec](file:///home/moltmans/escape-the-treehouse/specs/binoculars_puzzle.md):** Details finding the binoculars and the trees book, inspecting the canopy trees using binoculars through the south window, and unlocking the safe behind the dartboard with code `1759`.
-4.  **[Exit Door Spec](file:///home/moltmans/escape-the-treehouse/specs/exit_door.md):** Details using the key on the exit door padlock and completing the game.
+3.  **[Binoculars & Trees Spec](file:///home/moltmans/escape-the-treehouse/specs/binoculars_puzzle.md):** Details finding the binoculars and the trees book, and inspecting the canopy trees using binoculars through the south window to solve the combination.
+4.  **[Safe Puzzle Spec](file:///home/moltmans/escape-the-treehouse/specs/safe_puzzle.md):** Details opening the safe input zoom, rotating the dials to combination `1759`, unlocking the safe, and retrieving the Rusty Old Key.
+5.  **[Exit Door Spec](file:///home/moltmans/escape-the-treehouse/specs/exit_door.md):** Details using the key on the exit door padlock and completing the game.
 
 For details on ideas and mechanics deferred to later phases, see [updates-for-later.md](file:///home/moltmans/escape-the-treehouse/updates-for-later.md).
 

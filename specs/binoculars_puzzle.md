@@ -1,21 +1,21 @@
 # Binoculars & Trees Puzzle Spec
 
-This document details the specifications for the third puzzle in the Treehouse Escape Room: getting the safe combo of `1759`.  This is done by using binoculars to identify tree leaf shapes, correlating them with a book to find the code `1759` based on their page numbers in an index image.
+This document details the specifications for the third puzzle in the Treehouse Escape Room: deciphering the safe combination of `1759`. This is done by using binoculars to identify tree leaf shapes, and correlating them with a book to find page numbers in an index.
 
 ---
 
 ## 📖 Description
 The player must collect the Binoculars from the window sill in the East View and a "Trees of North America" book from the top left wall of the East View. 
 
-Once the Dartboard Puzzle is solved, a locked Safe was revealed. Clicking the window in the South View opens a close-up (mini-scene) of the outdoor canopy showing three trees: Oak (left), White Pine (center), and Sugar Maple (right).
+Clicking the window in the South View opens a close-up (mini-scene) of the outdoor canopy showing three trees: Oak (left), White Pine (center), and Sugar Maple (right).
 
-Selecting the Binoculars from the inventory changes the cursor to binoculars. When selected, the player can click each tree in the window zoom-in view to inspect a zoomed-in branch and its leaf/needle shape. By cross-referencing these leaf shapes with the "Trees of North America" book (which contains page illustrations/details), the player solves the combination code `1759`.
+Selecting the Binoculars from the inventory changes the cursor to binoculars. When selected, the player can click each tree in the window zoom-in view to inspect a zoomed-in branch and its leaf/needle shape. By cross-referencing these leaf shapes with the "Trees of North America" book (which contains page illustrations/details), the player solves the combination code `1759` (Oak = Page 17, White Pine = Page 5, Sugar Maple = Page 9).
 
 ---
 
 ## 🎒 Items & Props
 *   **Binoculars (`binoculars`):** Inventory item. Collected from the window sill in the East View.
-*   **Trees of North America Book (`trees_book`):** Inventory item. Collected from the top-left wall of the East View. Inspecting it opens the Book Zoom View (displaying a placeholder illustration/text of leaf types).
+*   **Trees of North America Book (`trees_book`):** Inventory item. Collected from the top-left wall of the East View. Inspecting it opens the Book Zoom View (displaying page numbers for different tree species).
 *   **South Window (South View):** An interactive hotspot. Clicking it opens the South Window Zoom View.
 *   **South Window Zoom View (`south_window_zoom`):** Opens a mini-scene showing a zoomed-in view of the outdoors with three trees:
     *   **Oak Tree (Left):** Clickable zoom hotspot (requires `binoculars` selected).
@@ -38,22 +38,25 @@ When a supported inventory item is active/selected (i.e. `gameState.selectedItem
 ---
 
 ## ⚙️ Logic & State
-*   **State Changes upon Collection:**
-    *   Clicking the East View Window Sill adds `'binoculars'` to `gameState.inventory`.
-    *   Clicking the East View top-left wall adds `'trees_book'` to `gameState.inventory`.
-*   **Window Interaction:**
-    *   Clicking the South Window hotspot opens `gameState.zoomView = 'south_window_zoom'`.
-*   **Binoculars Leaf Zooming:**
-    *   If `gameState.selectedItem === 'binoculars'`, clicking the Left, Center, or Right tree in the South Window Zoom View transitions `gameState.zoomView` to `'oak_leaf_zoom'`, `'white_pine_zoom'`, or `'sugar_maple_zoom'` respectively.
-    *   Clicking these trees without selecting `binoculars` displays a neutral description text. It should not give any hints about needing more detail or using binoculars:
-        *   Oak Tree: *"A tall deciduous tree with wide branches."*
-        *   White Pine Tree: *"A tall evergreen tree with soft needles."*
-        *   Sugar Maple Tree: *"A colorful maple tree with dense foliage."*
+
+### State Changes upon Collection
+*   Clicking the East View Window Sill adds `'binoculars'` to `gameState.inventory`.
+*   Clicking the East View top-left wall adds `'trees_book'` to `gameState.inventory`.
+
+### Window Interaction
+*   Clicking the South Window hotspot opens `gameState.zoomView = 'south_window_zoom'`.
+
+### Binoculars Leaf Zooming
+*   If `gameState.selectedItem === 'binoculars'`, clicking the Left, Center, or Right tree in the South Window Zoom View transitions `gameState.zoomView` to `'oak_leaf_zoom'`, `'white_pine_zoom'`, or `'sugar_maple_zoom'` respectively.
+*   Clicking these trees without selecting `binoculars` displays a neutral description text. It does not give any hints about needing more detail or using binoculars:
+    *   Oak Tree: *"A tall deciduous tree with wide branches."*
+    *   White Pine Tree: *"A tall evergreen tree with soft needles."*
+    *   Sugar Maple Tree: *"A colorful maple tree with dense foliage."*
 
 ---
 
 ## 🔍 Verification & Test Plan
-The implementation will be verified through E2E tests in a new or updated test file.
+The implementation is verified through E2E tests.
 
 ### Test Case: Binoculars Puzzle
 1.  **Collect Items:**
@@ -65,26 +68,18 @@ The implementation will be verified through E2E tests in a new or updated test f
     *   *Action:* Select `binoculars` from the inventory.
     *   *Expected:* Cursor style is updated to binoculars representation.
 3.  **Inspect South Window Zoom View:**
-    *   *Action:* Go to South View, click the South Window (coordinates: `600, 150`).
+    *   *Action:* Go to South View, click the South Window (coordinates: `715, 190`).
     *   *Expected:* `zoomView` is set to `'south_window_zoom'`.
 4.  **Try Inspecting Trees Without Binoculars:**
-    *   *Action:* Clear selected item, click the Oak Tree (coordinates: `280, 220`).
+    *   *Action:* Clear selected item, click the Oak Tree (coordinates: `280, 220` relative inside window zoom).
     *   *Expected:* Dialog shows: *"A tall deciduous tree with wide branches."*
 5.  **Use Binoculars to Inspect Trees:**
-    *   *Action:* Select `binoculars`, click the Oak Tree (coordinates: `280, 220`).
+    *   *Action:* Select `binoculars`, click the Oak Tree.
     *   *Expected:* `zoomView` is set to `'oak_leaf_zoom'`.
-    *   *Action:* Close zoom, select `binoculars`, click the White Pine (coordinates: `480, 220`).
+    *   *Action:* Close zoom, select `binoculars`, click the White Pine.
     *   *Expected:* `zoomView` is set to `'white_pine_zoom'`.
-    *   *Action:* Close zoom, select `binoculars`, click the Sugar Maple (coordinates: `680, 220`).
+    *   *Action:* Close zoom, select `binoculars`, click the Sugar Maple.
     *   *Expected:* `zoomView` is set to `'sugar_maple_zoom'`.
 6.  **Read Trees Book:**
     *   *Action:* Close zoom, select/click `trees_book` in inventory.
     *   *Expected:* `zoomView` is set to `'trees_book'`. Shows leaf types and references.
-7.  **Unlock Safe:**
-    *   *Action:* Solve Dartboard puzzle to reveal Safe. Click Safe (coordinates: `385, 200`).
-    *   *Expected:* `zoomView` is set to `'safe_input'`.
-    *   *Action:* Click each of the 4 dials to set them to digits `1`, `7`, `5`, `9` respectively, then click the open handle.
-    *   *Expected:* `solvedPuzzles` contains `'safe_unlocked'`, zoom view closes, and safe compartment is shown open.
-8.  **Collect Key:**
-    *   *Action:* Click the open safe (coordinates: `385, 200`).
-    *   *Expected:* `rusty_key` is added to `inventory`, and `hasKeyInCompartment` becomes `false`.
