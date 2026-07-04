@@ -71,7 +71,7 @@ export const TreehouseConfig = {
                 "SET_FLAG: found_trees_book",
                 "ADD_INVENTORY: trees_book",
                 "REFRESH_GRAPHICS",
-                "SHOW_DIALOG: There was a book titled 'Trees of North America' on the shelf."
+                "SHOW_DIALOG: You found a book titled 'Trees of North America' on the shelf."
               ]
             },
             {
