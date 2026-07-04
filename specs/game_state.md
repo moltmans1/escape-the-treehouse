@@ -1,6 +1,6 @@
-# Global Game State & Cursor Specifications
+# Global Game State Specifications
 
-This document defines the global game state structure, StateManager management, and custom mouse cursor invariants that must be preserved across all features and code updates.
+This document defines the global game state structure and StateManager management that must be preserved across all features and code updates.
 
 ---
 

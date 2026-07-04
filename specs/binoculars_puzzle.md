@@ -9,7 +9,7 @@ The player must collect the Binoculars from the window sill in the East View and
 
 Clicking the window in the South View opens a close-up (mini-scene) of the outdoor canopy showing three trees: Oak (left), White Pine (center), and Sugar Maple (right).
 
-Selecting the Binoculars from the inventory changes the cursor to binoculars. When selected, the player can click each tree in the window zoom-in view to inspect a zoomed-in branch and its leaf/needle shape. By cross-referencing these leaf shapes with the "Trees of North America" book (which contains page illustrations/details), the player solves the combination code `1759` (Oak = Page 17, White Pine = Page 5, Sugar Maple = Page 9).
+Selecting the Binoculars from the inventory makes it the active item. When selected, the player can click each tree in the window zoom-in view to inspect a zoomed-in branch and its leaf/needle shape. By cross-referencing these leaf shapes with the "Trees of North America" book (which contains page illustrations/details), the player solves the combination code `1759` (Oak = Page 17, White Pine = Page 5, Sugar Maple = Page 9).
 
 ---
 
@@ -27,15 +27,6 @@ Selecting the Binoculars from the inventory changes the cursor to binoculars. Wh
 
 ---
 
-## 🖱️ Selected Item Cursors
-When a supported inventory item is active/selected (i.e. `gameState.selectedItem` is not null and is a supported item), the mouse cursor style updates to reflect that item everywhere on the game canvas, overriding default hover cursors:
-*   Selecting `binoculars` updates the cursor style to look like binoculars (`🔭`).
-*   Selecting `origami_paper` updates the cursor to a paper sheet graphic (`📄`).
-*   Selecting `rusty_key` updates the cursor to a key (`🔑`).
-*   Deselecting the item or closing the zoom views resets the cursor to the default pointer/hand icon.
-*   Other items (such as `paper_airplane`, `origami_book`, and `trees_book`) do not have custom cursor overrides and use standard cursor behavior.
-
----
 
 ## ⚙️ Logic & State
 
@@ -64,22 +55,19 @@ The implementation is verified through E2E tests.
     *   *Expected:* `binoculars` added to `inventory`.
     *   *Action:* Go to East View, click the top left wall (coordinates: `75, 85`).
     *   *Expected:* `trees_book` added to `inventory`.
-2.  **Verify Custom Cursor:**
-    *   *Action:* Select `binoculars` from the inventory.
-    *   *Expected:* Cursor style is updated to binoculars representation.
-3.  **Inspect South Window Zoom View:**
+2.  **Inspect South Window Zoom View:**
     *   *Action:* Go to South View, click the South Window (coordinates: `715, 190`).
     *   *Expected:* `zoomView` is set to `'south_window_zoom'`.
-4.  **Try Inspecting Trees Without Binoculars:**
+3.  **Try Inspecting Trees Without Binoculars:**
     *   *Action:* Clear selected item, click the Oak Tree (coordinates: `280, 220` relative inside window zoom).
     *   *Expected:* Dialog shows: *"A tall deciduous tree with wide branches."*
-5.  **Use Binoculars to Inspect Trees:**
+4.  **Use Binoculars to Inspect Trees:**
     *   *Action:* Select `binoculars`, click the Oak Tree.
     *   *Expected:* `zoomView` is set to `'oak_leaf_zoom'`.
     *   *Action:* Close zoom, select `binoculars`, click the White Pine.
     *   *Expected:* `zoomView` is set to `'white_pine_zoom'`.
     *   *Action:* Close zoom, select `binoculars`, click the Sugar Maple.
     *   *Expected:* `zoomView` is set to `'sugar_maple_zoom'`.
-6.  **Read Trees Book:**
+5.  **Read Trees Book:**
     *   *Action:* Close zoom, select/click `trees_book` in inventory.
     *   *Expected:* `zoomView` is set to `'trees_book'`. Shows leaf types and references.
