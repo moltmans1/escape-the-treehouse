@@ -779,7 +779,6 @@ class GameScene extends Phaser.Scene {
         const num = boardNumbers[wedgeIndex];
 
         gameState.dartboardSequence.push(num);
-        this.showDialog(`You click on segment: ${num}.`);
 
         const minigameConfig = TreehouseConfig.minigames.dartboard_view;
         // Check sequence
@@ -793,7 +792,6 @@ class GameScene extends Phaser.Scene {
         } else {
           // Reset on mistake
           gameState.dartboardSequence = [];
-          this.showDialog("Nothing happens. Maybe the order was wrong?");
         }
       });
     });
