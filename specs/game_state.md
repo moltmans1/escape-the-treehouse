@@ -22,14 +22,3 @@ The `stateManager.state` object contains:
 ### E2E Test Compatibility Proxy
 For compatibility with E2E tests in [tests/escape.spec.js](file:///home/moltmans/escape-the-treehouse/tests/escape.spec.js), a compatible `gameState` proxy object is exposed on the window as `window.__gameState` in [src/main.js](file:///home/moltmans/escape-the-treehouse/src/main.js). This object dynamically delegates property accesses to `stateManager.state`.
 
----
-
-## 🖱️ Selected Item Cursors
-
-Custom cursor overrides are configured based on the currently selected inventory item:
-* Only the following items support custom canvas cursors:
-  * `binoculars` ➔ `🔭`
-  * `origami_paper` ➔ `📄`
-  * `rusty_key` ➔ `🔑`
-* All other items (such as `paper_airplane`, `origami_book`, and `trees_book`) do not have custom cursor overrides and must use the standard system cursor.
-

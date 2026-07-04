@@ -727,8 +727,6 @@ class GameScene extends Phaser.Scene {
           this.inspectPaperAirplane();
           
           stateManager.showDialog("Using the instructions in the book, you fold the paper into a neat Paper Airplane!");
-        } else {
-          stateManager.showDialog("You need to select the sheet of paper in your inventory first to fold it here.");
         }
       });
 
