@@ -739,23 +739,15 @@ class GameScene extends Phaser.Scene {
     this.enterZoomView('dartboard', () => {
       const boardPanel = this.add.graphics();
       boardPanel.fillStyle(0x1c1212, 1);
-      boardPanel.fillRect(200, 40, 560, 360);
+      boardPanel.fillRect(180, 20, 600, 400);
       boardPanel.lineStyle(3, 0x8f7155, 1);
-      boardPanel.strokeRect(200, 40, 560, 360);
+      boardPanel.strokeRect(180, 20, 600, 400);
 
       this.zoomContainer.add(boardPanel);
 
-      const title = this.add.text(480, 70, 'Dartboard', {
-        fontFamily: 'Playfair Display',
-        fontSize: '22px',
-        fill: '#d4a373',
-        fontWeight: 'bold'
-      }).setOrigin(0.5);
-      this.zoomContainer.add(title);
-
       // Draw high-fidelity dartboard image and make it interactive
       const dbImage = this.add.image(480, 220, 'dartboard')
-        .setDisplaySize(240, 240)
+        .setDisplaySize(360, 360)
         .setInteractive({ useHandCursor: true });
       this.zoomContainer.add(dbImage);
 
