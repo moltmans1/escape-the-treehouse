@@ -51,3 +51,11 @@ The implementation of this puzzle is verified through E2E tests.
         *   `zoomView` is set to `'safe_view'`.
         *   `solvedPuzzles` contains `'dartboard_solved'`.
         *   `paper_airplane` is removed from `inventory`.
+
+### Test Case 4: Re-entering Solved Dartboard
+1.  **Precondition:**
+    *   `solvedPuzzles` contains `'dartboard_solved'`.
+    *   `zoomView` is set to `null` (main room view).
+2.  **Click Dartboard Area:**
+    *   *Action:* Click the dartboard in South View (coordinates: `380, 205`).
+    *   *Expected:* `zoomView` is set to `'safe_view'` (opening the safe zoom view directly).
