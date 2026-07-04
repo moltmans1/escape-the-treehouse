@@ -12,3 +12,8 @@ All coding assistants working on this codebase must follow these project-wide ru
   1. Headless unit tests using `npm run test:unit`
   2. Integration E2E tests using `npm run test:e2e`
   to verify no regressions have been introduced.
+
+## 📦 Git & Commit Guidelines
+* After every major change, stage and create a local commit.
+* Do not attempt to run `git push`; the user will handle pushing and authentication.
+
