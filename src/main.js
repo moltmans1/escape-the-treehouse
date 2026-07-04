@@ -523,40 +523,8 @@ class GameScene extends Phaser.Scene {
       this.compartmentGraphic.fillRect(67, 67, 16, 2);
     }
 
-    // Draw safe / rotated dartboard on the South View if solved (dartboard hotspot is 380, 205)
-    if (stateManager.state.currentView === 'south' && stateManager.hasFlag('dartboard_solved')) {
-      // Draw safe compartment behind dartboard
-      this.compartmentGraphic.fillStyle(0x1a1a1a, 1);
-      this.compartmentGraphic.fillRect(350, 155, 60, 60);
-      this.compartmentGraphic.lineStyle(2, 0x555555, 1);
-      this.compartmentGraphic.strokeRect(350, 155, 60, 60);
-
-      if (stateManager.hasFlag('safe_unlocked')) {
-        // Open safe
-        this.compartmentGraphic.fillStyle(0x0a0a0a, 1);
-        this.compartmentGraphic.fillRect(353, 158, 54, 54);
-        
-        if (stateManager.state.hasKeyInCompartment) {
-          // Draw key inside
-          this.compartmentGraphic.lineStyle(2, 0xc8b7a6, 1);
-          this.compartmentGraphic.strokeCircle(380, 180, 5);
-          this.compartmentGraphic.lineBetween(380, 185, 380, 200);
-          this.compartmentGraphic.lineBetween(380, 192, 384, 192);
-          this.compartmentGraphic.lineBetween(380, 197, 384, 197);
-        }
-      } else {
-        // Closed safe (draw dial/keypad)
-        this.compartmentGraphic.fillStyle(0x333333, 1);
-        this.compartmentGraphic.fillRect(355, 160, 50, 50);
-        this.compartmentGraphic.fillStyle(0x111111, 1);
-        this.compartmentGraphic.fillRect(370, 175, 20, 20); // dial/keypad
-      }
-
-      this.rotatedDartboardSprite.setVisible(true);
-    } else {
-      if (this.rotatedDartboardSprite) {
-        this.rotatedDartboardSprite.setVisible(false);
-      }
+    if (this.rotatedDartboardSprite) {
+      this.rotatedDartboardSprite.setVisible(false);
     }
   }
 
@@ -631,7 +599,7 @@ class GameScene extends Phaser.Scene {
       switch (command) {
         case 'OPEN_ZOOM_VIEW':
           if (arg === 'south_window_zoom') this.inspectSouthWindow();
-          else if (arg === 'safe_input') this.enterSafeInputView();
+          else if (arg === 'safe_view') this.enterSafeView();
           else if (arg === 'dartboard_view') this.enterDartboardView();
           break;
         case 'LAUNCH_MINIGAME':
@@ -827,7 +795,6 @@ class GameScene extends Phaser.Scene {
           if (gameState.dartboardSequence.every((val, i) => val === targetSeq[i])) {
             if (seqLen === minigameConfig.target.length) {
               stateManager.executeActions(minigameConfig.onSuccess);
-              this.exitZoomView();
             }
           } else {
             // Reset on mistake
@@ -980,8 +947,8 @@ class GameScene extends Phaser.Scene {
     }, () => this.inspectSouthWindow());
   }
 
-  enterSafeInputView() {
-    this.enterZoomView('safe_input', () => {
+  enterSafeView() {
+    this.enterZoomView('safe_view', () => {
       this.safeDials = [];
 
       const safePanel = this.add.graphics();
@@ -1109,7 +1076,7 @@ class GameScene extends Phaser.Scene {
 
       handleBox.on('pointerdown', () => {
         const combo = this.safeDials.map(d => d.value).join('');
-        const minigameConfig = TreehouseConfig.minigames.safe_input;
+        const minigameConfig = TreehouseConfig.minigames.safe_view;
         if (combo === minigameConfig.combination) {
           stateManager.executeActions(minigameConfig.onSuccess);
           this.exitZoomView();

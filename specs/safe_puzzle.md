@@ -11,7 +11,7 @@ Once the Dartboard Puzzle is solved, a locked safe is revealed on the wall in th
 
 ## 🎒 Items & Props
 *   **Locked Safe (South View):** Interactive hotspot revealed behind the dartboard once `solvedPuzzles` contains `'dartboard_solved'`. Clicking it opens the Safe Input Zoom View.
-*   **Safe Input Zoom View (`safe_input`):** A close-up view of the safe door containing:
+*   **Safe Input Zoom View (`safe_view`):** A close-up view of the safe door containing:
     *   **Four Rotary Dials:** Dials representing digits from `0` to `9`. Clicking a dial increments its value (wrapping back to `0` after `9`).
     *   **Open Handle:** An interactive button/lever to submit the dial combination.
 *   **Open Safe:** The graphical representation of the safe in the main South View once unlocked. Shows the open compartment.
@@ -56,7 +56,7 @@ The implementation of this puzzle is verified through E2E tests.
 ### Test Case: Unlocking the Safe & Collecting the Key
 1.  **Open Safe Keypad View:**
     *   *Action:* Click the safe in South View (coordinates: `380, 205`).
-    *   *Expected:* `zoomView` is set to `'safe_input'`.
+    *   *Expected:* `zoomView` is set to `'safe_view'`.
 2.  **Submit Incorrect Combination:**
     *   *Action:* Set dials to `0000`, click the handle.
     *   *Expected:* Dialogue box displays: *"The handle won't budge. The dials must be in the wrong position."*

@@ -163,7 +163,7 @@ export const TreehouseConfig = {
             {
               if_flag: "dartboard_solved",
               then: [
-                "OPEN_ZOOM_VIEW: safe_input"
+                "OPEN_ZOOM_VIEW: safe_view"
               ]
             },
             {
@@ -191,11 +191,10 @@ export const TreehouseConfig = {
       onSuccess: [
         "SET_FLAG: dartboard_solved",
         "REMOVE_INVENTORY: paper_airplane",
-        "REFRESH_GRAPHICS",
-        "SHOW_DIALOG: With a soft click, a secret compartment slides open behind the dartboard, revealing a Rusty Old Key."
+        "OPEN_ZOOM_VIEW: safe_view"
       ]
     },
-    safe_input: {
+    safe_view: {
       type: "rotary_dials",
       combination: "1759",
       onSuccess: [

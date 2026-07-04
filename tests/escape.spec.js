@@ -237,10 +237,14 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await clickDartboardNumber(page, 20);
     await clickDartboardNumber(page, 10);
 
-    // Expected: zoomView closes, dartboard solved
-    await page.waitForFunction(() => window.__gameState.zoomView === null);
+    // Expected: zoomView transitions to safe_view, dartboard solved
+    await page.waitForFunction(() => window.__gameState.zoomView === 'safe_view');
     let solved = await page.evaluate(() => window.__gameState.solvedPuzzles.includes ? window.__gameState.solvedPuzzles.includes('dartboard_solved') : new Set(window.__gameState.solvedPuzzles).has('dartboard_solved'));
     expect(solved).toBe(true);
+
+    // Close zoom view to navigate to East View
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
 
     // 1. Collect Binoculars from East Window Sill (go to East View first)
     await page.locator('canvas').click({ position: { x: 40, y: 220 } });
@@ -305,7 +309,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
 
     // 5. Open Safe Keypad (380, 205)
     await page.locator('canvas').click({ position: { x: 380, y: 205 } });
-    await page.waitForFunction(() => window.__gameState.zoomView === 'safe_input');
+    await page.waitForFunction(() => window.__gameState.zoomView === 'safe_view');
 
     // Click keypad buttons programmatically: 1 -> 7 -> 5 -> 9 -> E
     await clickKeypadButton(page, '1');
@@ -361,6 +365,9 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await clickDartboardNumber(page, 13);
     await clickDartboardNumber(page, 20);
     await clickDartboardNumber(page, 10);
+    await page.waitForFunction(() => window.__gameState.zoomView === 'safe_view');
+    // Close zoom view to navigate to East View
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
     await page.waitForFunction(() => window.__gameState.zoomView === null);
 
     // Collect Binoculars (go to East View)
@@ -379,7 +386,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
 
     // Solve Safe
     await page.locator('canvas').click({ position: { x: 380, y: 205 } });
-    await page.waitForFunction(() => window.__gameState.zoomView === 'safe_input');
+    await page.waitForFunction(() => window.__gameState.zoomView === 'safe_view');
     
     // Click keypad buttons programmatically
     await clickKeypadButton(page, '1');
