@@ -18,6 +18,7 @@ Upon unlocking the exit door with the `rusty_key`, the player can step out onto 
 *   **Balcony Lamp:** Described in [specs/lamp_puzzle.md](file:///home/moltmans/escape-the-treehouse/specs/lamp_puzzle.md).
 *   **Zipline:** A metal cable anchored to the balcony railing, stretching down into the forest canopy. It has an attachment point on the shuttle for the harness but no way to ride it without a harness.
 *   **Pinned Note:** A slip of paper pinned to the wooden siding of the balcony, displaying the Pigpen cipher grid layout.
+*   **Door:** The other side of the door leading back into the treehouse.
 
 ### Collectibles & Inventory Items
 
@@ -34,7 +35,8 @@ Upon unlocking the exit door with the `rusty_key`, the player can step out onto 
 
 ### Navigation
 *   From the South View, clicking the unlocked exit door sets `currentView` to `'balcony'`.
-*   From the Balcony View, standard navigation controls (arrows or clicks) allow the player to return back inside to the South View.
+*   From the Balcony View, clicking on the door will switch back to the inside the treehouse.
+*   No other navigation is possible from the balcony, so no navigation arrows are needed.
 
 ### Pinned Note Interaction
 *   *Action:* Clicking the pinned note on the balcony wall.

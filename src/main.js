@@ -82,6 +82,8 @@ class PreloadScene extends Phaser.Scene {
     this.load.image('bg_north', 'assets/bg_north.jpg');
     this.load.image('bg_east', 'assets/bg_east.jpg');
     this.load.image('bg_south', 'assets/bg_south.jpg');
+    this.load.image('bg_balcony', 'assets/bg_balcony.jpg');
+    this.load.image('cipher_key_zoom', 'assets/cipher_key_zoom.jpg');
     this.load.image('paper_airplane_clue', 'assets/paper_airplane.jpg');
     this.load.image('dartboard', 'assets/dartboard.jpg');
     this.load.image('open_book', 'assets/open_book.jpg');
@@ -217,6 +219,7 @@ class GameScene extends Phaser.Scene {
     // Main room background
     this.bg = this.add.sprite(0, 0, `bg_${gameState.currentView}`).setOrigin(0, 0);
     this.bg.setDisplaySize(960, 440);
+    this.currentViewTracked = gameState.currentView;
 
     // Dynamic overlay for open compartment (drawn on top of background)
     this.compartmentGraphic = this.add.graphics();
@@ -323,21 +326,12 @@ class GameScene extends Phaser.Scene {
   }
 
   rotateRoom(direction) {
-    if (stateManager.state.dialogActive || stateManager.state.zoomView) return;
+    if (stateManager.state.dialogActive || stateManager.state.zoomView || stateManager.state.currentView === 'balcony') return;
 
     const views = ['north', 'east', 'south'];
     let index = views.indexOf(stateManager.state.currentView);
     index = (index + direction + views.length) % views.length;
     stateManager.setView(views[index]);
-
-    this.cameras.main.fadeOut(150, 18, 14, 10);
-    this.cameras.main.once('camerafadeoutcomplete', () => {
-      this.bg.setTexture(`bg_${stateManager.state.currentView}`);
-      this.bg.setDisplaySize(960, 440);
-      this.updateHotspots();
-      this.updateDynamicGraphics();
-      this.cameras.main.fadeIn(150, 18, 14, 10);
-    });
   }
 
   // --- INVENTORY ---
@@ -443,6 +437,8 @@ class GameScene extends Phaser.Scene {
                 this.inspectPaperAirplane();
               } else if (item === 'trees_book') {
                 this.inspectTreesBook();
+              } else if (item === 'pigpen_cipher_key') {
+                this.inspectCipherKey();
               }
             }
           }
@@ -607,6 +603,18 @@ class GameScene extends Phaser.Scene {
   }
 
   handleStateChanged(state) {
+    if (state.currentView !== this.currentViewTracked) {
+      this.currentViewTracked = state.currentView;
+      this.cameras.main.fadeOut(150, 18, 14, 10);
+      this.cameras.main.once('camerafadeoutcomplete', () => {
+        this.bg.setTexture(`bg_${state.currentView}`);
+        this.bg.setDisplaySize(960, 440);
+        this.updateHotspots();
+        this.updateDynamicGraphics();
+        this.cameras.main.fadeIn(150, 18, 14, 10);
+      });
+    }
+
     if (state.dialogActive) {
       this.dialogTxt.setText(state.dialogText);
       this.dialogBg.setVisible(true);
@@ -622,9 +630,12 @@ class GameScene extends Phaser.Scene {
       if (this.dialogBlocker) {
         this.dialogBlocker.setVisible(false);
       }
-      if (!state.zoomView) {
+      if (!state.zoomView && state.currentView !== 'balcony') {
         this.leftArrow.setVisible(true);
         this.rightArrow.setVisible(true);
+      } else {
+        this.leftArrow.setVisible(false);
+        this.rightArrow.setVisible(false);
       }
     }
     this.updateDynamicGraphics();
@@ -645,6 +656,7 @@ class GameScene extends Phaser.Scene {
           if (arg === 'south_window_zoom') this.inspectSouthWindow();
           else if (arg === 'safe_view') this.enterSafeView();
           else if (arg === 'dartboard_view') this.enterDartboardView();
+          else if (arg === 'cipher_key_zoom') this.inspectCipherKey();
           break;
         case 'LAUNCH_MINIGAME':
           if (arg === 'open_safe_compartment') {
@@ -710,6 +722,28 @@ class GameScene extends Phaser.Scene {
       });
 
       this.zoomContainer.add([paper, title, ...numObjects]);
+    });
+  }
+
+  inspectCipherKey() {
+    this.enterZoomView('cipher_key_zoom', () => {
+      const card = this.add.graphics();
+      card.fillStyle(0xfaf6ee, 1);
+      card.fillRoundedRect(220, 45, 520, 330, 10);
+      card.lineStyle(2, 0xd4a373, 1);
+      card.strokeRoundedRect(220, 45, 520, 330, 10);
+
+      const img = this.add.image(480, 210, 'cipher_key_zoom');
+      img.setDisplaySize(480, 270);
+
+      const title = this.add.text(480, 65, 'Pigpen Cipher Key', {
+        fontFamily: 'Playfair Display',
+        fontSize: '18px',
+        fill: '#3d2b1f',
+        fontWeight: 'bold'
+      }).setOrigin(0.5);
+
+      this.zoomContainer.add([card, img, title]);
     });
   }
 

@@ -56,7 +56,8 @@ describe('Escape Room Headless Core Engine', () => {
       "SET_FLAG: solved_puzzle",
       "ADD_INVENTORY: paper_airplane",
       "OPEN_ZOOM_VIEW: safe_view",
-      "SHOW_DIALOG: Hello World"
+      "SHOW_DIALOG: Hello World",
+      "SET_VIEW: balcony"
     ]);
 
     expect(state.hasFlag("solved_puzzle")).toBe(true);
@@ -64,6 +65,7 @@ describe('Escape Room Headless Core Engine', () => {
     expect(state.state.zoomView).toBe("safe_view");
     expect(state.state.dialogText).toBe("Hello World");
     expect(state.state.dialogActive).toBe(true);
+    expect(state.state.currentView).toBe("balcony");
 
     state.executeActions([
       "REMOVE_INVENTORY: paper_airplane"

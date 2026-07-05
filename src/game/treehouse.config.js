@@ -113,7 +113,7 @@ export const TreehouseConfig = {
           interactions: [
             {
               if_flag: "door_unlocked",
-              then: ["TRIGGER_WIN"]
+              then: ["SET_VIEW: balcony"]
             },
             {
               if_selected_item: "rusty_key",
@@ -175,6 +175,54 @@ export const TreehouseConfig = {
           ]
         }
       ]
+    },
+
+    balcony: {
+      backgroundImage: "bg_balcony",
+      hotspots: [
+        {
+          name: "exit_door",
+          rect: [930, 370, 60, 340],
+          interactions: [
+            {
+              else: [
+                "SET_VIEW: south"
+              ]
+            }
+          ]
+        },
+        {
+          name: "pinned_note",
+          rect: [860, 230, 100, 150],
+          interactions: [
+            {
+              if_flag: "!found_cipher_key",
+              then: [
+                "SET_FLAG: found_cipher_key",
+                "ADD_INVENTORY: pigpen_cipher_key",
+                "OPEN_ZOOM_VIEW: cipher_key_zoom",
+                "SHOW_DIALOG: You take the pinned note from the wall. It appears to be a key for translating the strange symbols."
+              ]
+            },
+            {
+              else: [
+                "SHOW_DIALOG: The wall where the note was pinned."
+              ]
+            }
+          ]
+        },
+        {
+          name: "zipline",
+          rect: [510, 520, 60, 80],
+          interactions: [
+            {
+              else: [
+                "SHOW_DIALOG: A zipline overlooking the forest. It looks like a fast way down, but I need a harness to use it safely."
+              ]
+            }
+          ]
+        }
+      ]
     }
   },
 
@@ -182,7 +230,8 @@ export const TreehouseConfig = {
     origami_paper: { title: "A sheet of paper", asset: "graphics_built_card" },
     origami_book: { title: "Origami Guide", asset: "open_origami_book" },
     paper_airplane: { title: "Folded Paper Airplane", asset: "paper_airplane_clue" },
-    trees_book: { title: "Trees of North America", asset: "open_book" }
+    trees_book: { title: "Trees of North America", asset: "open_book" },
+    cipher_key_zoom: { title: "Pigpen Cipher Key", asset: "cipher_key_zoom" }
   },
 
   minigames: {

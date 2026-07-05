@@ -526,9 +526,49 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     // 4. Click the Exit Door again (185, 270)
     await page.locator('canvas').click({ position: { x: 185, y: 270 } });
 
-    // Expected: The Victory Screen is shown (door_unlocked in solvedPuzzles)
-    const doorUnlocked = await page.evaluate(() => window.__gameState.solvedPuzzles.includes ? window.__gameState.solvedPuzzles.includes('door_unlocked') : new Set(window.__gameState.solvedPuzzles).has('door_unlocked'));
-    expect(doorUnlocked).toBe(true);
+    // Expected: currentView is set to 'balcony'
+    await page.waitForFunction(() => window.__gameState.currentView === 'balcony');
+
+    // 5. Click the Zipline hotspot (510, 520)
+    await page.locator('canvas').click({ position: { x: 510, y: 520 } });
+    dialogText = await page.evaluate(() => window.__gameState.dialogText);
+    expect(dialogText).toBe('A zipline overlooking the forest. It looks like a fast way down, but I need a harness to use it safely.');
+    await dismissDialog(page);
+
+    // 6. Click the pinned note on the wall (860, 300)
+    await page.locator('canvas').click({ position: { x: 860, y: 300 } });
+
+    // Expected: pigpen_cipher_key is added to inventory, found_cipher_key is set, zoomView is cipher_key_zoom
+    const hasCipherKey = await page.evaluate(() => window.__gameState.inventory.includes('pigpen_cipher_key'));
+    expect(hasCipherKey).toBe(true);
+
+    const foundCipherKey = await page.evaluate(() => {
+      const solved = window.__gameState.solvedPuzzles;
+      return solved.includes ? solved.includes('found_cipher_key') : new Set(solved).has('found_cipher_key');
+    });
+    expect(foundCipherKey).toBe(true);
+
+    await page.waitForFunction(() => window.__gameState.zoomView === 'cipher_key_zoom');
+
+    dialogText = await page.evaluate(() => window.__gameState.dialogText);
+    expect(dialogText).toBe('You take the pinned note from the wall. It appears to be a key for translating the strange symbols.');
+    await dismissDialog(page);
+
+    // 7. Close zoom view (900, 30)
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
+
+    // 8. Inspect the Pigpen Cipher Key in the inventory slot 2 (280, 490)
+    await page.locator('canvas').click({ position: { x: 280, y: 490 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'cipher_key_zoom');
+
+    // Close zoom view again
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
+
+    // 9. Click the door on the balcony (930, 370) to go back inside
+    await page.locator('canvas').click({ position: { x: 930, y: 370 } });
+    await page.waitForFunction(() => window.__gameState.currentView === 'south');
   });
 
   test('Test Case 5: Dialogue Blocking & Dismissal Behavior', async ({ page }) => {

@@ -131,6 +131,9 @@ export class StateManager {
         case 'SET_FLAG':
           this.setFlag(arg);
           break;
+        case 'SET_VIEW':
+          this.setView(arg);
+          break;
         case 'CLEAR_FLAG':
           this.clearFlag(arg);
           break;
