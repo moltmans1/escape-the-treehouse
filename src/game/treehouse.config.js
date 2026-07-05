@@ -182,7 +182,7 @@ export const TreehouseConfig = {
       hotspots: [
         {
           name: "exit_door",
-          rect: [810, 320, 180, 440],
+          rect: [930, 220, 60, 440],
           interactions: [
             {
               else: [
@@ -193,7 +193,7 @@ export const TreehouseConfig = {
         },
         {
           name: "pinned_note",
-          rect: [645, 220, 70, 100],
+          rect: [860, 200, 80, 120],
           interactions: [
             {
               if_flag: "!found_cipher_key",
@@ -213,7 +213,7 @@ export const TreehouseConfig = {
         },
         {
           name: "zipline",
-          rect: [510, 290, 60, 80],
+          rect: [510, 270, 80, 80],
           interactions: [
             {
               else: [
@@ -224,11 +224,11 @@ export const TreehouseConfig = {
         },
         {
           name: "balcony_lamp",
-          rect: [930, 360, 80, 160],
+          rect: [395, 350, 50, 90],
           interactions: [
             {
               else: [
-                "SHOW_DIALOG: A table lamp. There's a cross pattern carved into its wooden base."
+                "SHOW_DIALOG: A balcony lamp hanging from the railing. It has a carved cross pattern on its base."
               ]
             }
           ]

@@ -545,8 +545,13 @@ class GameScene extends Phaser.Scene {
     this.updateHotspots();
     this.updateCanvasCursor();
     
-    this.leftArrow.setVisible(true);
-    this.rightArrow.setVisible(true);
+    if (stateManager.state.currentView !== 'balcony') {
+      this.leftArrow.setVisible(true);
+      this.rightArrow.setVisible(true);
+    } else {
+      this.leftArrow.setVisible(false);
+      this.rightArrow.setVisible(false);
+    }
 
     this.thrownDarts = [];
     this.dartboardInputLocked = false;
