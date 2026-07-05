@@ -27,9 +27,9 @@ The player must inspect the dartboard in the South View and click standard dartb
   - A maximum of three darts can be thrown.
   - After the 3rd dart is thrown:
     - The player cannot throw additional darts.
-    - If the 3-digit sequence matches the target combination (`13` -> `20` -> `10`), the darts remain visible for 2 seconds, and then the view transitions to the safe zoom view and the puzzle is marked as solved.
-    - If the sequence is incorrect, the darts remain visible for 2 seconds, and then all darts disappear, and the sequence resets so the player can try again.
-  - If the player closes the zoom view at any point (even mid-sequence or during the 2-second delay), all darts are cleared and the sequence is reset immediately.
+    - If the 3-digit sequence matches the target combination (`13` -> `20` -> `10`), the darts remain visible for 0.5 seconds, and then the view transitions to the safe zoom view and the puzzle is marked as solved.
+    - If the sequence is incorrect, the darts remain visible for 0.5 seconds, and then all darts disappear, and the sequence resets so the player can try again.
+  - If the player closes the zoom view at any point (even mid-sequence or during the 0.5-second delay), all darts are cleared and the sequence is reset immediately.
 
 ## ⚙️ Logic & State
 
@@ -42,7 +42,7 @@ The player must inspect the dartboard in the South View and click standard dartb
 *   Clicks are recorded in `gameState.dartboardSequence`.
 
 ### State Changes upon Solution
-*   `gameState.zoomView` changes to `safe_view` (after a 2-second delay with darts visible).
+*   `gameState.zoomView` changes to `safe_view` (after a 0.5-second delay with darts visible).
 *   `gameState.solvedPuzzles` receives the value `'dartboard_solved'`.
 *   `paper_airplane` is removed from `gameState.inventory`.
 
@@ -59,7 +59,7 @@ The implementation of this puzzle is verified through E2E tests.
     *   *Action:* Click dartboard number sections in sequence: `13` -> `20` -> `10`.
     *   *Expected:* 
         *   Darts appear on the board at the clicked coordinates.
-        *   After a 2-second delay, `zoomView` is set to `'safe_view'`.
+        *   After a 0.5-second delay, `zoomView` is set to `'safe_view'`.
         *   `solvedPuzzles` contains `'dartboard_solved'`.
         *   `paper_airplane` is removed from `inventory`.
 

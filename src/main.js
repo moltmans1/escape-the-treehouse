@@ -822,7 +822,7 @@ class GameScene extends Phaser.Scene {
 
         if (seqLen === 3) {
           this.dartboardInputLocked = true;
-          this.time.delayedCall(2000, () => {
+          this.time.delayedCall(500, () => {
             const targetSeq = minigameConfig.target;
             const isCorrect = gameState.dartboardSequence.length === 3 &&
                               gameState.dartboardSequence.every((val, i) => val === targetSeq[i]);

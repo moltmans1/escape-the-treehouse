@@ -398,7 +398,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     });
     expect(blockedDartsCount).toBe(3);
 
-    // Wait for the 2 seconds delay to complete (waitForFunction keeps requestAnimationFrame ticking in headless browser)
+    // Wait for the 0.5 seconds delay to complete (waitForFunction keeps requestAnimationFrame ticking in headless browser)
     await page.waitForFunction(() => {
       const gameScene = window.__game.scene.keys.GameScene;
       return gameScene && gameScene.thrownDarts && gameScene.thrownDarts.length === 0;
