@@ -351,6 +351,78 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.waitForFunction(() => window.__gameState.zoomView === 'safe_view');
   });
 
+  test('Test Case 3b: Dartboard Input Lock & Reset', async ({ page }) => {
+    // Navigate to South View
+    await page.locator('canvas').click({ position: { x: 920, y: 220 } });
+    await page.waitForFunction(() => window.__gameState.currentView === 'east');
+    await page.locator('canvas').click({ position: { x: 920, y: 220 } });
+    await page.waitForFunction(() => window.__gameState.currentView === 'south');
+
+    // Open dartboard
+    await page.locator('canvas').click({ position: { x: 380, y: 205 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'dartboard');
+    await page.waitForTimeout(200);
+
+    // Verify initially no darts thrown
+    let initialDartsCount = await page.evaluate(() => {
+      const gameScene = window.__game.scene.keys.GameScene;
+      return gameScene && gameScene.thrownDarts ? gameScene.thrownDarts.length : -1;
+    });
+    expect(initialDartsCount).toBe(0);
+
+    // Throw three incorrect darts
+    await clickDartboardNumber(page, 5);
+    await clickDartboardNumber(page, 5);
+    await clickDartboardNumber(page, 5);
+
+    // Verify 3 darts are visible on the board
+    let midDartsCount = await page.evaluate(() => {
+      const gameScene = window.__game.scene.keys.GameScene;
+      return gameScene && gameScene.thrownDarts ? gameScene.thrownDarts.length : -1;
+    });
+    expect(midDartsCount).toBe(3);
+
+    // Verify sequence has 3 items
+    let midSeqLength = await page.evaluate(() => window.__gameState.dartboardSequence.length);
+    expect(midSeqLength).toBe(3);
+
+    // Immediately click a 4th number and verify it is BLOCKED
+    await clickDartboardNumber(page, 10);
+
+    let blockedSeqLength = await page.evaluate(() => window.__gameState.dartboardSequence.length);
+    expect(blockedSeqLength).toBe(3);
+
+    let blockedDartsCount = await page.evaluate(() => {
+      const gameScene = window.__game.scene.keys.GameScene;
+      return gameScene && gameScene.thrownDarts ? gameScene.thrownDarts.length : -1;
+    });
+    expect(blockedDartsCount).toBe(3);
+
+    // Wait for the 2 seconds delay to complete (waitForFunction keeps requestAnimationFrame ticking in headless browser)
+    await page.waitForFunction(() => {
+      const gameScene = window.__game.scene.keys.GameScene;
+      return gameScene && gameScene.thrownDarts && gameScene.thrownDarts.length === 0;
+    });
+
+    // Verify darts are cleared and sequence is reset
+    let finalDartsCount = await page.evaluate(() => {
+      const gameScene = window.__game.scene.keys.GameScene;
+      return gameScene && gameScene.thrownDarts ? gameScene.thrownDarts.length : -1;
+    });
+    expect(finalDartsCount).toBe(0);
+
+    let finalSeqLength = await page.evaluate(() => window.__gameState.dartboardSequence.length);
+    expect(finalSeqLength).toBe(0);
+
+    // Verify input is unlocked
+    await clickDartboardNumber(page, 13);
+    let afterUnlockDartsCount = await page.evaluate(() => {
+      const gameScene = window.__game.scene.keys.GameScene;
+      return gameScene && gameScene.thrownDarts ? gameScene.thrownDarts.length : -1;
+    });
+    expect(afterUnlockDartsCount).toBe(1);
+  });
+
   test('Test Case 4: Final Escape', async ({ page }) => {
     // Setup Origami
     await page.locator('canvas').click({ position: { x: 260, y: 290 } }); // Hammock

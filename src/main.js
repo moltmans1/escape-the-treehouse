@@ -93,13 +93,42 @@ class PreloadScene extends Phaser.Scene {
     this.load.image('south_window_view', 'assets/south_window_view.jpg');
     this.load.image('safe_bg', 'assets/safe.png');
     this.load.image('safe_open', 'assets/safe_open.jpg');
+    this.load.image('dart', 'assets/dart.jpg');
     
     // Load navigation arrow
     this.createArrowTexture();
   }
 
   create() {
+    this.createTransparentDartTexture();
     this.scene.start('MainMenuScene');
+  }
+
+  createTransparentDartTexture() {
+    const dartSource = this.textures.get('dart').getSourceImage();
+    const width = dartSource.width;
+    const height = dartSource.height;
+    const dartCanvas = this.textures.createCanvas('dart_transparent', width, height);
+    const ctx = dartCanvas.context;
+    
+    ctx.drawImage(dartSource, 0, 0);
+    
+    const imgData = ctx.getImageData(0, 0, width, height);
+    const data = imgData.data;
+    
+    const tolerance = 30;
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i+1];
+      const b = data[i+2];
+      
+      if (r > 255 - tolerance && g > 255 - tolerance && b > 255 - tolerance) {
+        data[i+3] = 0;
+      }
+    }
+    
+    ctx.putImageData(imgData, 0, 0);
+    dartCanvas.refresh();
   }
 
   createArrowTexture() {
@@ -179,7 +208,8 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
-
+    this.thrownDarts = [];
+    this.dartboardInputLocked = false;
 
     // Set the default cursor state initially
     this.input.setDefaultCursor('default');
@@ -471,6 +501,8 @@ class GameScene extends Phaser.Scene {
     this.rightArrow.setVisible(false);
 
     this.zoomContainer.removeAll(true);
+    this.thrownDarts = [];
+    this.dartboardInputLocked = false;
     
     const overlay = this.add.rectangle(480, 220, 960, 440, 0x000000, 0.75).setInteractive();
     this.zoomContainer.add(overlay);
@@ -519,6 +551,10 @@ class GameScene extends Phaser.Scene {
     
     this.leftArrow.setVisible(true);
     this.rightArrow.setVisible(true);
+
+    this.thrownDarts = [];
+    this.dartboardInputLocked = false;
+    gameState.dartboardSequence = [];
   }
 
   // --- DYNAMIC GRAPHICS ---
@@ -756,10 +792,19 @@ class GameScene extends Phaser.Scene {
 
       dbImage.on('pointerdown', (pointer) => {
         if (stateManager.hasFlag('dartboard_solved')) return;
+        if (this.dartboardInputLocked) return;
 
         // Calculate click coordinates relative to dartboard center (480, 220)
         const clickX = pointer.worldX;
         const clickY = pointer.worldY;
+
+        // Spawn a non-interactive dart at the click coordinates
+        const dart = this.add.image(clickX, clickY, 'dart_transparent')
+          .setOrigin(0.06, 0.5) // align the steel tip (about 6% from left) with clickX, clickY
+          .setRotation(-0.26)   // tilted 15 degrees downward (points left-down)
+          .setDisplaySize(70, 70);
+        this.zoomContainer.add(dart);
+        this.thrownDarts.push(dart);
 
         const angleRad = Math.atan2(clickY - 220, clickX - 480);
         let angleDeg = angleRad * (180 / Math.PI);
@@ -773,17 +818,24 @@ class GameScene extends Phaser.Scene {
         gameState.dartboardSequence.push(num);
 
         const minigameConfig = TreehouseConfig.minigames.dartboard_view;
-        // Check sequence
         const seqLen = gameState.dartboardSequence.length;
-        const targetSeq = minigameConfig.target.slice(0, seqLen);
 
-        if (gameState.dartboardSequence.every((val, i) => val === targetSeq[i])) {
-          if (seqLen === minigameConfig.target.length) {
-            stateManager.executeActions(minigameConfig.onSuccess);
-          }
-        } else {
-          // Reset on mistake
-          gameState.dartboardSequence = [];
+        if (seqLen === 3) {
+          this.dartboardInputLocked = true;
+          this.time.delayedCall(2000, () => {
+            const targetSeq = minigameConfig.target;
+            const isCorrect = gameState.dartboardSequence.length === 3 &&
+                              gameState.dartboardSequence.every((val, i) => val === targetSeq[i]);
+            if (isCorrect) {
+              stateManager.executeActions(minigameConfig.onSuccess);
+            } else {
+              // Reset on mistake
+              this.thrownDarts.forEach(d => { if (d && d.destroy) d.destroy(); });
+              this.thrownDarts = [];
+              gameState.dartboardSequence = [];
+              this.dartboardInputLocked = false;
+            }
+          });
         }
       });
     });
