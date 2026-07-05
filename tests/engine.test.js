@@ -80,4 +80,42 @@ describe('Escape Room Headless Core Engine', () => {
     state.setZoomView("origami_book");
     expect(state.state.zoomView).toBe("origami_book");
   });
+
+  it('should toggle lamp flags and solve the lamp puzzle when combination is correct', () => {
+    // Initial states: no lamp flags set
+    expect(state.hasFlag('lamp_north_on')).toBe(false);
+    expect(state.hasFlag('lamp_east_on')).toBe(false);
+    expect(state.hasFlag('lamp_south_on')).toBe(false);
+    expect(state.hasFlag('lamp_balcony_on')).toBe(false);
+    expect(state.hasFlag('lamp_puzzle_solved')).toBe(false);
+
+    // Set correct configuration
+    state.executeActions([
+      'SET_FLAG: lamp_north_on',
+      'SET_FLAG: lamp_east_on',
+      'SET_FLAG: lamp_balcony_on',
+      'CHECK_LAMP_PUZZLE'
+    ]);
+
+    expect(state.hasFlag('lamp_north_on')).toBe(true);
+    expect(state.hasFlag('lamp_east_on')).toBe(true);
+    expect(state.hasFlag('lamp_south_on')).toBe(false);
+    expect(state.hasFlag('lamp_balcony_on')).toBe(true);
+    
+    // Puzzle should be solved
+    expect(state.hasFlag('lamp_puzzle_solved')).toBe(true);
+    expect(state.state.inventory).toContain('brass_key');
+
+    // Reset and test incorrect state: e.g. south lamp ON
+    state.reset();
+    state.executeActions([
+      'SET_FLAG: lamp_north_on',
+      'SET_FLAG: lamp_east_on',
+      'SET_FLAG: lamp_south_on', // incorrect
+      'SET_FLAG: lamp_balcony_on',
+      'CHECK_LAMP_PUZZLE'
+    ]);
+    expect(state.hasFlag('lamp_puzzle_solved')).toBe(false);
+    expect(state.state.inventory).not.toContain('brass_key');
+  });
 });

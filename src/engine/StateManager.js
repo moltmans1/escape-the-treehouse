@@ -155,6 +155,9 @@ export class StateManager {
         case 'LAUNCH_MINIGAME':
           // Minigame state changes are processed by listeners, do not set zoomView
           break;
+        case 'CHECK_LAMP_PUZZLE':
+          this.checkLampPuzzle();
+          break;
         default:
           // Other commands like REFRESH_GRAPHICS will be handled by the Phaser Shell listening to state_changed
           break;
@@ -163,5 +166,18 @@ export class StateManager {
 
     // Notify listeners that actions have run
     this.emit('actions_executed', actions);
+  }
+
+  checkLampPuzzle() {
+    const northOn = this.state.solvedPuzzles.has('lamp_north_on');
+    const eastOn = this.state.solvedPuzzles.has('lamp_east_on');
+    const southOn = this.state.solvedPuzzles.has('lamp_south_on');
+    const balconyOn = this.state.solvedPuzzles.has('lamp_balcony_on');
+
+    if (northOn && eastOn && !southOn && balconyOn) {
+      this.setFlag('lamp_puzzle_solved');
+      this.addItem('brass_key');
+      this.showDialog("A hidden compartment in the bottom of the lamp popped open and revealed a brass key! It has been added to your inventory.");
+    }
   }
 }

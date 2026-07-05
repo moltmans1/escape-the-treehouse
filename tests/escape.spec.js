@@ -1,6 +1,14 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Escape the Treehouse E2E Tests', () => {
+  // Helper to check set membership in the browser
+  const hasFlag = async (page, flag) => {
+    return await page.evaluate((f) => {
+      const solved = window.__gameState.solvedPuzzles;
+      return solved.includes ? solved.includes(f) : new Set(solved).has(f);
+    }, flag);
+  };
+
   // Helper to programmatically hover over coordinates using trusted mouse events
   const hoverPosition = async (page, x, y) => {
     const canvas = page.locator('canvas');
@@ -607,6 +615,105 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.locator('canvas').click({ position: { x: 500, y: 100 } });
     isActive = await page.evaluate(() => window.__gameState.dialogActive);
     expect(isActive).toBe(false);
+  });
+
+  test('Test Case 6: Lamp Puzzle Toggling & Solving', async ({ page }) => {
+    // 1. Open the North Lamp zoom view in the North View (830, 330)
+    await page.locator('canvas').click({ position: { x: 830, y: 330 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'lamp_zoom');
+
+    // Verify it is North Lamp (Spiral)
+    let titleText = await page.evaluate(() => {
+      const gameScene = window.__game.scene.keys.GameScene;
+      const titleObj = gameScene.zoomContainer.list.find(c => c.text && c.text.includes('Lamp'));
+      return titleObj ? titleObj.text : '';
+    });
+    expect(titleText).toContain('North Lamp (Spiral)');
+
+    // Toggle North Lamp ON
+    await page.locator('canvas').click({ position: { x: 480, y: 210 } });
+    expect(await hasFlag(page, 'lamp_north_on')).toBe(true);
+
+    // Toggle North Lamp OFF
+    await page.locator('canvas').click({ position: { x: 480, y: 210 } });
+    expect(await hasFlag(page, 'lamp_north_on')).toBe(false);
+
+    // Toggle North Lamp ON again
+    await page.locator('canvas').click({ position: { x: 480, y: 210 } });
+    expect(await hasFlag(page, 'lamp_north_on')).toBe(true);
+
+    // Close zoom view
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
+
+    // 2. Rotate to East View
+    await page.locator('canvas').click({ position: { x: 920, y: 220 } });
+    await page.waitForFunction(() => window.__gameState.currentView === 'east');
+
+    // Open East Lamp zoom view (615, 380)
+    await page.locator('canvas').click({ position: { x: 615, y: 380 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'lamp_zoom');
+
+    // Toggle East Lamp ON
+    await page.locator('canvas').click({ position: { x: 480, y: 210 } });
+    expect(await hasFlag(page, 'lamp_east_on')).toBe(true);
+
+    // Close zoom view
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
+
+    // 3. Rotate to South View
+    await page.locator('canvas').click({ position: { x: 920, y: 220 } });
+    await page.waitForFunction(() => window.__gameState.currentView === 'south');
+
+    // Open South Lamp zoom view (915, 345)
+    await page.locator('canvas').click({ position: { x: 915, y: 345 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'lamp_zoom');
+
+    // Toggle South Lamp ON
+    await page.locator('canvas').click({ position: { x: 480, y: 210 } });
+    expect(await hasFlag(page, 'lamp_south_on')).toBe(true);
+
+    // Toggle South Lamp OFF (it must be OFF to solve the puzzle)
+    await page.locator('canvas').click({ position: { x: 480, y: 210 } });
+    expect(await hasFlag(page, 'lamp_south_on')).toBe(false);
+
+    // Close zoom view
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
+
+    // 4. Force state transition to Balcony View
+    await page.evaluate(() => {
+      const stateManager = window.__stateManager;
+      stateManager.setFlag('door_unlocked');
+      stateManager.setView('balcony');
+    });
+    await page.waitForFunction(() => window.__gameState.currentView === 'balcony');
+
+    // Open Balcony Lamp zoom view (903, 298)
+    await page.locator('canvas').click({ position: { x: 903, y: 298 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'lamp_zoom');
+
+    // Toggle Balcony Lamp ON -> Should solve the puzzle
+    await page.locator('canvas').click({ position: { x: 480, y: 210 } });
+
+    // Verify puzzle solved
+    expect(await hasFlag(page, 'lamp_puzzle_solved')).toBe(true);
+
+    // Verify brass key in inventory
+    let inventory = await page.evaluate(() => window.__gameState.inventory);
+    expect(inventory).toContain('brass_key');
+
+    // Verify dialog displayed
+    let dialogText = await page.evaluate(() => window.__gameState.dialogText);
+    expect(dialogText).toBe('A hidden compartment in the bottom of the lamp popped open and revealed a brass key! It has been added to your inventory.');
+
+    // Dismiss dialog
+    await dismissDialog(page);
+
+    // Close zoom view
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
   });
 
 });

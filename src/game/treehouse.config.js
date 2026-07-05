@@ -45,6 +45,15 @@ export const TreehouseConfig = {
           ]
         },
         {
+          name: "north_lamp",
+          rect: [830, 310, 50, 70],
+          interactions: [
+            {
+              else: ["OPEN_ZOOM_VIEW: lamp_zoom"]
+            }
+          ]
+        },
+        {
           name: "trunk",
           rect: [820, 370, 260, 140],
           interactions: [
@@ -100,6 +109,15 @@ export const TreehouseConfig = {
               ]
             }
           ]
+        },
+        {
+          name: "east_lamp",
+          rect: [615, 380, 50, 80],
+          interactions: [
+            {
+              else: ["OPEN_ZOOM_VIEW: lamp_zoom"]
+            }
+          ]
         }
       ]
     },
@@ -138,6 +156,15 @@ export const TreehouseConfig = {
               else: [
                 "SHOW_DIALOG: A cozy writing desk with inkwells and scrap paper."
               ]
+            }
+          ]
+        },
+        {
+          name: "south_lamp",
+          rect: [915, 345, 50, 100],
+          interactions: [
+            {
+              else: ["OPEN_ZOOM_VIEW: lamp_zoom"]
             }
           ]
         },
@@ -227,9 +254,7 @@ export const TreehouseConfig = {
           rect: [903, 298, 65, 160],
           interactions: [
             {
-              else: [
-                "SHOW_DIALOG: A table lamp. There's a cross pattern carved into its wooden base."
-              ]
+              else: ["OPEN_ZOOM_VIEW: lamp_zoom"]
             }
           ]
         }
@@ -242,7 +267,8 @@ export const TreehouseConfig = {
     origami_book: { title: "Origami Guide", asset: "open_origami_book" },
     paper_airplane: { title: "Folded Paper Airplane", asset: "paper_airplane_clue" },
     trees_book: { title: "Trees of North America", asset: "open_book" },
-    cipher_key_zoom: { title: "Cipher Key", asset: "cipher_key_zoom" }
+    cipher_key_zoom: { title: "Cipher Key", asset: "cipher_key_zoom" },
+    lamp_zoom: { title: "Table Lamp", asset: "lamp" }
   },
 
   minigames: {

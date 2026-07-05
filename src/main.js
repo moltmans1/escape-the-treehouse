@@ -96,6 +96,7 @@ class PreloadScene extends Phaser.Scene {
     this.load.image('safe_bg', 'assets/safe.png');
     this.load.image('safe_open', 'assets/safe_open.jpg');
     this.load.image('dart', 'assets/dart.jpg');
+    this.load.image('lamp', 'assets/lamp.jpg');
     
     // Load navigation arrow
     this.createArrowTexture();
@@ -577,10 +578,15 @@ class GameScene extends Phaser.Scene {
     if (currentViewConfig && currentViewConfig.hotspots) {
       currentViewConfig.hotspots.forEach(hotspot => {
         const [x, y, w, h] = hotspot.rect;
-        this.addHotspot(x, y, w, h, null, () => {
+        const rect = this.addHotspot(x, y, w, h, null, () => {
           const actions = interpreter.evaluateInteraction(hotspot.interactions);
           stateManager.executeActions(actions);
         });
+        if (hotspot.name.endsWith('_lamp')) {
+          rect.setDepth(2);
+        } else {
+          rect.setDepth(1);
+        }
       });
     }
   }
@@ -605,6 +611,7 @@ class GameScene extends Phaser.Scene {
     });
 
     this.hotspots.add(rect);
+    return rect;
   }
 
   handleStateChanged(state) {
@@ -662,6 +669,7 @@ class GameScene extends Phaser.Scene {
           else if (arg === 'safe_view') this.enterSafeView();
           else if (arg === 'dartboard_view') this.enterDartboardView();
           else if (arg === 'cipher_key_zoom') this.inspectCipherKey();
+          else if (arg === 'lamp_zoom') this.inspectLamp();
           break;
         case 'LAUNCH_MINIGAME':
           if (arg === 'open_safe_compartment') {
@@ -1107,6 +1115,133 @@ class GameScene extends Phaser.Scene {
     });
   }
 
+  inspectLamp() {
+    this.enterZoomView('lamp_zoom', () => {
+      const currentView = stateManager.state.currentView;
+      
+      let lampFlag = '';
+      let pattern = '';
+      let lampTitle = '';
+      
+      if (currentView === 'north') {
+        lampFlag = 'lamp_north_on';
+        pattern = 'Spiral';
+        lampTitle = 'North Lamp (Spiral)';
+      } else if (currentView === 'east') {
+        lampFlag = 'lamp_east_on';
+        pattern = 'Triangle';
+        lampTitle = 'East Lamp (Triangle)';
+      } else if (currentView === 'south') {
+        lampFlag = 'lamp_south_on';
+        pattern = 'Circle';
+        lampTitle = 'South Lamp (Circle)';
+      } else if (currentView === 'balcony') {
+        lampFlag = 'lamp_balcony_on';
+        pattern = 'Cross';
+        lampTitle = 'Balcony Lamp (Cross)';
+      } else {
+        return;
+      }
+
+      const isON = stateManager.hasFlag(lampFlag);
+
+      // Card/panel background
+      const card = this.add.graphics();
+      card.fillStyle(0xfaf6ee, 1);
+      card.fillRoundedRect(320, 45, 320, 350, 10);
+      card.lineStyle(2, 0xd4a373, 1);
+      card.strokeRoundedRect(320, 45, 320, 350, 10);
+      this.zoomContainer.add(card);
+
+      const title = this.add.text(480, 75, lampTitle, {
+        fontFamily: 'Playfair Display',
+        fontSize: '20px',
+        fill: '#3d2b1f',
+        fontWeight: 'bold'
+      }).setOrigin(0.5);
+      this.zoomContainer.add(title);
+
+      // Base lamp image
+      const lampImage = this.add.image(480, 210, 'lamp');
+      lampImage.setDisplaySize(220, 220);
+      this.zoomContainer.add(lampImage);
+
+      // Yellow glow overlay if ON, dark overlay/tint if OFF
+      const glowGraphics = this.add.graphics();
+      if (isON) {
+        lampImage.setTint(0xfff0ad);
+        // Yellow light bulb glow
+        glowGraphics.fillStyle(0xffe600, 0.3);
+        glowGraphics.fillCircle(480, 190, 50);
+        this.zoomContainer.add(glowGraphics);
+      } else {
+        lampImage.setTint(0x777777);
+      }
+
+      // Draw the metal work grill pattern surrounding/on the glass part (centered at 480, 190)
+      const patternGraphics = this.add.graphics();
+      patternGraphics.lineStyle(4, 0x1a1a1a, 0.95); // Thick dark metal lines
+
+      const centerX = 480;
+      const centerY = 190;
+
+      if (pattern === 'Circle') {
+        // Circle grill surrounding/on glass
+        patternGraphics.strokeCircle(centerX, centerY, 45);
+      } else if (pattern === 'Triangle') {
+        // Triangle grill
+        patternGraphics.beginPath();
+        patternGraphics.moveTo(centerX, centerY - 45);
+        patternGraphics.lineTo(centerX - 40, centerY + 30);
+        patternGraphics.lineTo(centerX + 40, centerY + 30);
+        patternGraphics.closePath();
+        patternGraphics.strokePath();
+      } else if (pattern === 'Cross') {
+        // Cross grill (plus/X pattern)
+        patternGraphics.lineBetween(centerX - 45, centerY - 45, centerX + 45, centerY + 45);
+        patternGraphics.lineBetween(centerX + 45, centerY - 45, centerX - 45, centerY + 45);
+        patternGraphics.lineBetween(centerX - 50, centerY, centerX + 50, centerY);
+        patternGraphics.lineBetween(centerX, centerY - 50, centerX, centerY + 50);
+      } else if (pattern === 'Spiral') {
+        // Spiral grill
+        patternGraphics.beginPath();
+        let r = 2.5;
+        for (let theta = 0; theta < 5.5 * Math.PI; theta += 0.15) {
+          let px = centerX + (r * theta) * Math.cos(theta);
+          let py = centerY + (r * theta) * Math.sin(theta);
+          if (theta === 0) {
+            patternGraphics.moveTo(px, py);
+          } else {
+            patternGraphics.lineTo(px, py);
+          }
+        }
+        patternGraphics.strokePath();
+      }
+      this.zoomContainer.add(patternGraphics);
+
+      // Toggle interaction hotspot over the lamp
+      const toggleHotspot = this.add.rectangle(480, 210, 180, 240, 0xffffff, 0.0)
+        .setInteractive({ useHandCursor: true });
+      
+      toggleHotspot.on('pointerover', () => {
+        toggleHotspot.setFillStyle(0xffffff, 0.05);
+        this.updateCanvasCursor();
+      });
+      toggleHotspot.on('pointerout', () => {
+        toggleHotspot.setFillStyle(0xffffff, 0.0);
+      });
+
+      toggleHotspot.on('pointerdown', () => {
+        const nextState = isON ? 'CLEAR_FLAG' : 'SET_FLAG';
+        stateManager.executeActions([`${nextState}: ${lampFlag}`, 'CHECK_LAMP_PUZZLE']);
+        // Refresh zoom view
+        this.inspectLamp();
+      });
+
+      this.zoomContainer.add(toggleHotspot);
+    });
+  }
+
   updateCanvasCursor() {
     // Custom cursor styling disabled
   }
@@ -1178,4 +1313,5 @@ const config = {
 const game = new Phaser.Game(config);
 window.__game = game;
 window.__gameState = gameState;
+window.__stateManager = stateManager;
 
