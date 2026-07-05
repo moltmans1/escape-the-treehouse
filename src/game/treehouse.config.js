@@ -182,7 +182,7 @@ export const TreehouseConfig = {
       hotspots: [
         {
           name: "exit_door",
-          rect: [930, 370, 60, 340],
+          rect: [810, 320, 180, 440],
           interactions: [
             {
               else: [
@@ -193,7 +193,7 @@ export const TreehouseConfig = {
         },
         {
           name: "pinned_note",
-          rect: [860, 230, 100, 150],
+          rect: [645, 220, 70, 100],
           interactions: [
             {
               if_flag: "!found_cipher_key",
@@ -213,11 +213,22 @@ export const TreehouseConfig = {
         },
         {
           name: "zipline",
-          rect: [510, 520, 60, 80],
+          rect: [510, 290, 60, 80],
           interactions: [
             {
               else: [
                 "SHOW_DIALOG: A zipline overlooking the forest. It looks like a fast way down, but I need a harness to use it safely."
+              ]
+            }
+          ]
+        },
+        {
+          name: "balcony_lamp",
+          rect: [930, 360, 80, 160],
+          interactions: [
+            {
+              else: [
+                "SHOW_DIALOG: A table lamp. There's a cross pattern carved into its wooden base."
               ]
             }
           ]
