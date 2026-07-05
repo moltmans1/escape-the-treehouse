@@ -802,7 +802,7 @@ class GameScene extends Phaser.Scene {
         const dart = this.add.image(clickX, clickY, 'dart_transparent')
           .setOrigin(0.06, 0.5) // align the steel tip (about 6% from left) with clickX, clickY
           .setRotation(-0.26)   // tilted 15 degrees downward (points left-down)
-          .setDisplaySize(90, 90);
+          .setDisplaySize(110, 110);
         this.zoomContainer.add(dart);
         this.thrownDarts.push(dart);
 
