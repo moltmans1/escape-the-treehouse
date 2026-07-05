@@ -538,8 +538,8 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     // 6. Click the pinned note on the wall (621, 186)
     await page.locator('canvas').click({ position: { x: 621, y: 186 } });
 
-    // Expected: pigpen_cipher_key is added to inventory, found_cipher_key is set, zoomView is cipher_key_zoom
-    const hasCipherKey = await page.evaluate(() => window.__gameState.inventory.includes('pigpen_cipher_key'));
+    // Expected: cipher_key is added to inventory, found_cipher_key is set, zoomView is cipher_key_zoom
+    const hasCipherKey = await page.evaluate(() => window.__gameState.inventory.includes('cipher_key'));
     expect(hasCipherKey).toBe(true);
 
     const foundCipherKey = await page.evaluate(() => {
@@ -558,7 +558,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.locator('canvas').click({ position: { x: 900, y: 30 } });
     await page.waitForFunction(() => window.__gameState.zoomView === null);
 
-    // 8. Inspect the Pigpen Cipher Key in the inventory slot 2 (280, 490)
+    // 8. Inspect the Cipher Key in the inventory slot 2 (280, 490)
     await page.locator('canvas').click({ position: { x: 280, y: 490 } });
     await page.waitForFunction(() => window.__gameState.zoomView === 'cipher_key_zoom');
 

@@ -199,7 +199,7 @@ export const TreehouseConfig = {
               if_flag: "!found_cipher_key",
               then: [
                 "SET_FLAG: found_cipher_key",
-                "ADD_INVENTORY: pigpen_cipher_key",
+                "ADD_INVENTORY: cipher_key",
                 "OPEN_ZOOM_VIEW: cipher_key_zoom",
                 "SHOW_DIALOG: You take the pinned note from the wall. It appears to be a key for translating the strange symbols."
               ]
@@ -242,7 +242,7 @@ export const TreehouseConfig = {
     origami_book: { title: "Origami Guide", asset: "open_origami_book" },
     paper_airplane: { title: "Folded Paper Airplane", asset: "paper_airplane_clue" },
     trees_book: { title: "Trees of North America", asset: "open_book" },
-    cipher_key_zoom: { title: "Pigpen Cipher Key", asset: "cipher_key_zoom" }
+    cipher_key_zoom: { title: "Cipher Key", asset: "cipher_key_zoom" }
   },
 
   minigames: {

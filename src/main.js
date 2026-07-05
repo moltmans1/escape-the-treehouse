@@ -437,7 +437,7 @@ class GameScene extends Phaser.Scene {
                 this.inspectPaperAirplane();
               } else if (item === 'trees_book') {
                 this.inspectTreesBook();
-              } else if (item === 'pigpen_cipher_key') {
+              } else if (item === 'cipher_key') {
                 this.inspectCipherKey();
               }
             }
@@ -741,14 +741,7 @@ class GameScene extends Phaser.Scene {
       const img = this.add.image(480, 210, 'cipher_key_zoom');
       img.setDisplaySize(480, 270);
 
-      const title = this.add.text(480, 65, 'Pigpen Cipher Key', {
-        fontFamily: 'Playfair Display',
-        fontSize: '18px',
-        fill: '#3d2b1f',
-        fontWeight: 'bold'
-      }).setOrigin(0.5);
-
-      this.zoomContainer.add([card, img, title]);
+      this.zoomContainer.add([card, img]);
     });
   }
 
