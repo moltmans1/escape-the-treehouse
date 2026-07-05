@@ -83,7 +83,7 @@ class PreloadScene extends Phaser.Scene {
     this.load.image('bg_east', 'assets/bg_east.jpg');
     this.load.image('bg_south', 'assets/bg_south.jpg');
     this.load.image('bg_balcony', 'assets/bg_balcony.jpg');
-    this.load.image('cipher_key_zoom', 'assets/cipher_key_zoom.jpg');
+    this.load.image('cipher_key_zoom', 'assets/cipher_key_zoom.png');
     this.load.image('paper_airplane_clue', 'assets/paper_airplane.jpg');
     this.load.image('dartboard', 'assets/dartboard.jpg');
     this.load.image('open_book', 'assets/open_book.jpg');
