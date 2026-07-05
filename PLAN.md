@@ -26,7 +26,8 @@ graph TD
     A4 --> A5[Open Dartboard close-up view]
     A5 -->|Ref: Dartboard Spec| A6[Click Dartboard Sections: 13 -> 20 -> 10]
     A6 --> A7[Dartboard rotates down to reveal Locked Safe]
-    # Phase 3: Binoculars & Trees Puzzle
+    
+    %% Phase 3: Binoculars & Trees Puzzle
     B1[Find Binoculars on East Window Sill] --> B3[Open South Window Zoom View]
     B2[Find Trees Book on East Wall] --> B4[Correlate leaf shapes with Book pages]
     B3 -->|Use Binoculars to inspect trees| B4
@@ -36,15 +37,26 @@ graph TD
     B4 -->|Ref: Binoculars Spec| B5
     B5 --> B6[Safe opens and reveals Rusty Old Key]
     
-    %% Escape
+    %% Door Unlocking
     B6 -->|Ref: Exit Door Spec| A8[Select Rusty Old Key to unlock door]
-    A8 --> A9[Click door to escape and win!]
+    A8 --> A9[Click door to access Balcony]
+    
+    %% Phase 4: Lamp Puzzle & Escape
+    A9 --> C1[Find Cipher Key on Balcony & 4 clues in room]
+    C1 --> C2[Toggle 4 Lamps: North, East, South, Balcony]
+    C2 -->|Ref: Lamp Spec| C3[Match combo: North=ON, East=ON, South=OFF, Balcony=ON]
+    C3 --> C4[Get Brass Key from bottom of Lamp]
+    C4 --> C5[Unlock Trunk in North View with Brass Key]
+    C5 --> C6[Collect Zipline Harness from Trunk]
+    C6 --> C7[Select Zipline Harness and click Balcony Zipline]
+    C7 --> C8[Escape and win!]
     
     click A3 "file:///home/moltmans/escape-the-treehouse/specs/origami_folding.md" "Origami Folding Spec"
     click A6 "file:///home/moltmans/escape-the-treehouse/specs/dartboard_puzzle.md" "Dartboard Puzzle Spec"
     click B5 "file:///home/moltmans/escape-the-treehouse/specs/binoculars_puzzle.md" "Binoculars Puzzle Spec"
     click B6 "file:///home/moltmans/escape-the-treehouse/specs/safe_puzzle.md" "Safe Puzzle Spec"
     click A8 "file:///home/moltmans/escape-the-treehouse/specs/exit_door.md" "Exit Door Spec"
+    click C3 "file:///home/moltmans/escape-the-treehouse/specs/lamp_puzzle.md" "Lamp Spec"
 ```
 
 ---
@@ -56,7 +68,8 @@ Each active puzzle is modularized and detailed in its own specification file und
 2.  **[Dartboard Puzzle Spec](file:///home/moltmans/escape-the-treehouse/specs/dartboard_puzzle.md):** Details opening the dartboard zoom, solving the combination `13 -> 20 -> 10`, and revealing the Safe behind the dartboard.
 3.  **[Binoculars & Trees Spec](file:///home/moltmans/escape-the-treehouse/specs/binoculars_puzzle.md):** Details finding the binoculars and the trees book, and inspecting the canopy trees using binoculars through the south window to solve the combination.
 4.  **[Safe Puzzle Spec](file:///home/moltmans/escape-the-treehouse/specs/safe_puzzle.md):** Details opening the safe input zoom, rotating the dials to combination `1759`, unlocking the safe, and retrieving the Rusty Old Key.
-5.  **[Exit Door Spec](file:///home/moltmans/escape-the-treehouse/specs/exit_door.md):** Details using the key on the exit door padlock and completing the game.
+5.  **[Exit Door Spec](file:///home/moltmans/escape-the-treehouse/specs/exit_door.md):** Details using the key on the exit door padlock and opening access to the Balcony.
+6.  **[Lamp & Balcony Spec](file:///home/moltmans/escape-the-treehouse/specs/lamp_puzzle.md):** Details collecting clues and the cipher key, setting the correct lamp states, unlocking the trunk with the brass key to retrieve the harness, and escaping via the zipline.
 
 For details on ideas and mechanics deferred to later phases, see [updates-for-later.md](file:///home/moltmans/escape-the-treehouse/updates-for-later.md).
 
@@ -64,9 +77,10 @@ For details on ideas and mechanics deferred to later phases, see [updates-for-la
 
 ## 🖼️ Environment & Views
 The game is a point-and-click escape room containing multiple navigation angles (views):
-*   **North (Cozy Corner):** Hammock (origami paper), bookshelves (origami guide), and a decorative wooden trunk.
-*   **East (The Window):** A large circular window looking out into the forest canopy, the Binoculars sitting on the window sill, and a "Trees of North America" book on the top left wall.
-*   **South (The Desk & Wall):** A cozy writing desk, the south window, the dartboard (revealing the hidden safe behind it), and the locked exit door.
+*   **North (Cozy Corner):** Hammock (origami paper), bookshelves (origami guide), a decorative wooden trunk (contains zipline harness), a stack of books under a mug (hides Clue 4), and the North Lamp (Spiral).
+*   **East (The Window):** A large circular window looking out into the forest canopy, the Binoculars sitting on the window sill, a "Trees of North America" book on the top left wall, a painting (hides Clue 1), a bed mattress (hides Clue 2), and the East Lamp (Triangle).
+*   **South (The Desk & Wall):** A cozy writing desk (holds Clue 3), the south window, the dartboard (revealing the hidden safe behind it), the locked exit door (leads to Balcony), and the South Lamp (Circle).
+*   **Balcony (Outside):** A wooden balcony overlooking the forest canopy, a Zipline escape route, a pinned note on the wall (Pigpen Cipher Key), and the Balcony Lamp (Cross).
 
 ---
 
