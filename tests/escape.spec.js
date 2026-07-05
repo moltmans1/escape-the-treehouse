@@ -529,14 +529,14 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     // Expected: currentView is set to 'balcony'
     await page.waitForFunction(() => window.__gameState.currentView === 'balcony');
 
-    // 5. Click the Zipline hotspot (510, 290)
-    await page.locator('canvas').click({ position: { x: 510, y: 290 } });
+    // 5. Click the Zipline hotspot (530, 123)
+    await page.locator('canvas').click({ position: { x: 530, y: 123 } });
     dialogText = await page.evaluate(() => window.__gameState.dialogText);
     expect(dialogText).toBe('A zipline overlooking the forest. It looks like a fast way down, but I need a harness to use it safely.');
     await dismissDialog(page);
 
-    // 6. Click the pinned note on the wall (645, 220)
-    await page.locator('canvas').click({ position: { x: 645, y: 220 } });
+    // 6. Click the pinned note on the wall (621, 186)
+    await page.locator('canvas').click({ position: { x: 621, y: 186 } });
 
     // Expected: pigpen_cipher_key is added to inventory, found_cipher_key is set, zoomView is cipher_key_zoom
     const hasCipherKey = await page.evaluate(() => window.__gameState.inventory.includes('pigpen_cipher_key'));
@@ -566,8 +566,8 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.locator('canvas').click({ position: { x: 900, y: 30 } });
     await page.waitForFunction(() => window.__gameState.zoomView === null);
 
-    // 9. Click the door on the balcony (810, 320) to go back inside
-    await page.locator('canvas').click({ position: { x: 810, y: 320 } });
+    // 9. Click the door on the balcony (781, 246) to go back inside
+    await page.locator('canvas').click({ position: { x: 781, y: 246 } });
     await page.waitForFunction(() => window.__gameState.currentView === 'south');
   });
 

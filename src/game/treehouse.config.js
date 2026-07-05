@@ -182,7 +182,7 @@ export const TreehouseConfig = {
       hotspots: [
         {
           name: "exit_door",
-          rect: [810, 320, 180, 440],
+          rect: [781, 246, 181, 355],
           interactions: [
             {
               else: [
@@ -193,7 +193,7 @@ export const TreehouseConfig = {
         },
         {
           name: "pinned_note",
-          rect: [645, 220, 70, 100],
+          rect: [621, 186, 56, 74],
           interactions: [
             {
               if_flag: "!found_cipher_key",
@@ -213,7 +213,7 @@ export const TreehouseConfig = {
         },
         {
           name: "zipline",
-          rect: [510, 290, 60, 80],
+          rect: [530, 123, 60, 60],
           interactions: [
             {
               else: [
@@ -224,7 +224,7 @@ export const TreehouseConfig = {
         },
         {
           name: "balcony_lamp",
-          rect: [930, 360, 80, 160],
+          rect: [903, 298, 65, 160],
           interactions: [
             {
               else: [
