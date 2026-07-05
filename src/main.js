@@ -2,6 +2,10 @@ import Phaser from 'phaser';
 import { StateManager } from './engine/StateManager.js';
 import { Interpreter } from './engine/Interpreter.js';
 import { TreehouseConfig } from './game/treehouse.config.js';
+import { OrigamiMinigame } from './game/minigames/OrigamiMinigame.js';
+import { DartboardMinigame } from './game/minigames/DartboardMinigame.js';
+import { SafeDialsMinigame } from './game/minigames/SafeDialsMinigame.js';
+import { BinocularsMinigame } from './game/minigames/BinocularsMinigame.js';
 
 // Instantiate core engine
 const stateManager = new StateManager();
@@ -208,6 +212,10 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
+    this.activeMinigame = null;
+    this.stateManager = stateManager;
+    this.gameState = gameState;
+    this.TreehouseConfig = TreehouseConfig;
     this.thrownDarts = [];
     this.dartboardInputLocked = false;
 
@@ -494,15 +502,48 @@ class GameScene extends Phaser.Scene {
     stateManager.hideDialog();
   }
 
+  get thrownDarts() {
+    if (this.activeMinigame && 'thrownDarts' in this.activeMinigame) {
+      return this.activeMinigame.thrownDarts;
+    }
+    return this._thrownDarts || [];
+  }
+
+  set thrownDarts(val) {
+    if (this.activeMinigame && 'thrownDarts' in this.activeMinigame) {
+      this.activeMinigame.thrownDarts = val;
+    } else {
+      this._thrownDarts = val;
+    }
+  }
+
+  get safeDials() {
+    if (this.activeMinigame && 'safeDials' in this.activeMinigame) {
+      return this.activeMinigame.safeDials;
+    }
+    return this._safeDials || [];
+  }
+
+  set safeDials(val) {
+    if (this.activeMinigame && 'safeDials' in this.activeMinigame) {
+      this.activeMinigame.safeDials = val;
+    } else {
+      this._safeDials = val;
+    }
+  }
+
   // --- ZOOM VIEWS ---
-  enterZoomView(viewName, drawCallback, closeCallback) {
+  enterZoomView(viewName, content, closeCallback) {
+    if (this.activeMinigame) {
+      this.activeMinigame.onDestroy();
+      this.activeMinigame = null;
+    }
+
     stateManager.setZoomView(viewName);
     this.leftArrow.setVisible(false);
     this.rightArrow.setVisible(false);
 
     this.zoomContainer.removeAll(true);
-    this.thrownDarts = [];
-    this.dartboardInputLocked = false;
     
     const overlay = this.add.rectangle(480, 220, 960, 440, 0x000000, 0.75).setInteractive();
     this.zoomContainer.add(overlay);
@@ -526,7 +567,12 @@ class GameScene extends Phaser.Scene {
     
     this.zoomContainer.add(closeBtn);
 
-    drawCallback();
+    if (typeof content === 'function') {
+      content();
+    } else if (content && typeof content.onCreate === 'function') {
+      this.activeMinigame = content;
+      this.activeMinigame.onCreate(this, this.zoomContainer);
+    }
 
     // Fade-in animation for all items in the zoom view
     this.zoomContainer.list.forEach(item => {
@@ -544,6 +590,10 @@ class GameScene extends Phaser.Scene {
   }
 
   exitZoomView() {
+    if (this.activeMinigame) {
+      this.activeMinigame.onDestroy();
+      this.activeMinigame = null;
+    }
     stateManager.setZoomView(null);
     this.zoomContainer.removeAll(true);
     this.updateHotspots();
@@ -670,175 +720,22 @@ class GameScene extends Phaser.Scene {
 
   // --- ZOOM PUZZLE: UNFOLDED ORIGAMI PAPER ---
   inspectOrigamiPaper() {
-    this.enterZoomView('origami_paper', () => {
-      const paper = this.add.graphics();
-      // Draw a plain square paper sheet in the center
-      paper.fillStyle(0xfaf6ee, 1);
-      paper.fillRect(330, 70, 300, 300);
-      paper.lineStyle(2, 0x8f7155, 1);
-      paper.strokeRect(330, 70, 300, 300);
-
-      // Fold/crease lines
-      paper.lineStyle(1, 0x8f7155, 0.2);
-      paper.lineBetween(480, 70, 480, 370);
-      paper.lineBetween(330, 220, 630, 220);
-
-      const title = this.add.text(480, 45, 'A sheet of paper', {
-        fontFamily: 'Playfair Display',
-        fontSize: '20px',
-        fill: '#f4eade',
-        fontWeight: 'bold'
-      }).setOrigin(0.5);
-
-      // Scrambled numbers at different rotations and positions
-      const nums = [
-        { text: '13', x: 380, y: 130, angle: 45 },
-        { text: '5', x: 390, y: 280, angle: 90 },
-        { text: '20', x: 570, y: 130, angle: -60 },
-        { text: '8', x: 440, y: 170, angle: 120 },
-        { text: '10', x: 520, y: 310, angle: 180 },
-        { text: '42', x: 580, y: 250, angle: 15 }
-      ];
-
-      const numObjects = nums.map(n => {
-        return this.add.text(n.x, n.y, n.text, {
-          fontFamily: 'Outfit',
-          fontSize: '24px',
-          fill: '#5c4d3c',
-          fontWeight: '600'
-        }).setOrigin(0.5).setAngle(n.angle);
-      });
-
-      this.zoomContainer.add([paper, title, ...numObjects]);
-    });
+    this.enterZoomView('origami_paper', new OrigamiMinigame('origami_paper'));
   }
 
   // --- ZOOM PUZZLE: ORIGAMI BOOK ---
   inspectOrigamiBook() {
-    this.enterZoomView('origami_book', () => {
-      // Draw high-fidelity open origami book image
-      const bookImage = this.add.image(470, 210, 'open_origami_book')
-        .setDisplaySize(540, 360);
-      this.zoomContainer.add(bookImage);
-
-      // Interactive folding zone on the right page
-      const foldZone = this.add.rectangle(605, 210, 240, 280, 0xffffff, 0.0)
-        .setInteractive({ useHandCursor: true });
-
-      foldZone.on('pointerover', () => foldZone.setFillStyle(0xd4a373, 0.05));
-      foldZone.on('pointerout', () => foldZone.setFillStyle(0xffffff, 0.0));
-      
-      foldZone.on('pointerdown', () => {
-        if (stateManager.state.selectedItem === 'origami_paper') {
-          // Perform folding
-          stateManager.removeItem('origami_paper');
-          stateManager.removeItem('origami_book');
-          stateManager.addItem('paper_airplane');
-          
-          // Instantly transition to the Paper Airplane Zoom View
-          this.inspectPaperAirplane();
-          
-          stateManager.showDialog("Using the instructions in the book, you fold the paper into a Paper Airplane!");
-        }
-      });
-
-      this.zoomContainer.add(foldZone);
-    });
+    this.enterZoomView('origami_book', new OrigamiMinigame('origami_book'));
   }
 
   // --- ZOOM PUZZLE: FOLDED PAPER AIRPLANE ---
   inspectPaperAirplane() {
-    this.enterZoomView('paper_airplane', () => {
-      const card = this.add.graphics();
-      card.fillStyle(0xfefcf0, 1);
-      card.fillRoundedRect(220, 45, 520, 330, 10);
-      card.lineStyle(2, 0xd4a373, 1);
-      card.strokeRoundedRect(220, 45, 520, 330, 10);
-
-      // Display the generated illustration
-      const img = this.add.image(480, 205, 'paper_airplane_clue');
-      img.setDisplaySize(480, 270);
-
-      const title = this.add.text(480, 65, 'Folded Paper Airplane', {
-        fontFamily: 'Playfair Display',
-        fontSize: '18px',
-        fill: '#3d2b1f',
-        fontWeight: 'bold'
-      }).setOrigin(0.5);
-
-      this.zoomContainer.add([card, img, title]);
-    });
+    this.enterZoomView('paper_airplane', new OrigamiMinigame('paper_airplane'));
   }
 
   // --- ZOOM PUZZLE: DARTBOARD ---
   enterDartboardView() {
-    this.enterZoomView('dartboard', () => {
-      const boardPanel = this.add.graphics();
-      boardPanel.fillStyle(0x1c1212, 1);
-      boardPanel.fillRect(180, 20, 600, 400);
-      boardPanel.lineStyle(3, 0x8f7155, 1);
-      boardPanel.strokeRect(180, 20, 600, 400);
-
-      this.zoomContainer.add(boardPanel);
-
-      // Draw high-fidelity dartboard image and make it interactive
-      const dbImage = this.add.image(480, 220, 'dartboard')
-        .setDisplaySize(360, 360)
-        .setInteractive({ useHandCursor: true });
-      this.zoomContainer.add(dbImage);
-
-      // Dartboard standard numbers sequence clockwise from top
-      const boardNumbers = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5];
-
-      dbImage.on('pointerdown', (pointer) => {
-        if (stateManager.hasFlag('dartboard_solved')) return;
-        if (this.dartboardInputLocked) return;
-
-        // Calculate click coordinates relative to dartboard center (480, 220)
-        const clickX = pointer.worldX;
-        const clickY = pointer.worldY;
-
-        // Spawn a non-interactive dart at the click coordinates
-        const dart = this.add.image(clickX, clickY, 'dart_transparent')
-          .setOrigin(0.06, 0.5) // align the steel tip (about 6% from left) with clickX, clickY
-          .setRotation(-0.26)   // tilted 15 degrees downward (points left-down)
-          .setDisplaySize(110, 110);
-        this.zoomContainer.add(dart);
-        this.thrownDarts.push(dart);
-
-        const angleRad = Math.atan2(clickY - 220, clickX - 480);
-        let angleDeg = angleRad * (180 / Math.PI);
-        let rotatedDeg = angleDeg + 90;
-        if (rotatedDeg < 0) rotatedDeg += 360;
-        let shiftedDeg = rotatedDeg + 9;
-        if (shiftedDeg >= 360) shiftedDeg -= 360;
-        const wedgeIndex = Math.floor(shiftedDeg / 18);
-        const num = boardNumbers[wedgeIndex];
-
-        gameState.dartboardSequence.push(num);
-
-        const minigameConfig = TreehouseConfig.minigames.dartboard_view;
-        const seqLen = gameState.dartboardSequence.length;
-
-        if (seqLen === 3) {
-          this.dartboardInputLocked = true;
-          this.time.delayedCall(500, () => {
-            const targetSeq = minigameConfig.target;
-            const isCorrect = gameState.dartboardSequence.length === 3 &&
-                              gameState.dartboardSequence.every((val, i) => val === targetSeq[i]);
-            if (isCorrect) {
-              stateManager.executeActions(minigameConfig.onSuccess);
-            } else {
-              // Reset on mistake
-              this.thrownDarts.forEach(d => { if (d && d.destroy) d.destroy(); });
-              this.thrownDarts = [];
-              gameState.dartboardSequence = [];
-              this.dartboardInputLocked = false;
-            }
-          });
-        }
-      });
-    });
+    this.enterZoomView('dartboard', new DartboardMinigame());
   }
 
   inspectTreesBook() {
@@ -851,228 +748,15 @@ class GameScene extends Phaser.Scene {
   }
 
   inspectSouthWindow() {
-    this.enterZoomView('south_window_zoom', () => {
-      // Draw background panel border
-      const winPanel = this.add.graphics();
-      winPanel.fillStyle(0x1a202c, 1); // Dark blue sky fallback
-      winPanel.fillRect(180, 40, 600, 360);
-      winPanel.lineStyle(3, 0x8f7155, 1);
-      winPanel.strokeRect(180, 40, 600, 360);
-
-      this.zoomContainer.add(winPanel);
-
-      // Load and add the new window view image
-      const winImage = this.add.image(480, 220, 'south_window_view')
-        .setDisplaySize(600, 360);
-      this.zoomContainer.add(winImage);
-
-      const title = this.add.text(480, 65, 'South Window View', {
-        fontFamily: 'Playfair Display',
-        fontSize: '20px',
-        fill: '#f4eade',
-        fontWeight: 'bold'
-      }).setOrigin(0.5);
-      this.zoomContainer.add(title);
-
-      // Hotspots for the three trees adjusted to match the generated image
-      const leftTreeHotspot = this.add.rectangle(415, 200, 60, 140, 0xffffff, 0.0)
-        .setInteractive({ useHandCursor: true });
-      const centerTreeHotspot = this.add.rectangle(502, 190, 60, 140, 0xffffff, 0.0)
-        .setInteractive({ useHandCursor: true });
-      const rightTreeHotspot = this.add.rectangle(590, 200, 60, 140, 0xffffff, 0.0)
-        .setInteractive({ useHandCursor: true });
-
-      [leftTreeHotspot, centerTreeHotspot, rightTreeHotspot].forEach(hot => {
-        hot.on('pointerover', () => {
-          hot.setFillStyle(0xffffff, 0.05);
-          this.updateCanvasCursor();
-        });
-        hot.on('pointerout', () => hot.setFillStyle(0xffffff, 0.0));
-      });
-
-      leftTreeHotspot.on('pointerdown', () => {
-        if (gameState.selectedItem === 'binoculars') {
-          this.inspectTreeBranch('oak_leaf_zoom');
-        } else {
-          this.showDialog("A leafy tree standing in the middle of the canopy.");
-        }
-      });
-
-      centerTreeHotspot.on('pointerdown', () => {
-        if (gameState.selectedItem === 'binoculars') {
-          this.inspectTreeBranch('white_pine_zoom');
-        } else {
-          this.showDialog("A tall green tree rustling in the wind.");
-        }
-      });
-
-      rightTreeHotspot.on('pointerdown', () => {
-        if (gameState.selectedItem === 'binoculars') {
-          this.inspectTreeBranch('sugar_maple_zoom');
-        } else {
-          this.showDialog("A lush tree with dense foliage.");
-        }
-      });
-
-      this.zoomContainer.add([leftTreeHotspot, centerTreeHotspot, rightTreeHotspot]);
-    });
+    this.enterZoomView('south_window_zoom', new BinocularsMinigame('south_window_zoom'));
   }
 
   inspectTreeBranch(viewName) {
-    this.enterZoomView(viewName, () => {
-      const card = this.add.graphics();
-      card.fillStyle(0xfaf6ee, 1);
-      card.fillRoundedRect(280, 60, 400, 300, 10);
-      card.lineStyle(2, 0xd4a373, 1);
-      card.strokeRoundedRect(280, 60, 400, 300, 10);
-
-      this.zoomContainer.add(card);
-
-      let key = '';
-      if (viewName === 'oak_leaf_zoom') key = 'oak_leaf';
-      else if (viewName === 'white_pine_zoom') key = 'white_pine_needles';
-      else if (viewName === 'sugar_maple_zoom') key = 'sugar_maple_leaf';
-
-      const leafImage = this.add.image(480, 210, key)
-        .setDisplaySize(280, 280);
-      this.zoomContainer.add(leafImage);
-    }, () => this.inspectSouthWindow());
+    this.enterZoomView(viewName, new BinocularsMinigame(viewName), () => this.inspectSouthWindow());
   }
 
   enterSafeView() {
-    this.enterZoomView('safe_view', () => {
-      this.safeDials = [];
-
-      const isUnlocked = stateManager.hasFlag('safe_unlocked');
-
-      if (isUnlocked) {
-        const openBg = this.add.image(480, 220, 'safe_open');
-        openBg.setDisplaySize(535, 535).setDepth(2);
-        this.zoomContainer.add(openBg);
-        return;
-      }
-
-      const lockedBg = this.add.image(480, 220, 'safe_bg');
-      lockedBg.setDisplaySize(960, 535).setDepth(1);
-      this.zoomContainer.add(lockedBg);
-
-      const title = this.add.text(480, 85, 'OLD DIAL SAFE', {
-        fontFamily: 'Playfair Display',
-        fontSize: '18px',
-        fill: '#d4a373',
-        fontWeight: 'bold',
-        letterSpacing: 2
-      }).setOrigin(0.5).setDepth(3);
-      this.zoomContainer.add(title);
-
-      const subtitle = this.add.text(480, 110, 'Click dials to rotate values', {
-        fontFamily: 'Outfit',
-        fontSize: '11px',
-        fill: '#8f7155'
-      }).setOrigin(0.5).setDepth(3);
-      this.zoomContainer.add(subtitle);
-
-      const startX = 360;
-      const spacing = 80;
-      const slotGraphics = [];
-      const wheelTexts = [];
-      const hitZones = [];
-
-      for (let i = 0; i < 4; i++) {
-        const x = startX + i * spacing;
-
-        // Draw a dark rounded slot casing behind each wheel
-        const slotCasing = this.add.graphics();
-        slotCasing.fillStyle(0x1a1512, 1);
-        slotCasing.fillRoundedRect(x - 20, 140, 40, 160, 5);
-        slotCasing.lineStyle(2, 0x8f7155, 0.5);
-        slotCasing.strokeRoundedRect(x - 20, 140, 40, 160, 5);
-        slotCasing.setDepth(3);
-        this.zoomContainer.add(slotCasing);
-        slotGraphics.push(slotCasing);
-
-        // Value text styling
-        const digitStyle = {
-          fontFamily: 'Outfit',
-          fontWeight: 'bold'
-        };
-
-        const prevText = this.add.text(x, 175, '9', { ...digitStyle, fontSize: '20px', fill: '#c8b7a6' })
-          .setOrigin(0.5)
-          .setAlpha(0.4)
-          .setDepth(4);
-        
-        const activeText = this.add.text(x, 220, '0', { ...digitStyle, fontSize: '32px', fill: '#d4a373' })
-          .setOrigin(0.5)
-          .setDepth(4);
-        
-        const nextText = this.add.text(x, 265, '1', { ...digitStyle, fontSize: '20px', fill: '#c8b7a6' })
-          .setOrigin(0.5)
-          .setAlpha(0.4)
-          .setDepth(4);
-
-        this.zoomContainer.add([prevText, activeText, nextText]);
-        wheelTexts.push(prevText, activeText, nextText);
-
-        const hitZone = this.add.rectangle(x, 220, 40, 160, 0xffffff, 0)
-          .setInteractive({ useHandCursor: true })
-          .setDepth(5);
-        
-        hitZone.value = 0;
-        hitZone.index = i;
-
-        hitZone.on('pointerdown', () => {
-          hitZone.value = (hitZone.value + 1) % 10;
-          activeText.setText(hitZone.value);
-          prevText.setText((hitZone.value - 1 + 10) % 10);
-          nextText.setText((hitZone.value + 1) % 10);
-          this.updateCanvasCursor();
-
-          const combo = this.safeDials.map(d => d.value).join('');
-          const minigameConfig = TreehouseConfig.minigames.safe_view;
-          if (combo === minigameConfig.combination) {
-            // Disable all hit zones immediately to prevent double clicking
-            hitZones.forEach(hz => hz.disableInteractive());
-
-            stateManager.setFlag('safe_unlocked');
-            stateManager.state.hasKeyInCompartment = false;
-            stateManager.addItem('rusty_key');
-
-            const openBg = this.add.image(480, 220, 'safe_open');
-            openBg.setDisplaySize(535, 535).setDepth(2);
-            openBg.alpha = 0;
-            this.zoomContainer.add(openBg);
-
-            this.tweens.add({
-              targets: [lockedBg, title, subtitle, ...slotGraphics, ...wheelTexts],
-              alpha: 0,
-              duration: 200,
-              onComplete: () => {
-                lockedBg.destroy();
-                title.destroy();
-                subtitle.destroy();
-                slotGraphics.forEach(sg => sg.destroy());
-                wheelTexts.forEach(wt => wt.destroy());
-                hitZones.forEach(hz => hz.destroy());
-              }
-            });
-
-            this.tweens.add({
-              targets: openBg,
-              alpha: 1,
-              duration: 200,
-              onComplete: () => {
-                stateManager.showDialog("The safe is open, a Rusty Old Key is inside! It has been added to your inventory.");
-              }
-            });
-          }
-        });
-
-        this.zoomContainer.add(hitZone);
-        hitZones.push(hitZone);
-        this.safeDials.push(hitZone);
-      }
-    });
+    this.enterZoomView('safe_view', new SafeDialsMinigame());
   }
 
   updateCanvasCursor() {
