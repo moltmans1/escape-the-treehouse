@@ -46,9 +46,9 @@ graph TD
     C1 --> C2[Toggle 4 Lamps: North, East, South, Balcony]
     C2 -->|Ref: Lamp Spec| C3[Match combo: North=ON, East=ON, South=OFF, Balcony=ON]
     C3 --> C4[Get Brass Key from bottom of Lamp]
-    C4 --> C5[Unlock Trunk in North View with Brass Key]
+    C4 -->|Ref: Trunk Spec| C5[Unlock Trunk in North View with Brass Key]
     C5 --> C6[Collect Zipline Harness from Trunk]
-    C6 --> C7[Select Zipline Harness and click Balcony Zipline]
+    C6 -->|Ref: Balcony Spec| C7[Select Zipline Harness and click Balcony Zipline]
     C7 --> C8[Escape and win!]
     
     click A3 "file:///home/moltmans/escape-the-treehouse/specs/origami_folding.md" "Origami Folding Spec"
@@ -57,6 +57,8 @@ graph TD
     click B6 "file:///home/moltmans/escape-the-treehouse/specs/safe_puzzle.md" "Safe Puzzle Spec"
     click A8 "file:///home/moltmans/escape-the-treehouse/specs/exit_door.md" "Exit Door Spec"
     click C3 "file:///home/moltmans/escape-the-treehouse/specs/lamp_puzzle.md" "Lamp Spec"
+    click C5 "file:///home/moltmans/escape-the-treehouse/specs/trunk_puzzle.md" "Trunk Spec"
+    click C7 "file:///home/moltmans/escape-the-treehouse/specs/balcony_escape.md" "Balcony Escape Spec"
 ```
 
 ---
@@ -69,7 +71,9 @@ Each active puzzle is modularized and detailed in its own specification file und
 3.  **[Binoculars & Trees Spec](file:///home/moltmans/escape-the-treehouse/specs/binoculars_puzzle.md):** Details finding the binoculars and the trees book, and inspecting the canopy trees using binoculars through the south window to solve the combination.
 4.  **[Safe Puzzle Spec](file:///home/moltmans/escape-the-treehouse/specs/safe_puzzle.md):** Details opening the safe input zoom, rotating the dials to combination `1759`, unlocking the safe, and retrieving the Rusty Old Key.
 5.  **[Exit Door Spec](file:///home/moltmans/escape-the-treehouse/specs/exit_door.md):** Details using the key on the exit door padlock and opening access to the Balcony.
-6.  **[Lamp & Balcony Spec](file:///home/moltmans/escape-the-treehouse/specs/lamp_puzzle.md):** Details collecting clues and the cipher key, setting the correct lamp states, unlocking the trunk with the brass key to retrieve the harness, and escaping via the zipline.
+6.  **[Lamp Spec](file:///home/moltmans/escape-the-treehouse/specs/lamp_puzzle.md):** Details finding combination clues, setting the correct lamp states, and revealing the brass key.
+7.  **[Trunk Spec](file:///home/moltmans/escape-the-treehouse/specs/trunk_puzzle.md):** Details the trunk mechanics, unlocking it with the brass key, and retrieving the zipline harness.
+8.  **[Balcony Escape Spec](file:///home/moltmans/escape-the-treehouse/specs/balcony_escape.md):** Details the balcony view layout, collecting the cipher key translation note, and escaping via the zipline.
 
 For details on ideas and mechanics deferred to later phases, see [updates-for-later.md](file:///home/moltmans/escape-the-treehouse/updates-for-later.md).
 
