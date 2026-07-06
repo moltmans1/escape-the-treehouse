@@ -8,10 +8,11 @@ All coding assistants working on this codebase must follow these project-wide ru
 * **Master Game Plan**: Consult [PLAN.md](file:///home/moltmans/escape-the-treehouse/PLAN.md) for overall game design, layout, and navigation.
 
 ## 🛠️ Testing Invariants
-* Before concluding any work, always run:
+* Before concluding any work that updates executable code (e.g. JavaScript, CSS, HTML), always run:
   1. Headless unit tests using `npm run test:unit`
   2. Integration E2E tests using `npm run test:e2e`
-  to verify no regressions have been introduced.
+  to verify no regressions have been introduced. Running tests is not required if only documentation, specifications, or markdown (`.md`) files were changed.
+* **Assess Test Coverage**: When adding new logic, puzzles, or code features, always assess whether new unit tests (under `tests/engine.test.js`) or integration/E2E tests (under `tests/escape.spec.js`) are needed to cover the new functionality.
 
 ## 📦 Git & Commit Guidelines
 * After every major change, stage and create a local commit.
