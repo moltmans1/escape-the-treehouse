@@ -89,29 +89,29 @@ describe('Escape Room Headless Core Engine', () => {
     expect(state.hasFlag('lamp_balcony_on')).toBe(false);
     expect(state.hasFlag('lamp_puzzle_solved')).toBe(false);
 
-    // Set correct configuration
+    // Set correct configuration (North=ON, East=OFF, South=ON, Balcony=ON)
     state.executeActions([
       'SET_FLAG: lamp_north_on',
-      'SET_FLAG: lamp_east_on',
+      'SET_FLAG: lamp_south_on',
       'SET_FLAG: lamp_balcony_on',
       'CHECK_LAMP_PUZZLE'
     ]);
 
     expect(state.hasFlag('lamp_north_on')).toBe(true);
-    expect(state.hasFlag('lamp_east_on')).toBe(true);
-    expect(state.hasFlag('lamp_south_on')).toBe(false);
+    expect(state.hasFlag('lamp_east_on')).toBe(false);
+    expect(state.hasFlag('lamp_south_on')).toBe(true);
     expect(state.hasFlag('lamp_balcony_on')).toBe(true);
     
     // Puzzle should be solved
     expect(state.hasFlag('lamp_puzzle_solved')).toBe(true);
     expect(state.state.inventory).toContain('brass_key');
 
-    // Reset and test incorrect state: e.g. south lamp ON
+    // Reset and test incorrect state: e.g. east lamp ON
     state.reset();
     state.executeActions([
       'SET_FLAG: lamp_north_on',
-      'SET_FLAG: lamp_east_on',
-      'SET_FLAG: lamp_south_on', // incorrect
+      'SET_FLAG: lamp_east_on', // incorrect
+      'SET_FLAG: lamp_south_on',
       'SET_FLAG: lamp_balcony_on',
       'CHECK_LAMP_PUZZLE'
     ]);

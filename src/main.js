@@ -96,7 +96,10 @@ class PreloadScene extends Phaser.Scene {
     this.load.image('safe_bg', 'assets/safe.png');
     this.load.image('safe_open', 'assets/safe_open.jpg');
     this.load.image('dart', 'assets/dart.jpg');
-    this.load.image('lamp', 'assets/lamp.jpg');
+    this.load.image('cross_lamp', 'assets/cross_lamp.jpg');
+    this.load.image('triangle_lamp_zoom_view', 'assets/Triangle lamp zoom view.png');
+    this.load.image('circle_lamp_zoom_view', 'assets/circle_lamp_zoom_view.png');
+    this.load.image('spiral_lamp_zoom_view', 'assets/spiral_lamp_zoom_view.png');
     
     // Load navigation arrow
     this.createArrowTexture();
@@ -283,6 +286,24 @@ class GameScene extends Phaser.Scene {
 
     this.updateHotspots();
     this.updateDynamicGraphics();
+
+    // Setup hotspot debug mode toggle button
+    this.debugModeActive = false;
+    const debugBtn = document.getElementById('toggle-debug-btn');
+    if (debugBtn) {
+      const newDebugBtn = debugBtn.cloneNode(true);
+      if (debugBtn.parentNode) {
+        debugBtn.parentNode.replaceChild(newDebugBtn, debugBtn);
+      }
+      
+      newDebugBtn.addEventListener('click', () => {
+        this.debugModeActive = !this.debugModeActive;
+        newDebugBtn.classList.toggle('active', this.debugModeActive);
+        this.updateHotspots();
+      });
+      
+      newDebugBtn.classList.toggle('active', this.debugModeActive);
+    }
 
     // Start dialogue
     stateManager.showDialog("You are trapped in a cozy, sunlit treehouse. The wind rustles the leaves outside.");
@@ -581,7 +602,7 @@ class GameScene extends Phaser.Scene {
         const rect = this.addHotspot(x, y, w, h, null, () => {
           const actions = interpreter.evaluateInteraction(hotspot.interactions);
           stateManager.executeActions(actions);
-        });
+        }, hotspot.name);
         if (hotspot.name.endsWith('_lamp')) {
           rect.setDepth(2);
         } else {
@@ -591,15 +612,36 @@ class GameScene extends Phaser.Scene {
     }
   }
 
-  addHotspot(x, y, width, height, description, callback) {
-    const rect = this.add.rectangle(x, y, width, height, 0xffffff, 0.0)
+  addHotspot(x, y, width, height, description, callback, hotspotName) {
+    const isDebug = this.debugModeActive;
+    const rectColor = isDebug ? 0x22c55e : 0xffffff;
+    const rectAlpha = isDebug ? 0.25 : 0.0;
+
+    const rect = this.add.rectangle(x, y, width, height, rectColor, rectAlpha)
       .setInteractive({ useHandCursor: true });
 
+    if (isDebug) {
+      rect.setStrokeStyle(3, 0x22c55e, 1.0);
+      
+      const label = this.add.text(x, y, (hotspotName || 'HOTSPOT').toUpperCase(), {
+        fontFamily: 'Outfit',
+        fontSize: '11px',
+        fill: '#ffffff',
+        backgroundColor: '#166534',
+        padding: { x: 4, y: 2 },
+        fontWeight: 'bold'
+      }).setOrigin(0.5).setDepth(3);
+      
+      this.hotspots.add(label);
+    }
+
     rect.on('pointerover', () => {
-      rect.setFillStyle(0xffffff, 0.05);
+      if (!isDebug) rect.setFillStyle(0xffffff, 0.05);
       this.updateCanvasCursor();
     });
-    rect.on('pointerout', () => rect.setFillStyle(0xffffff, 0.0));
+    rect.on('pointerout', () => {
+      if (!isDebug) rect.setFillStyle(0xffffff, 0.0);
+    });
     
     rect.on('pointerdown', () => {
       if (stateManager.state.dialogActive || stateManager.state.zoomView) return;
@@ -669,7 +711,7 @@ class GameScene extends Phaser.Scene {
           else if (arg === 'safe_view') this.enterSafeView();
           else if (arg === 'dartboard_view') this.enterDartboardView();
           else if (arg === 'cipher_key_zoom') this.inspectCipherKey();
-          else if (arg === 'lamp_zoom') this.inspectLamp();
+          else if (arg === 'lamp_zoom' || arg === 'triangle_lamp_zoom_view' || arg === 'circle_lamp_zoom_view' || arg === 'cross_lamp_zoom_view' || arg === 'spiral_lamp_zoom_view') this.inspectLamp();
           break;
         case 'LAUNCH_MINIGAME':
           if (arg === 'open_safe_compartment') {
@@ -1116,29 +1158,39 @@ class GameScene extends Phaser.Scene {
   }
 
   inspectLamp() {
-    this.enterZoomView('lamp_zoom', () => {
-      const currentView = stateManager.state.currentView;
-      
+    const currentView = stateManager.state.currentView;
+    let zoomViewKey = 'lamp_zoom';
+    if (currentView === 'north') zoomViewKey = 'triangle_lamp_zoom_view';
+    else if (currentView === 'east') zoomViewKey = 'circle_lamp_zoom_view';
+    else if (currentView === 'south') zoomViewKey = 'cross_lamp_zoom_view';
+    else if (currentView === 'balcony') zoomViewKey = 'spiral_lamp_zoom_view';
+
+    this.enterZoomView(zoomViewKey, () => {
       let lampFlag = '';
       let pattern = '';
       let lampTitle = '';
+      let assetKey = '';
       
       if (currentView === 'north') {
         lampFlag = 'lamp_north_on';
-        pattern = 'Spiral';
-        lampTitle = 'North Lamp (Spiral)';
+        pattern = 'Triangle';
+        lampTitle = 'North Lamp (Triangle)';
+        assetKey = 'triangle_lamp_zoom_view';
       } else if (currentView === 'east') {
         lampFlag = 'lamp_east_on';
-        pattern = 'Triangle';
-        lampTitle = 'East Lamp (Triangle)';
+        pattern = 'Circle';
+        lampTitle = 'East Lamp (Circle)';
+        assetKey = 'circle_lamp_zoom_view';
       } else if (currentView === 'south') {
         lampFlag = 'lamp_south_on';
-        pattern = 'Circle';
-        lampTitle = 'South Lamp (Circle)';
+        pattern = 'Cross';
+        lampTitle = 'South Lamp (Cross)';
+        assetKey = 'cross_lamp';
       } else if (currentView === 'balcony') {
         lampFlag = 'lamp_balcony_on';
-        pattern = 'Cross';
-        lampTitle = 'Balcony Lamp (Cross)';
+        pattern = 'Spiral';
+        lampTitle = 'Balcony Lamp (Spiral)';
+        assetKey = 'spiral_lamp_zoom_view';
       } else {
         return;
       }
@@ -1162,7 +1214,7 @@ class GameScene extends Phaser.Scene {
       this.zoomContainer.add(title);
 
       // Base lamp image
-      const lampImage = this.add.image(480, 210, 'lamp');
+      const lampImage = this.add.image(480, 210, assetKey);
       lampImage.setDisplaySize(220, 220);
       this.zoomContainer.add(lampImage);
 
@@ -1177,47 +1229,6 @@ class GameScene extends Phaser.Scene {
       } else {
         lampImage.setTint(0x777777);
       }
-
-      // Draw the metal work grill pattern surrounding/on the glass part (centered at 480, 190)
-      const patternGraphics = this.add.graphics();
-      patternGraphics.lineStyle(4, 0x1a1a1a, 0.95); // Thick dark metal lines
-
-      const centerX = 480;
-      const centerY = 190;
-
-      if (pattern === 'Circle') {
-        // Circle grill surrounding/on glass
-        patternGraphics.strokeCircle(centerX, centerY, 45);
-      } else if (pattern === 'Triangle') {
-        // Triangle grill
-        patternGraphics.beginPath();
-        patternGraphics.moveTo(centerX, centerY - 45);
-        patternGraphics.lineTo(centerX - 40, centerY + 30);
-        patternGraphics.lineTo(centerX + 40, centerY + 30);
-        patternGraphics.closePath();
-        patternGraphics.strokePath();
-      } else if (pattern === 'Cross') {
-        // Cross grill (plus/X pattern)
-        patternGraphics.lineBetween(centerX - 45, centerY - 45, centerX + 45, centerY + 45);
-        patternGraphics.lineBetween(centerX + 45, centerY - 45, centerX - 45, centerY + 45);
-        patternGraphics.lineBetween(centerX - 50, centerY, centerX + 50, centerY);
-        patternGraphics.lineBetween(centerX, centerY - 50, centerX, centerY + 50);
-      } else if (pattern === 'Spiral') {
-        // Spiral grill
-        patternGraphics.beginPath();
-        let r = 2.5;
-        for (let theta = 0; theta < 5.5 * Math.PI; theta += 0.15) {
-          let px = centerX + (r * theta) * Math.cos(theta);
-          let py = centerY + (r * theta) * Math.sin(theta);
-          if (theta === 0) {
-            patternGraphics.moveTo(px, py);
-          } else {
-            patternGraphics.lineTo(px, py);
-          }
-        }
-        patternGraphics.strokePath();
-      }
-      this.zoomContainer.add(patternGraphics);
 
       // Toggle interaction hotspot over the lamp
       const toggleHotspot = this.add.rectangle(480, 210, 180, 240, 0xffffff, 0.0)

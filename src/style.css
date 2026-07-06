@@ -118,3 +118,36 @@ body {
   background: var(--accent-color);
   border-radius: 4px;
 }
+
+.debug-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.debug-btn {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background-color: #241d18;
+  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.debug-btn:hover {
+  background-color: #3d2b1f;
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  box-shadow: 0 0 10px rgba(212, 163, 115, 0.2);
+}
+
+.debug-btn.active {
+  background-color: #166534;
+  border-color: #22c55e;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+}

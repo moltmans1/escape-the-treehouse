@@ -174,7 +174,7 @@ export class StateManager {
     const southOn = this.state.solvedPuzzles.has('lamp_south_on');
     const balconyOn = this.state.solvedPuzzles.has('lamp_balcony_on');
 
-    if (northOn && eastOn && !southOn && balconyOn) {
+    if (northOn && !eastOn && southOn && balconyOn) {
       this.setFlag('lamp_puzzle_solved');
       this.addItem('brass_key');
       this.showDialog("A hidden compartment in the bottom of the lamp popped open and revealed a brass key! It has been added to your inventory.");

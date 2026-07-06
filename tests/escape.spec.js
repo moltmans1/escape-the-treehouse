@@ -620,15 +620,15 @@ test.describe('Escape the Treehouse E2E Tests', () => {
   test('Test Case 6: Lamp Puzzle Toggling & Solving', async ({ page }) => {
     // 1. Open the North Lamp zoom view in the North View (830, 330)
     await page.locator('canvas').click({ position: { x: 830, y: 330 } });
-    await page.waitForFunction(() => window.__gameState.zoomView === 'lamp_zoom');
+    await page.waitForFunction(() => window.__gameState.zoomView === 'triangle_lamp_zoom_view');
 
-    // Verify it is North Lamp (Spiral)
+    // Verify it is North Lamp (Triangle)
     let titleText = await page.evaluate(() => {
       const gameScene = window.__game.scene.keys.GameScene;
       const titleObj = gameScene.zoomContainer.list.find(c => c.text && c.text.includes('Lamp'));
       return titleObj ? titleObj.text : '';
     });
-    expect(titleText).toContain('North Lamp (Spiral)');
+    expect(titleText).toContain('North Lamp (Triangle)');
 
     // Toggle North Lamp ON
     await page.locator('canvas').click({ position: { x: 480, y: 210 } });
@@ -652,11 +652,15 @@ test.describe('Escape the Treehouse E2E Tests', () => {
 
     // Open East Lamp zoom view (615, 380)
     await page.locator('canvas').click({ position: { x: 615, y: 380 } });
-    await page.waitForFunction(() => window.__gameState.zoomView === 'lamp_zoom');
+    await page.waitForFunction(() => window.__gameState.zoomView === 'circle_lamp_zoom_view');
 
     // Toggle East Lamp ON
     await page.locator('canvas').click({ position: { x: 480, y: 210 } });
     expect(await hasFlag(page, 'lamp_east_on')).toBe(true);
+
+    // Toggle East Lamp OFF (it must be OFF to solve the puzzle)
+    await page.locator('canvas').click({ position: { x: 480, y: 210 } });
+    expect(await hasFlag(page, 'lamp_east_on')).toBe(false);
 
     // Close zoom view
     await page.locator('canvas').click({ position: { x: 900, y: 30 } });
@@ -668,15 +672,11 @@ test.describe('Escape the Treehouse E2E Tests', () => {
 
     // Open South Lamp zoom view (915, 345)
     await page.locator('canvas').click({ position: { x: 915, y: 345 } });
-    await page.waitForFunction(() => window.__gameState.zoomView === 'lamp_zoom');
+    await page.waitForFunction(() => window.__gameState.zoomView === 'cross_lamp_zoom_view');
 
     // Toggle South Lamp ON
     await page.locator('canvas').click({ position: { x: 480, y: 210 } });
     expect(await hasFlag(page, 'lamp_south_on')).toBe(true);
-
-    // Toggle South Lamp OFF (it must be OFF to solve the puzzle)
-    await page.locator('canvas').click({ position: { x: 480, y: 210 } });
-    expect(await hasFlag(page, 'lamp_south_on')).toBe(false);
 
     // Close zoom view
     await page.locator('canvas').click({ position: { x: 900, y: 30 } });
@@ -692,7 +692,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
 
     // Open Balcony Lamp zoom view (903, 298)
     await page.locator('canvas').click({ position: { x: 903, y: 298 } });
-    await page.waitForFunction(() => window.__gameState.zoomView === 'lamp_zoom');
+    await page.waitForFunction(() => window.__gameState.zoomView === 'spiral_lamp_zoom_view');
 
     // Toggle Balcony Lamp ON -> Should solve the puzzle
     await page.locator('canvas').click({ position: { x: 480, y: 210 } });
@@ -714,6 +714,57 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     // Close zoom view
     await page.locator('canvas').click({ position: { x: 900, y: 30 } });
     await page.waitForFunction(() => window.__gameState.zoomView === null);
+  });
+
+  test('Test Case 7: Hotspot Debug Mode Toggle', async ({ page }) => {
+    // Check initial state: debugModeActive should be false
+    let isDebugActive = await page.evaluate(() => {
+      const gameScene = window.__game.scene.keys.GameScene;
+      return gameScene ? gameScene.debugModeActive : null;
+    });
+    expect(isDebugActive).toBe(false);
+
+    // Verify debug button is present
+    const debugBtn = page.locator('#toggle-debug-btn');
+    await expect(debugBtn).toBeVisible();
+    await expect(debugBtn).not.toHaveClass(/active/);
+
+    // Click toggle button
+    await debugBtn.click();
+
+    // Verify debugModeActive is true
+    isDebugActive = await page.evaluate(() => {
+      const gameScene = window.__game.scene.keys.GameScene;
+      return gameScene ? gameScene.debugModeActive : null;
+    });
+    expect(isDebugActive).toBe(true);
+    await expect(debugBtn).toHaveClass(/active/);
+
+    // Verify visual labels are rendered in the scene
+    let textLabelsCount = await page.evaluate(() => {
+      const gameScene = window.__game.scene.keys.GameScene;
+      return gameScene && gameScene.hotspots ? gameScene.hotspots.getChildren().filter(c => c.text !== undefined).length : -1;
+    });
+    // Hammock, Bookshelves, North Lamp, Trunk should all have text labels
+    expect(textLabelsCount).toBe(4);
+
+    // Click toggle button again
+    await debugBtn.click();
+
+    // Verify debugModeActive is false
+    isDebugActive = await page.evaluate(() => {
+      const gameScene = window.__game.scene.keys.GameScene;
+      return gameScene ? gameScene.debugModeActive : null;
+    });
+    expect(isDebugActive).toBe(false);
+    await expect(debugBtn).not.toHaveClass(/active/);
+
+    // Verify labels are destroyed
+    textLabelsCount = await page.evaluate(() => {
+      const gameScene = window.__game.scene.keys.GameScene;
+      return gameScene && gameScene.hotspots ? gameScene.hotspots.getChildren().filter(c => c.text !== undefined).length : -1;
+    });
+    expect(textLabelsCount).toBe(0);
   });
 
 });
