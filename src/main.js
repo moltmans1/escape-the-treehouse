@@ -97,9 +97,13 @@ class PreloadScene extends Phaser.Scene {
     this.load.image('safe_open', 'assets/safe_open.jpg');
     this.load.image('dart', 'assets/dart.jpg');
     this.load.image('cross_lamp', 'assets/cross_lamp.jpg');
+    this.load.image('cross_lamp_off', 'assets/cross_lamp_off.png');
     this.load.image('triangle_lamp_zoom_view', 'assets/Triangle lamp zoom view.png');
+    this.load.image('triangle_lamp_off', 'assets/triangle_lamp_off.png');
     this.load.image('circle_lamp_zoom_view', 'assets/circle_lamp_zoom_view.png');
+    this.load.image('circle_lamp_off', 'assets/circle_lamp_off.png');
     this.load.image('spiral_lamp_zoom_view', 'assets/spiral_lamp_zoom_view.png');
+    this.load.image('spiral_lamp_off', 'assets/spiral_lamp_off.png');
     
     // Load navigation arrow
     this.createArrowTexture();
@@ -1169,33 +1173,39 @@ class GameScene extends Phaser.Scene {
       let lampFlag = '';
       let pattern = '';
       let lampTitle = '';
-      let assetKey = '';
       
       if (currentView === 'north') {
         lampFlag = 'lamp_north_on';
         pattern = 'Triangle';
         lampTitle = 'North Lamp (Triangle)';
-        assetKey = 'triangle_lamp_zoom_view';
       } else if (currentView === 'east') {
         lampFlag = 'lamp_east_on';
         pattern = 'Circle';
         lampTitle = 'East Lamp (Circle)';
-        assetKey = 'circle_lamp_zoom_view';
       } else if (currentView === 'south') {
         lampFlag = 'lamp_south_on';
         pattern = 'Cross';
         lampTitle = 'South Lamp (Cross)';
-        assetKey = 'cross_lamp';
       } else if (currentView === 'balcony') {
         lampFlag = 'lamp_balcony_on';
         pattern = 'Spiral';
         lampTitle = 'Balcony Lamp (Spiral)';
-        assetKey = 'spiral_lamp_zoom_view';
       } else {
         return;
       }
 
       const isON = stateManager.hasFlag(lampFlag);
+      let assetKey = '';
+      
+      if (currentView === 'north') {
+        assetKey = isON ? 'triangle_lamp_zoom_view' : 'triangle_lamp_off';
+      } else if (currentView === 'east') {
+        assetKey = isON ? 'circle_lamp_zoom_view' : 'circle_lamp_off';
+      } else if (currentView === 'south') {
+        assetKey = isON ? 'cross_lamp' : 'cross_lamp_off';
+      } else if (currentView === 'balcony') {
+        assetKey = isON ? 'spiral_lamp_zoom_view' : 'spiral_lamp_off';
+      }
 
       // Card/panel background
       const card = this.add.graphics();
@@ -1217,18 +1227,6 @@ class GameScene extends Phaser.Scene {
       const lampImage = this.add.image(480, 210, assetKey);
       lampImage.setDisplaySize(220, 220);
       this.zoomContainer.add(lampImage);
-
-      // Yellow glow overlay if ON, dark overlay/tint if OFF
-      const glowGraphics = this.add.graphics();
-      if (isON) {
-        lampImage.setTint(0xfff0ad);
-        // Yellow light bulb glow
-        glowGraphics.fillStyle(0xffe600, 0.3);
-        glowGraphics.fillCircle(480, 190, 50);
-        this.zoomContainer.add(glowGraphics);
-      } else {
-        lampImage.setTint(0x777777);
-      }
 
       // Toggle interaction hotspot over the lamp
       const toggleHotspot = this.add.rectangle(480, 210, 180, 240, 0xffffff, 0.0)
