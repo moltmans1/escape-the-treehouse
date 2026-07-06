@@ -618,8 +618,8 @@ test.describe('Escape the Treehouse E2E Tests', () => {
   });
 
   test('Test Case 6: Lamp Puzzle Toggling & Solving', async ({ page }) => {
-    // 1. Open the North Lamp zoom view in the North View (830, 330)
-    await page.locator('canvas').click({ position: { x: 830, y: 330 } });
+    // 1. Open the North Lamp zoom view in the North View (440, 57)
+    await page.locator('canvas').click({ position: { x: 440, y: 57 } });
     await page.waitForFunction(() => window.__gameState.zoomView === 'triangle_lamp_zoom_view');
 
     // Verify it is North Lamp (Triangle)
@@ -650,8 +650,8 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.locator('canvas').click({ position: { x: 920, y: 220 } });
     await page.waitForFunction(() => window.__gameState.currentView === 'east');
 
-    // Open East Lamp zoom view (615, 380)
-    await page.locator('canvas').click({ position: { x: 615, y: 380 } });
+    // Open East Lamp zoom view (42, 292)
+    await page.locator('canvas').click({ position: { x: 42, y: 292 } });
     await page.waitForFunction(() => window.__gameState.zoomView === 'circle_lamp_zoom_view');
 
     // Toggle East Lamp ON
@@ -670,8 +670,8 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.locator('canvas').click({ position: { x: 920, y: 220 } });
     await page.waitForFunction(() => window.__gameState.currentView === 'south');
 
-    // Open South Lamp zoom view (915, 345)
-    await page.locator('canvas').click({ position: { x: 915, y: 345 } });
+    // Open South Lamp zoom view (495, 66)
+    await page.locator('canvas').click({ position: { x: 495, y: 66 } });
     await page.waitForFunction(() => window.__gameState.zoomView === 'cross_lamp_zoom_view');
 
     // Toggle South Lamp ON
@@ -690,8 +690,8 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     });
     await page.waitForFunction(() => window.__gameState.currentView === 'balcony');
 
-    // Open Balcony Lamp zoom view (903, 298)
-    await page.locator('canvas').click({ position: { x: 903, y: 298 } });
+    // Open Balcony Lamp zoom view (904, 291)
+    await page.locator('canvas').click({ position: { x: 904, y: 291 } });
     await page.waitForFunction(() => window.__gameState.zoomView === 'spiral_lamp_zoom_view');
 
     // Toggle Balcony Lamp ON -> Should solve the puzzle

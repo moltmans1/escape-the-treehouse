@@ -46,7 +46,7 @@ export const TreehouseConfig = {
         },
         {
           name: "north_lamp",
-          rect: [830, 310, 50, 70],
+          rect: [440, 57, 70, 115],
           interactions: [
             {
               else: ["OPEN_ZOOM_VIEW: triangle_lamp_zoom_view"]
@@ -112,7 +112,7 @@ export const TreehouseConfig = {
         },
         {
           name: "east_lamp",
-          rect: [615, 380, 50, 80],
+          rect: [42, 292, 84, 126],
           interactions: [
             {
               else: ["OPEN_ZOOM_VIEW: circle_lamp_zoom_view"]
@@ -161,7 +161,7 @@ export const TreehouseConfig = {
         },
         {
           name: "south_lamp",
-          rect: [915, 345, 50, 100],
+          rect: [495, 66, 42, 109],
           interactions: [
             {
               else: ["OPEN_ZOOM_VIEW: cross_lamp_zoom_view"]
@@ -251,7 +251,7 @@ export const TreehouseConfig = {
         },
         {
           name: "balcony_lamp",
-          rect: [903, 298, 65, 160],
+          rect: [904, 291, 73, 163],
           interactions: [
             {
               else: ["OPEN_ZOOM_VIEW: spiral_lamp_zoom_view"]
