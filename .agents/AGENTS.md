@@ -21,7 +21,10 @@ All coding assistants working on this codebase must follow these project-wide ru
 ## 🎨 Game Mechanics & Design Patterns
 * **Prefer Generated/Background Assets Over Rendered Drawings**: When displaying items, states, or zoom views, prefer using generated image assets or items already present in the background images instead of drawing vector shapes or using tints. This maintains the established visual theme.
 * **Decouple Logic from Display**: Separate the game state, data model, and business logic from Phaser display logic. Puzzle validation, command interpretation, and inventory management must reside in separate headless libraries (e.g., [StateManager.js](file:///home/moltmans/escape-the-treehouse/src/engine/StateManager.js)) and be accessed from UI handlers, rather than implementing validation inside event handlers.
-* **Align Hotspots Using Model Vision**: When defining interactable hotspots over background items, use a model call to locate objects in the background images. Remember to scale the hotspot coordinates to match any scaling applied to the background images in the game view.
+* **Align Hotspots Using Model Vision**: When defining interactable hotspots over background items, use a model call to locate objects in the background images. Remember to:
+  1. Scale the hotspot coordinates to match any scaling applied to the background images in the game view.
+  2. Convert standard top-left bounding boxes `[top_left_x, top_left_y, w, h]` into center-based coordinates `[center_x, center_y, w, h]` as required by Phaser rectangles.
+  3. Double-check and verify coordinates relative to other visible items (e.g., doors, columns, windows) in the scene to avoid coordinate misalignment.
 * **Synchronize Test Cases**: When updating any puzzle configurations, keys, or combination logic, always update the corresponding assertions in both the unit tests (`tests/engine.test.js`) and the integration/E2E tests (`tests/escape.spec.js`).
 
 
