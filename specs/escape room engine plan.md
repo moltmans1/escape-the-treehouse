@@ -267,7 +267,7 @@ export const TreehouseConfig = {
         },
         {
           name: "bookshelves",
-          rect: [850, 170, 210, 260],
+          rect: [850, 157.5, 210, 235],
           interactions: [
             {
               if_flag: "!found_book",
@@ -286,7 +286,7 @@ export const TreehouseConfig = {
         },
         {
           name: "trunk",
-          rect: [800, 380, 240, 120],
+          rect: [800, 360, 240, 160],
           interactions: [
             {
               else: [

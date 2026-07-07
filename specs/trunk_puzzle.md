@@ -57,10 +57,10 @@ The decorative trunk in the North View contains the zipline harness necessary fo
 
 ### Test Case: Unlocking Trunk and Retrieving Harness
 1.  **Check Locked State:**
-    *   *Action:* Click Trunk (coordinates: `800, 380`) without selecting a key.
+    *   *Action:* Click Trunk (coordinates: `800, 360`) without selecting a key.
     *   *Expected:* Dialogue displays: *"It's a heavy iron-banded trunk. It is locked and you don't have a key."*
 2.  **Unlock Trunk:**
-    *   *Action:* Select `brass_key` and click Trunk (coordinates: `800, 380`).
+    *   *Action:* Select `brass_key` and click Trunk (coordinates: `800, 360`).
     *   *Expected:*
         *   Trunk is unlocked (`trunk_unlocked` is set).
         *   `brass_key` is removed from inventory.
