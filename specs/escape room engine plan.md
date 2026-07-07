@@ -322,8 +322,8 @@ export const TreehouseConfig = {
           ]
         },
         {
-          name: "window_sill",
-          rect: [605, 260, 60, 60],
+          name: "binoculars",
+          rect: [592, 282, 58, 58],
           interactions: [
             {
               if_flag: "!found_binoculars",

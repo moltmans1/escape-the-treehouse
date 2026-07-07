@@ -265,7 +265,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     // 1. Collect Binoculars from East Window Sill (go to East View first)
     await page.locator('canvas').click({ position: { x: 40, y: 220 } });
     await page.waitForFunction(() => window.__gameState.currentView === 'east');
-    await page.locator('canvas').click({ position: { x: 605, y: 260 } });
+    await page.locator('canvas').click({ position: { x: 592, y: 282 } });
     await dismissDialog(page);
     let inventory = await page.evaluate(() => window.__gameState.inventory);
     expect(inventory).toContain('binoculars');
@@ -467,7 +467,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     // Collect Binoculars (go to East View)
     await page.locator('canvas').click({ position: { x: 40, y: 220 } });
     await page.waitForFunction(() => window.__gameState.currentView === 'east');
-    await page.locator('canvas').click({ position: { x: 605, y: 260 } });
+    await page.locator('canvas').click({ position: { x: 592, y: 282 } });
     await dismissDialog(page);
 
     // Collect Trees Book
