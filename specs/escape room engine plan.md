@@ -392,7 +392,7 @@ export const TreehouseConfig = {
         },
         {
           name: "dartboard_safe_zone",
-          rect: [380, 205, 120, 120],
+          rect: [366, 171, 118, 96],
           interactions: [
             {
               if_flag: "safe_unlocked",

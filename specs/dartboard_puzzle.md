@@ -53,7 +53,7 @@ The implementation of this puzzle is verified through E2E tests.
 
 ### Test Case 3: Dartboard Puzzle
 1.  **Open Dartboard Zoom View:**
-    *   *Action:* Click the dartboard in South View (coordinates: `380, 205`).
+    *   *Action:* Click the dartboard in South View (coordinates: `366, 171`).
     *   *Expected:* `zoomView` is set to `'dartboard'`.
 2.  **Input Sequence:**
     *   *Action:* Click dartboard number sections in sequence: `13` -> `20` -> `10`.
@@ -68,5 +68,5 @@ The implementation of this puzzle is verified through E2E tests.
     *   `solvedPuzzles` contains `'dartboard_solved'`.
     *   `zoomView` is set to `null` (main room view).
 2.  **Click Dartboard Area:**
-    *   *Action:* Click the dartboard in South View (coordinates: `380, 205`).
+    *   *Action:* Click the dartboard in South View (coordinates: `366, 171`).
     *   *Expected:* `zoomView` is set to `'safe_view'` (opening the safe zoom view directly).

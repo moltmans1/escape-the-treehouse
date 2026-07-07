@@ -244,7 +244,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.waitForFunction(() => window.__gameState.currentView === 'south');
 
     // Solve dartboard
-    await page.locator('canvas').click({ position: { x: 380, y: 205 } });
+    await page.locator('canvas').click({ position: { x: 366, y: 171 } });
     await page.waitForFunction(() => window.__gameState.zoomView === 'dartboard');
     await page.waitForTimeout(200);
 
@@ -323,8 +323,8 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.locator('canvas').click({ position: { x: 900, y: 30 } }); // Close book zoom
     await page.waitForFunction(() => window.__gameState.zoomView === null);
 
-    // 5. Open Safe Keypad (380, 205)
-    await page.locator('canvas').click({ position: { x: 380, y: 205 } });
+    // 5. Open Safe Keypad (366, 171)
+    await page.locator('canvas').click({ position: { x: 366, y: 171 } });
     await page.waitForFunction(() => window.__gameState.zoomView === 'safe_view');
 
     // Click keypad buttons programmatically: 1 -> 7 -> 5 -> 9
@@ -351,7 +351,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     expect(hasKey).toBe(false);
 
     // 6. Click open safe to verify it is empty and opens the safe view
-    await page.locator('canvas').click({ position: { x: 380, y: 205 } });
+    await page.locator('canvas').click({ position: { x: 366, y: 171 } });
     const emptyDialogText = await page.evaluate(() => window.__gameState.dialogText);
     expect(emptyDialogText).toBe("The unlocked safe is empty.");
     await dismissDialog(page);
@@ -367,7 +367,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.waitForFunction(() => window.__gameState.currentView === 'south');
 
     // Open dartboard
-    await page.locator('canvas').click({ position: { x: 380, y: 205 } });
+    await page.locator('canvas').click({ position: { x: 366, y: 171 } });
     await page.waitForFunction(() => window.__gameState.zoomView === 'dartboard');
     await page.waitForTimeout(200);
 
@@ -451,7 +451,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.waitForFunction(() => window.__gameState.currentView === 'south');
 
     // Solve dartboard
-    await page.locator('canvas').click({ position: { x: 380, y: 205 } });
+    await page.locator('canvas').click({ position: { x: 366, y: 171 } });
     await page.waitForFunction(() => window.__gameState.zoomView === 'dartboard');
     await page.waitForTimeout(200);
 
@@ -479,7 +479,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.waitForFunction(() => window.__gameState.currentView === 'south');
 
     // Solve Safe
-    await page.locator('canvas').click({ position: { x: 380, y: 205 } });
+    await page.locator('canvas').click({ position: { x: 366, y: 171 } });
     await page.waitForFunction(() => window.__gameState.zoomView === 'safe_view');
     
     // Click keypad buttons programmatically
@@ -495,7 +495,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.waitForFunction(() => window.__gameState.zoomView === null);
 
     // Click the safe again after solving it to verify it opens the safe view
-    await page.locator('canvas').click({ position: { x: 380, y: 205 } });
+    await page.locator('canvas').click({ position: { x: 366, y: 171 } });
     await dismissDialog(page);
     await page.waitForFunction(() => window.__gameState.zoomView === 'safe_view');
 
