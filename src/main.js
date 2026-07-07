@@ -228,6 +228,7 @@ class GameScene extends Phaser.Scene {
     this.bg = this.add.sprite(0, 0, `bg_${gameState.currentView}`).setOrigin(0, 0);
     this.bg.setDisplaySize(960, 440);
     this.currentViewTracked = gameState.currentView;
+    this.zoomViewTracked = gameState.zoomView;
 
     // Dynamic overlay for open compartment (drawn on top of background)
     this.compartmentGraphic = this.add.graphics();
@@ -661,6 +662,11 @@ class GameScene extends Phaser.Scene {
   }
 
   handleStateChanged(state) {
+    if (state.zoomView !== this.zoomViewTracked) {
+      this.zoomViewTracked = state.zoomView;
+      this.updateHotspots();
+    }
+
     if (state.currentView !== this.currentViewTracked) {
       this.currentViewTracked = state.currentView;
       this.cameras.main.fadeOut(150, 18, 14, 10);
