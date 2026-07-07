@@ -42,7 +42,7 @@ Once the Dartboard Puzzle is solved, a locked safe is revealed on the wall in th
     *   The zoom view remains active. The player manually closes the zoom view by clicking the **Close** button, which sets `zoomView` to `null`.
 
 ### Post-Unlock Interaction
-*   If the player clicks the open safe hotspot in the main South View (coordinates: `366, 171`) after the key is collected, a dialog is shown: *"The unlocked safe is empty."*, and the zoom view `safe_view` is opened.
+*   If the player clicks the open safe hotspot in the main South View after the key is collected, a dialog is shown: *"The unlocked safe is empty."*, and the zoom view `safe_view` is opened.
 
 ---
 
@@ -51,7 +51,7 @@ The implementation of this puzzle is verified through E2E tests.
 
 ### Test Case: Unlocking the Safe & Collecting the Key
 1.  **Open Safe Keypad View:**
-    *   *Action:* Click the safe in South View (coordinates: `366, 171`).
+    *   *Action:* Click the safe in South View.
     *   *Expected:* `zoomView` is set to `'safe_view'`.
 2.  **Enter Correct Combination:**
     *   *Action:* Rotate/click the wheels programmatically until the combination displays `1759`.
@@ -63,11 +63,11 @@ The implementation of this puzzle is verified through E2E tests.
         *   `hasKeyInCompartment` is `false`.
         *   Dialogue displays: *"The safe is open, a Rusty Old Key is inside! It has been added to your inventory."*
 3.  **Close Zoom View:**
-    *   *Action:* Click the Close button (coordinates: `900, 30`).
+    *   *Action:* Click the Close button.
     *   *Expected:*
         *   `zoomView` is set to `null` (closes).
 4.  **Verify Safe in South View:**
-    *   *Action:* Click the open safe in South View (coordinates: `366, 171`).
+    *   *Action:* Click the open safe in South View.
     *   *Expected:*
         *   Dialogue displays: *"The unlocked safe is empty."*
         *   `zoomView` is set to `'safe_view'`.

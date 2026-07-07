@@ -51,22 +51,22 @@ The implementation is verified through E2E tests.
 
 ### Test Case: Binoculars Puzzle
 1.  **Collect Items:**
-    *   *Action:* Go to East View, click the window sill (coordinates: `605, 260`).
+    *   *Action:* Go to East View, click the window sill.
     *   *Expected:* `binoculars` added to `inventory`.
-    *   *Action:* Go to East View, click the top left wall (coordinates: `75, 85`).
+    *   *Action:* Go to East View, click the top left wall.
     *   *Expected:* `trees_book` added to `inventory`.
 2.  **Inspect South Window Zoom View:**
-    *   *Action:* Go to South View, click the South Window (coordinates: `715, 190`).
+    *   *Action:* Go to South View, click the South Window.
     *   *Expected:* `zoomView` is set to `'south_window_zoom'`.
 3.  **Try Inspecting Trees Without Binoculars:**
-    *   *Action:* Clear selected item, click the Oak Tree (coordinates: `415, 200` relative inside window zoom).
+    *   *Action:* Clear selected item, click the Oak Tree.
     *   *Expected:* Dialog shows: *"A leafy tree standing in the middle of the canopy."*
 4.  **Use Binoculars to Inspect Trees:**
     *   *Action:* Select `binoculars`, click the Oak Tree.
     *   *Expected:* `zoomView` is set to `'oak_leaf_zoom'`.
-    *   *Action:* Close zoom, select `binoculars`, click the White Pine (coordinates: `502, 190` relative inside window zoom).
+    *   *Action:* Close zoom, select `binoculars`, click the White Pine.
     *   *Expected:* `zoomView` is set to `'white_pine_zoom'`.
-    *   *Action:* Close zoom, select `binoculars`, click the Sugar Maple (coordinates: `590, 200` relative inside window zoom).
+    *   *Action:* Close zoom, select `binoculars`, click the Sugar Maple.
     *   *Expected:* `zoomView` is set to `'sugar_maple_zoom'`.
 5.  **Read Trees Book:**
     *   *Action:* Close zoom, select/click `trees_book` in inventory.

@@ -13,7 +13,6 @@ The decorative trunk in the North View contains the zipline harness necessary fo
 ## 🎒 Items & Props
 
 *   **Locked Trunk (North View):** An interactive hotspot in the Cozy Corner (North View).
-    *   Coordinates/Rect: `[820, 370, 260, 140]`
 *   **Brass Key (`brass_key`):** The inventory item used to unlock the trunk.
 *   **Zipline Harness (`harness`):** The item found inside the unlocked trunk, needed to safely use the zipline.
 
@@ -57,10 +56,10 @@ The decorative trunk in the North View contains the zipline harness necessary fo
 
 ### Test Case: Unlocking Trunk and Retrieving Harness
 1.  **Check Locked State:**
-    *   *Action:* Click Trunk (coordinates: `800, 360`) without selecting a key.
+    *   *Action:* Click Trunk without selecting a key.
     *   *Expected:* Dialogue displays: *"It's a heavy iron-banded trunk. It is locked and you don't have a key."*
 2.  **Unlock Trunk:**
-    *   *Action:* Select `brass_key` and click Trunk (coordinates: `800, 360`).
+    *   *Action:* Select `brass_key` and click Trunk.
     *   *Expected:*
         *   Trunk is unlocked (`trunk_unlocked` is set).
         *   `brass_key` is removed from inventory.

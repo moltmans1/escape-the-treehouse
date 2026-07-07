@@ -38,15 +38,15 @@ The implementation of this transition is verified through E2E tests.
 
 ### Test Case: Unlocking and Entering the Balcony
 1.  **Locked Door Check:**
-    *   *Action:* Click the Exit Door (coordinates: `185, 270`) without selecting the key.
+    *   *Action:* Click the Exit Door without selecting the key.
     *   *Expected:* `dialogText` equals `"The door is locked."`.
 2.  **Select Rusty Old Key:**
     *   *Action:* Select `rusty_key` in the inventory.
     *   *Expected:* `selectedItem` is set to `'rusty_key'`.
 3.  **Unlock Door:**
-    *   *Action:* Click the Exit Door (coordinates: `185, 270`) with the key selected.
+    *   *Action:* Click the Exit Door with the key selected.
     *   *Expected:* `dialogText` equals `"You have inserted the rusty old key into the lock. The door is now unlocked, click again to go through."`, and the door unlocks (`solvedPuzzles` contains `'door_unlocked'`).
 4.  **Transition to Balcony:**
-    *   *Action:* Click the Exit Door again (coordinates: `185, 270`).
+    *   *Action:* Click the Exit Door again.
     *   *Expected:* `currentView` is set to `'balcony'`.
 

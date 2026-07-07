@@ -43,7 +43,7 @@ The player must discover and configure the correct ON/OFF state for the four lam
     *   The visual rendering updates dynamically:
         *   **ON state:** Displays a glowing lamp graphic.
         *   **OFF state:** Displays a dark lamp graphic.
-    *   A close button (top right, coordinates `900, 30`) closes the zoom view.
+    *   A close button (top right) closes the zoom view.
 
 ---
 

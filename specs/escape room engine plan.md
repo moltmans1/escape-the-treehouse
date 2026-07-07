@@ -248,7 +248,6 @@ export const TreehouseConfig = {
       hotspots: [
         {
           name: "hammock",
-          rect: [260, 290, 370, 180],
           interactions: [
             {
               if_flag: "!found_paper",
@@ -267,7 +266,6 @@ export const TreehouseConfig = {
         },
         {
           name: "bookshelves",
-          rect: [850, 157.5, 210, 235],
           interactions: [
             {
               if_flag: "!found_book",
@@ -286,7 +284,6 @@ export const TreehouseConfig = {
         },
         {
           name: "trunk",
-          rect: [800, 360, 240, 160],
           interactions: [
             {
               else: [
@@ -303,7 +300,6 @@ export const TreehouseConfig = {
       hotspots: [
         {
           name: "trees_book_shelf",
-          rect: [75, 85, 150, 130],
           interactions: [
             {
               if_flag: "!found_trees_book",
@@ -323,7 +319,6 @@ export const TreehouseConfig = {
         },
         {
           name: "binoculars",
-          rect: [592, 282, 58, 58],
           interactions: [
             {
               if_flag: "!found_binoculars",
@@ -349,7 +344,6 @@ export const TreehouseConfig = {
       hotspots: [
         {
           name: "exit_door",
-          rect: [185, 270, 230, 340],
           interactions: [
             {
               if_flag: "door_unlocked",
@@ -372,7 +366,6 @@ export const TreehouseConfig = {
         },
         {
           name: "writing_desk",
-          rect: [780, 355, 360, 170],
           interactions: [
             {
               else: [
@@ -383,7 +376,6 @@ export const TreehouseConfig = {
         },
         {
           name: "south_window",
-          rect: [715, 190, 370, 180],
           interactions: [
             {
               else: ["OPEN_ZOOM_VIEW: south_window_zoom"]
@@ -392,7 +384,6 @@ export const TreehouseConfig = {
         },
         {
           name: "dartboard_safe_zone",
-          rect: [366, 171, 118, 96],
           interactions: [
             {
               if_flag: "safe_unlocked",

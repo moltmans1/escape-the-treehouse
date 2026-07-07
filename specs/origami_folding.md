@@ -39,13 +39,13 @@ The implementation of this puzzle is verified through E2E tests in [escape.spec.
 
 ### Test Case 1: Item Collection
 1.  **Hammock Interaction:**
-    *   *Action:* Click the hammock (coordinates: `200, 240`).
+    *   *Action:* Click the hammock.
     *   *Expected:* `dialogText` equals `"Underneath the pillow, you find a sheet of paper."`, and `origami_paper` is present in `inventory`.
 2.  **Duplicate Prevention (Hammock):**
     *   *Action:* Dismiss the dialog, click the hammock again.
     *   *Expected:* `dialogText` equals `"A comfortable hammock. There's nothing else under the pillow."`, and `inventory` does not contain duplicate `origami_paper`.
 3.  **Bookshelf Interaction:**
-    *   *Action:* Click the bookshelf (coordinates: `900, 150`).
+    *   *Action:* Click the bookshelf.
     *   *Expected:* `dialogText` equals `"You found an Origami book."`, and `origami_book` is present in `inventory`.
 4.  **Duplicate Prevention (Bookshelf):**
     *   *Action:* Dismiss the dialog, click the bookshelf again.
@@ -59,7 +59,7 @@ The implementation of this puzzle is verified through E2E tests in [escape.spec.
     *   *Action:* Click `origami_paper` in the inventory while the zoom view is active.
     *   *Expected:* `selectedItem` is set to `'origami_paper'`, and `zoomView` remains `'origami_book'` (does not trigger paper zoom view).
 3.  **Perform Folding Action:**
-    *   *Action:* Click the right page folding zone (coordinates: `605, 210`).
+    *   *Action:* Click the right page folding zone.
     *   *Expected:* `zoomView` transitions to `'paper_airplane'`. `inventory` has items `origami_paper` and `origami_book` removed and `paper_airplane` added.
 4.  **Inspect Paper Airplane:**
     *   *Action:* Close the zoom view, select/click `paper_airplane` in the inventory.
