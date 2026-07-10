@@ -140,4 +140,43 @@ describe('Escape Room Headless Core Engine', () => {
     expect(state.hasFlag('found_clue_1')).toBe(true);
     expect(state.state.inventory).toContain('clue_1');
   });
+
+  it('should find clue 2 under the mattress and add it to the inventory', () => {
+    expect(state.hasFlag('found_clue_2')).toBe(false);
+    expect(state.state.inventory).not.toContain('clue_2');
+
+    state.executeActions([
+      'SET_FLAG: found_clue_2',
+      'ADD_INVENTORY: clue_2'
+    ]);
+
+    expect(state.hasFlag('found_clue_2')).toBe(true);
+    expect(state.state.inventory).toContain('clue_2');
+  });
+
+  it('should find clue 3 on the writing desk and add it to the inventory', () => {
+    expect(state.hasFlag('found_clue_3')).toBe(false);
+    expect(state.state.inventory).not.toContain('clue_3');
+
+    state.executeActions([
+      'SET_FLAG: found_clue_3',
+      'ADD_INVENTORY: clue_3'
+    ]);
+
+    expect(state.hasFlag('found_clue_3')).toBe(true);
+    expect(state.state.inventory).toContain('clue_3');
+  });
+
+  it('should find clue 4 on the books stack and add it to the inventory', () => {
+    expect(state.hasFlag('found_clue_4')).toBe(false);
+    expect(state.state.inventory).not.toContain('clue_4');
+
+    state.executeActions([
+      'SET_FLAG: found_clue_4',
+      'ADD_INVENTORY: clue_4'
+    ]);
+
+    expect(state.hasFlag('found_clue_4')).toBe(true);
+    expect(state.state.inventory).toContain('clue_4');
+  });
 });

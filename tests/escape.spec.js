@@ -656,6 +656,65 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.waitForFunction(() => window.__gameState.zoomView === null);
   });
 
+  test('Test Case 5c: Clues 2, 3, and 4 Collection & Inspection', async ({ page }) => {
+    // 1. East View: mattress is at (822, 321)
+    await page.evaluate(() => window.__stateManager.setView('east'));
+    await page.waitForFunction(() => window.__gameState.currentView === 'east');
+
+    // Click mattress to get clue 2
+    await page.locator('canvas').click({ position: { x: 822, y: 321 } });
+    await page.locator('canvas').click({ position: { x: 500, y: 100 } }); // dismiss dialogue
+
+    const hasClue2 = await page.evaluate(() => window.__gameState.inventory.includes('clue_2'));
+    expect(hasClue2).toBe(true);
+
+    // Inspect clue 2
+    const clue2Idx = await page.evaluate(() => window.__gameState.inventory.indexOf('clue_2'));
+    const slot2X = 120 + clue2Idx * 80;
+    await page.locator('canvas').click({ position: { x: slot2X, y: 490 } });
+    await page.locator('canvas').click({ position: { x: slot2X, y: 490 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'clue_2_zoom');
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } }); // close
+
+    // 2. South View: desk is at (780, 355)
+    await page.locator('canvas').click({ position: { x: 920, y: 220 } });
+    await page.waitForFunction(() => window.__gameState.currentView === 'south');
+
+    // Click desk to get clue 3
+    await page.locator('canvas').click({ position: { x: 780, y: 355 } });
+    await page.locator('canvas').click({ position: { x: 500, y: 100 } }); // dismiss dialogue
+
+    const hasClue3 = await page.evaluate(() => window.__gameState.inventory.includes('clue_3'));
+    expect(hasClue3).toBe(true);
+
+    // Inspect clue 3
+    const clue3Idx = await page.evaluate(() => window.__gameState.inventory.indexOf('clue_3'));
+    const slot3X = 120 + clue3Idx * 80;
+    await page.locator('canvas').click({ position: { x: slot3X, y: 490 } });
+    await page.locator('canvas').click({ position: { x: slot3X, y: 490 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'clue_3_zoom');
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } }); // close
+
+    // 3. North View: books stack is at (474, 395)
+    await page.locator('canvas').click({ position: { x: 920, y: 220 } });
+    await page.waitForFunction(() => window.__gameState.currentView === 'north');
+
+    // Click books stack to get clue 4
+    await page.locator('canvas').click({ position: { x: 474, y: 395 } });
+    await page.locator('canvas').click({ position: { x: 500, y: 100 } }); // dismiss dialogue
+
+    const hasClue4 = await page.evaluate(() => window.__gameState.inventory.includes('clue_4'));
+    expect(hasClue4).toBe(true);
+
+    // Inspect clue 4
+    const clue4Idx = await page.evaluate(() => window.__gameState.inventory.indexOf('clue_4'));
+    const slot4X = 120 + clue4Idx * 80;
+    await page.locator('canvas').click({ position: { x: slot4X, y: 490 } });
+    await page.locator('canvas').click({ position: { x: slot4X, y: 490 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'clue_4_zoom');
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } }); // close
+  });
+
   test('Test Case 6: Lamp Puzzle Toggling & Solving', async ({ page }) => {
     // 1. Open the North Lamp zoom view in the North View (440, 57)
     await page.locator('canvas').click({ position: { x: 440, y: 57 } });

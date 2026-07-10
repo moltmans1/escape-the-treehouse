@@ -63,6 +63,25 @@ export const TreehouseConfig = {
               ]
             }
           ]
+        },
+        {
+          name: "books_stack",
+          rect: [474, 395, 84, 69],
+          interactions: [
+            {
+              if_flag: "!found_clue_4",
+              then: [
+                "SET_FLAG: found_clue_4",
+                "ADD_INVENTORY: clue_4",
+                "SHOW_DIALOG: Under the mug on the stack of books, you find a torn slip of paper with strange markings."
+              ]
+            },
+            {
+              else: [
+                "SHOW_DIALOG: A stack of books under a ceramic mug."
+              ]
+            }
+          ]
         }
       ]
     },
@@ -137,6 +156,25 @@ export const TreehouseConfig = {
               ]
             }
           ]
+        },
+        {
+          name: "mattress",
+          rect: [822, 321, 276, 69],
+          interactions: [
+            {
+              if_flag: "!found_clue_2",
+              then: [
+                "SET_FLAG: found_clue_2",
+                "ADD_INVENTORY: clue_2",
+                "SHOW_DIALOG: Under the mattress, you slide out another torn slip of paper with strange markings."
+              ]
+            },
+            {
+              else: [
+                "SHOW_DIALOG: Just the mattress. It's surprisingly soft."
+              ]
+            }
+          ]
         }
       ]
     },
@@ -171,6 +209,14 @@ export const TreehouseConfig = {
           name: "writing_desk",
           rect: [780, 355, 360, 170],
           interactions: [
+            {
+              if_flag: "!found_clue_3",
+              then: [
+                "SET_FLAG: found_clue_3",
+                "ADD_INVENTORY: clue_3",
+                "SHOW_DIALOG: You inspect the desk and find a torn slip of paper with strange markings among the scraps."
+              ]
+            },
             {
               else: [
                 "SHOW_DIALOG: A cozy writing desk with inkwells and scrap paper."
@@ -288,6 +334,9 @@ export const TreehouseConfig = {
     trees_book: { title: "Trees of North America", asset: "open_book" },
     cipher_key_zoom: { title: "Cipher Key", asset: "cipher_key_zoom" },
     clue_1_zoom: { title: "Torn Slip of Paper", asset: "clue_paper" },
+    clue_2_zoom: { title: "Torn Slip of Paper", asset: "clue_paper" },
+    clue_3_zoom: { title: "Torn Slip of Paper", asset: "clue_paper" },
+    clue_4_zoom: { title: "Torn Slip of Paper", asset: "clue_paper" },
     triangle_lamp_zoom_view: { title: "North Lamp (Triangle)", asset: "triangle_lamp_zoom_view" },
     circle_lamp_zoom_view: { title: "East Lamp (Circle)", asset: "circle_lamp_zoom_view" },
     cross_lamp_zoom_view: { title: "South Lamp (Cross)", asset: "cross_lamp" },

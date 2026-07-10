@@ -499,6 +499,12 @@ class GameScene extends Phaser.Scene {
                 this.inspectCipherKey();
               } else if (item === 'clue_1') {
                 this.inspectClue1();
+              } else if (item === 'clue_2') {
+                this.inspectClue2();
+              } else if (item === 'clue_3') {
+                this.inspectClue3();
+              } else if (item === 'clue_4') {
+                this.inspectClue4();
               }
             }
           }
@@ -755,6 +761,9 @@ class GameScene extends Phaser.Scene {
           else if (arg === 'dartboard_view') this.enterDartboardView();
           else if (arg === 'cipher_key_zoom') this.inspectCipherKey();
           else if (arg === 'clue_1_zoom') this.inspectClue1();
+          else if (arg === 'clue_2_zoom') this.inspectClue2();
+          else if (arg === 'clue_3_zoom') this.inspectClue3();
+          else if (arg === 'clue_4_zoom') this.inspectClue4();
           else if (arg === 'lamp_zoom' || arg === 'triangle_lamp_zoom_view' || arg === 'circle_lamp_zoom_view' || arg === 'cross_lamp_zoom_view' || arg === 'spiral_lamp_zoom_view') this.inspectLamp();
           break;
         case 'LAUNCH_MINIGAME':
@@ -846,6 +855,42 @@ class GameScene extends Phaser.Scene {
 
       const cipherGraphics = this.add.graphics();
       this.drawPigpenString(cipherGraphics, "circle off", 334, 209, 22, 8);
+
+      this.zoomContainer.add([paper, cipherGraphics]);
+    });
+  }
+
+  inspectClue2() {
+    this.enterZoomView('clue_2_zoom', () => {
+      const paper = this.add.image(480, 220, 'clue_paper');
+      paper.setDisplaySize(540, 360);
+
+      const cipherGraphics = this.add.graphics();
+      this.drawPigpenString(cipherGraphics, "triangle on", 319, 209, 22, 8);
+
+      this.zoomContainer.add([paper, cipherGraphics]);
+    });
+  }
+
+  inspectClue3() {
+    this.enterZoomView('clue_3_zoom', () => {
+      const paper = this.add.image(480, 220, 'clue_paper');
+      paper.setDisplaySize(540, 360);
+
+      const cipherGraphics = this.add.graphics();
+      this.drawPigpenString(cipherGraphics, "cross on", 364, 209, 22, 8);
+
+      this.zoomContainer.add([paper, cipherGraphics]);
+    });
+  }
+
+  inspectClue4() {
+    this.enterZoomView('clue_4_zoom', () => {
+      const paper = this.add.image(480, 220, 'clue_paper');
+      paper.setDisplaySize(540, 360);
+
+      const cipherGraphics = this.add.graphics();
+      this.drawPigpenString(cipherGraphics, "spiral on", 349, 209, 22, 8);
 
       this.zoomContainer.add([paper, cipherGraphics]);
     });
