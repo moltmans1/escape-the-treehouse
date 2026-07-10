@@ -129,7 +129,7 @@ describe('Escape Room Headless Core Engine', () => {
         then: [
           "SET_FLAG: found_clue_1",
           "ADD_INVENTORY: clue_1",
-          "SHOW_DIALOG: You look behind the painting and find a torn slip of paper with strange markings."
+          "SHOW_DIALOG: You find a torn slip of paper with strange markings."
         ]
       }
     ];

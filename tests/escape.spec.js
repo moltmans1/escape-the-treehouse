@@ -629,7 +629,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     let isActive = await page.evaluate(() => window.__gameState.dialogActive);
     expect(isActive).toBe(true);
     let dialogText = await page.evaluate(() => window.__gameState.dialogText);
-    expect(dialogText).toBe('You look behind the painting and find a torn slip of paper with strange markings.');
+    expect(dialogText).toBe('You find a torn slip of paper with strange markings.');
 
     // Dismiss dialogue
     await page.locator('canvas').click({ position: { x: 500, y: 100 } });

@@ -73,7 +73,7 @@ export const TreehouseConfig = {
               then: [
                 "SET_FLAG: found_clue_4",
                 "ADD_INVENTORY: clue_4",
-                "SHOW_DIALOG: Under the mug on the stack of books, you find a torn slip of paper with strange markings."
+                "SHOW_DIALOG: You find a torn slip of paper with strange markings."
               ]
             },
             {
@@ -147,7 +147,7 @@ export const TreehouseConfig = {
               then: [
                 "SET_FLAG: found_clue_1",
                 "ADD_INVENTORY: clue_1",
-                "SHOW_DIALOG: You look behind the painting and find a torn slip of paper with strange markings."
+                "SHOW_DIALOG: You find a torn slip of paper with strange markings."
               ]
             },
             {
@@ -166,7 +166,7 @@ export const TreehouseConfig = {
               then: [
                 "SET_FLAG: found_clue_2",
                 "ADD_INVENTORY: clue_2",
-                "SHOW_DIALOG: Under the mattress, you slide out another torn slip of paper with strange markings."
+                "SHOW_DIALOG: You find a torn slip of paper with strange markings."
               ]
             },
             {
@@ -214,7 +214,7 @@ export const TreehouseConfig = {
               then: [
                 "SET_FLAG: found_clue_3",
                 "ADD_INVENTORY: clue_3",
-                "SHOW_DIALOG: You inspect the desk and find a torn slip of paper with strange markings among the scraps."
+                "SHOW_DIALOG: You find a torn slip of paper with strange markings."
               ]
             },
             {
