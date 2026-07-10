@@ -841,19 +841,13 @@ class GameScene extends Phaser.Scene {
 
   inspectClue1() {
     this.enterZoomView('clue_1_zoom', () => {
-      const card = this.add.graphics();
-      card.fillStyle(0x2a241f, 1);
-      card.fillRoundedRect(220, 45, 520, 330, 10);
-      card.lineStyle(2, 0xd4a373, 1);
-      card.strokeRoundedRect(220, 45, 520, 330, 10);
-
-      const paper = this.add.image(480, 210, 'clue_paper');
-      paper.setDisplaySize(480, 270);
+      const paper = this.add.image(480, 220, 'clue_paper');
+      paper.setDisplaySize(540, 360);
 
       const cipherGraphics = this.add.graphics();
-      this.drawPigpenString(cipherGraphics, "circle off", 295, 196, 28, 10);
+      this.drawPigpenString(cipherGraphics, "circle off", 334, 209, 22, 8);
 
-      this.zoomContainer.add([card, paper, cipherGraphics]);
+      this.zoomContainer.add([paper, cipherGraphics]);
     });
   }
 
