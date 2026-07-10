@@ -843,8 +843,8 @@ test.describe('Escape the Treehouse E2E Tests', () => {
       const gameScene = window.__game.scene.keys.GameScene;
       return gameScene && gameScene.hotspots ? gameScene.hotspots.getChildren().filter(c => c.text !== undefined).length : -1;
     });
-    // Hammock, Bookshelves, North Lamp, Trunk should all have text labels
-    expect(textLabelsCount).toBe(4);
+    // Hammock, Bookshelves, North Lamp, Trunk, Books Stack should all have text labels
+    expect(textLabelsCount).toBe(5);
 
     // Click toggle button again
     await debugBtn.click();
