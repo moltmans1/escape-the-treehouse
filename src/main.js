@@ -608,6 +608,7 @@ class GameScene extends Phaser.Scene {
   exitZoomView() {
     stateManager.setZoomView(null);
     this.zoomContainer.removeAll(true);
+    this.activeLampImage = null;
     this.updateHotspots();
     this.updateCanvasCursor();
     
@@ -1338,44 +1339,27 @@ class GameScene extends Phaser.Scene {
     else if (currentView === 'south') zoomViewKey = 'cross_lamp_zoom_view';
     else if (currentView === 'balcony') zoomViewKey = 'spiral_lamp_zoom_view';
 
+    let lampFlag = '';
+    if (currentView === 'north') lampFlag = 'lamp_north_on';
+    else if (currentView === 'east') lampFlag = 'lamp_east_on';
+    else if (currentView === 'south') lampFlag = 'lamp_south_on';
+    else if (currentView === 'balcony') lampFlag = 'lamp_balcony_on';
+    else return;
+
+    const isON = stateManager.hasFlag(lampFlag);
+    let assetKey = '';
+    if (currentView === 'north') assetKey = isON ? 'triangle_lamp_zoom_view' : 'triangle_lamp_off';
+    else if (currentView === 'east') assetKey = isON ? 'circle_lamp_zoom_view' : 'circle_lamp_off';
+    else if (currentView === 'south') assetKey = isON ? 'cross_lamp' : 'cross_lamp_off';
+    else if (currentView === 'balcony') assetKey = isON ? 'spiral_lamp_zoom_view' : 'spiral_lamp_off';
+
+    // If the zoom view is already open, just update the image texture and return
+    if (this.activeLampImage && this.activeLampImage.active) {
+      this.activeLampImage.setTexture(assetKey);
+      return;
+    }
+
     this.enterZoomView(zoomViewKey, () => {
-      let lampFlag = '';
-      let pattern = '';
-      let lampTitle = '';
-      
-      if (currentView === 'north') {
-        lampFlag = 'lamp_north_on';
-        pattern = 'Triangle';
-        lampTitle = 'North Lamp (Triangle)';
-      } else if (currentView === 'east') {
-        lampFlag = 'lamp_east_on';
-        pattern = 'Circle';
-        lampTitle = 'East Lamp (Circle)';
-      } else if (currentView === 'south') {
-        lampFlag = 'lamp_south_on';
-        pattern = 'Cross';
-        lampTitle = 'South Lamp (Cross)';
-      } else if (currentView === 'balcony') {
-        lampFlag = 'lamp_balcony_on';
-        pattern = 'Spiral';
-        lampTitle = 'Balcony Lamp (Spiral)';
-      } else {
-        return;
-      }
-
-      const isON = stateManager.hasFlag(lampFlag);
-      let assetKey = '';
-      
-      if (currentView === 'north') {
-        assetKey = isON ? 'triangle_lamp_zoom_view' : 'triangle_lamp_off';
-      } else if (currentView === 'east') {
-        assetKey = isON ? 'circle_lamp_zoom_view' : 'circle_lamp_off';
-      } else if (currentView === 'south') {
-        assetKey = isON ? 'cross_lamp' : 'cross_lamp_off';
-      } else if (currentView === 'balcony') {
-        assetKey = isON ? 'spiral_lamp_zoom_view' : 'spiral_lamp_off';
-      }
-
       // Card/panel background
       const card = this.add.graphics();
       card.fillStyle(0xfaf6ee, 1);
@@ -1385,9 +1369,9 @@ class GameScene extends Phaser.Scene {
       this.zoomContainer.add(card);
 
       // Base lamp image
-      const lampImage = this.add.image(480, 210, assetKey);
-      lampImage.setDisplaySize(220, 220);
-      this.zoomContainer.add(lampImage);
+      this.activeLampImage = this.add.image(480, 210, assetKey);
+      this.activeLampImage.setDisplaySize(220, 220);
+      this.zoomContainer.add(this.activeLampImage);
 
       // Toggle interaction hotspot over the lamp
       const toggleHotspot = this.add.rectangle(480, 210, 180, 240, 0xffffff, 0.0)
@@ -1402,9 +1386,10 @@ class GameScene extends Phaser.Scene {
       });
 
       toggleHotspot.on('pointerdown', () => {
-        const nextState = isON ? 'CLEAR_FLAG' : 'SET_FLAG';
-        stateManager.executeActions([`${nextState}: ${lampFlag}`, 'CHECK_LAMP_PUZZLE']);
-        // Refresh zoom view
+        const currentON = stateManager.hasFlag(lampFlag);
+        const nextAction = currentON ? 'CLEAR_FLAG' : 'SET_FLAG';
+        stateManager.executeActions([`${nextAction}: ${lampFlag}`, 'CHECK_LAMP_PUZZLE']);
+        // Refresh zoom view texture directly
         this.inspectLamp();
       });
 
