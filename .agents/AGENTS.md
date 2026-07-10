@@ -26,12 +26,16 @@ All coding assistants working on this codebase must follow these project-wide ru
   2. **Calculate Scale Factors**:
      - `Scale_X = Game_Width / Image_Width` (e.g., `960 / 1376` ≈ `0.69767`)
      - `Scale_Y = Game_Height / Image_Height` (e.g., `440 / 768` ≈ `0.57292`)
-  3. **Scale Coordinates**:
-     - `Scaled_Width = raw_w * Scale_X`
-     - `Scaled_Height = raw_h * Scale_Y`
-     - `Scaled_Center_X = (raw_x + raw_w / 2) * Scale_X`
-     - `Scaled_Center_Y = (raw_y + raw_h / 2) * Scale_Y`
-  4. **Convert to Phaser Format**: Format the scaled coordinates as center-based `[center_x, center_y, w, h]` for the Phaser rectangle.
+  3. **Scale and Convert to Center Coordinates**:
+     - First, scale the raw top-left coordinates and dimensions:
+       - `Scaled_X = raw_x * Scale_X`
+       - `Scaled_Y = raw_y * Scale_Y`
+       - `Scaled_W = raw_w * Scale_X`
+       - `Scaled_H = raw_h * Scale_Y`
+     - Second, convert the scaled top-left coordinates to center coordinates:
+       - `Center_X = Scaled_X + Scaled_W / 2`
+       - `Center_Y = Scaled_Y + Scaled_H / 2`
+  4. **Convert to Phaser Format**: Format the final parameters as `[Center_X, Center_Y, Scaled_W, Scaled_H]` for the Phaser rectangle.
   5. **Synchronize E2E Tests**: Update the corresponding click assertions in E2E tests (`tests/escape.spec.js`) to click on the new scaled center coordinates `[center_x, center_y]`.
 * **Synchronize Test Cases**: When updating any puzzle configurations, keys, or combination logic, always update the corresponding assertions in both the unit tests (`tests/engine.test.js`) and the integration/E2E tests (`tests/escape.spec.js`).
 
