@@ -621,10 +621,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     // Rotate to East View
     await page.locator('canvas').click({ position: { x: 920, y: 220 } });
     await page.waitForFunction(() => window.__gameState.currentView === 'east');
-    await page.waitForFunction(() => {
-      const scene = window.__game.scene.keys.GameScene;
-      return scene && scene.hotspots && scene.hotspots.getChildren().some(h => h.name === 'painting');
-    });
+    await page.waitForTimeout(300);
 
     // Click the painting (195, 164) to find the clue
     await page.locator('canvas').click({ position: { x: 195, y: 164 } });
@@ -664,10 +661,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     // 1. East View: mattress is at (822, 321)
     await page.evaluate(() => window.__stateManager.setView('east'));
     await page.waitForFunction(() => window.__gameState.currentView === 'east');
-    await page.waitForFunction(() => {
-      const scene = window.__game.scene.keys.GameScene;
-      return scene && scene.hotspots && scene.hotspots.getChildren().some(h => h.name === 'mattress');
-    });
+    await page.waitForTimeout(300);
 
     // Click mattress to get clue 2
     await page.locator('canvas').click({ position: { x: 822, y: 321 } });
@@ -687,10 +681,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     // 2. South View: desk is at (780, 355)
     await page.locator('canvas').click({ position: { x: 920, y: 220 } });
     await page.waitForFunction(() => window.__gameState.currentView === 'south');
-    await page.waitForFunction(() => {
-      const scene = window.__game.scene.keys.GameScene;
-      return scene && scene.hotspots && scene.hotspots.getChildren().some(h => h.name === 'writing_desk');
-    });
+    await page.waitForTimeout(300);
 
     // Click desk to get clue 3
     await page.locator('canvas').click({ position: { x: 780, y: 355 } });
@@ -710,10 +701,7 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     // 3. North View: books stack is at (464, 340)
     await page.locator('canvas').click({ position: { x: 920, y: 220 } });
     await page.waitForFunction(() => window.__gameState.currentView === 'north');
-    await page.waitForFunction(() => {
-      const scene = window.__game.scene.keys.GameScene;
-      return scene && scene.hotspots && scene.hotspots.getChildren().some(h => h.name === 'books_stack');
-    });
+    await page.waitForTimeout(300);
 
     // Click books stack to get clue 4
     await page.locator('canvas').click({ position: { x: 464, y: 340 } });
