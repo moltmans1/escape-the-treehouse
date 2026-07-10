@@ -121,7 +121,7 @@ export const TreehouseConfig = {
         },
         {
           name: "painting",
-          rect: [195, 214, 61, 99],
+          rect: [195, 164, 60, 98],
           interactions: [
             {
               if_flag: "!found_clue_1",

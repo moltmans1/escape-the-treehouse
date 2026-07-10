@@ -622,8 +622,8 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.locator('canvas').click({ position: { x: 920, y: 220 } });
     await page.waitForFunction(() => window.__gameState.currentView === 'east');
 
-    // Click the painting (195, 214) to find the clue
-    await page.locator('canvas').click({ position: { x: 195, y: 214 } });
+    // Click the painting (195, 164) to find the clue
+    await page.locator('canvas').click({ position: { x: 195, y: 164 } });
 
     // Verify dialogue is active and clue_1 added to inventory
     let isActive = await page.evaluate(() => window.__gameState.dialogActive);
