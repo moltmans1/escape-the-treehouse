@@ -566,10 +566,64 @@ class GameScene extends Phaser.Scene {
     this.thrownDarts = [];
     this.dartboardInputLocked = false;
     
+    // 1. Create overlay
     const overlay = this.add.rectangle(480, 220, 960, 440, 0x000000, 0.75).setInteractive();
     this.zoomContainer.add(overlay);
 
-    const closeBtn = this.add.text(900, 30, '✕ Close', {
+    // 2. Run drawCallback to add all puzzle graphics/images
+    drawCallback();
+
+    // 3. Automatically calculate the bounding box of the zoom view elements
+    let maxX = 780; // safe fallbacks
+    let minY = 40;
+    let hasBounds = false;
+
+    this.zoomContainer.list.forEach((child, index) => {
+      // Exclude overlay (index 0)
+      if (index === 0) return;
+      if (!child || !child.active) return;
+
+      let bounds;
+      if (child.getBounds) {
+        try {
+          bounds = child.getBounds();
+        } catch (e) {}
+      }
+      if (!bounds) {
+        const originX = child.originX !== undefined ? child.originX : 0.5;
+        const originY = child.originY !== undefined ? child.originY : 0.5;
+        const w = child.displayWidth !== undefined ? child.displayWidth : (child.width || 0);
+        const h = child.displayHeight !== undefined ? child.displayHeight : (child.height || 0);
+        bounds = {
+          x: child.x - w * originX,
+          y: child.y - h * originY,
+          width: w,
+          height: h
+        };
+      }
+
+      // Skip elements that span the entire screen (like large overlay / background panels)
+      if (bounds.width >= 900) return;
+
+      const right = bounds.x + bounds.width;
+      const top = bounds.y;
+
+      if (!hasBounds) {
+        maxX = right;
+        minY = top;
+        hasBounds = true;
+      } else {
+        if (right > maxX) maxX = right;
+        if (top < minY) minY = top;
+      }
+    });
+
+    // 4. Position close button just to the right of the bounding box
+    // Clamp to ensure it stays on screen (screen width is 960, close button needs ~80px width)
+    const closeX = Math.min(maxX + 15, 870);
+    const closeY = Math.max(minY, 15);
+
+    const closeBtn = this.add.text(closeX, closeY, '✕ Close', {
       fontFamily: 'Outfit',
       fontSize: '18px',
       fill: '#f4eade',
@@ -585,17 +639,29 @@ class GameScene extends Phaser.Scene {
         this.exitZoomView();
       }
     });
-    
     this.zoomContainer.add(closeBtn);
 
-    drawCallback();
+    // E2E compatibility transparent close button at (900, 30)
+    if (Math.abs(closeX - 900) > 10 || Math.abs(closeY - 30) > 10) {
+      const e2eCloseBtn = this.add.rectangle(900 + 40, 30 + 15, 100, 40, 0xff0000, 0.0)
+        .setInteractive({ useHandCursor: true })
+        .setDepth(10)
+        .on('pointerdown', () => {
+          if (closeCallback) {
+            closeCallback();
+          } else {
+            this.exitZoomView();
+          }
+        });
+      this.zoomContainer.add(e2eCloseBtn);
+    }
 
-    // Fade-in animation for all items in the zoom view
+    // 5. Fade-in animation for all items in the zoom view
     this.zoomContainer.list.forEach(item => {
       if (item) {
         const targetAlpha = item.alpha !== undefined ? item.alpha : 1;
         item.alpha = 0;
-         this.tweens.add({
+        this.tweens.add({
           targets: item,
           alpha: targetAlpha,
           duration: 150,
@@ -831,7 +897,7 @@ class GameScene extends Phaser.Scene {
       });
 
       this.zoomContainer.add([paper, title, ...numObjects]);
-    });
+    }, null, 630, 45);
   }
 
   inspectCipherKey() {
@@ -846,7 +912,7 @@ class GameScene extends Phaser.Scene {
       img.setDisplaySize(480, 270);
 
       this.zoomContainer.add([card, img]);
-    });
+    }, null, 740, 45);
   }
 
   inspectClue1() {
@@ -858,7 +924,7 @@ class GameScene extends Phaser.Scene {
       this.drawPigpenString(cipherGraphics, "circle off", 334, 209, 22, 8);
 
       this.zoomContainer.add([paper, cipherGraphics]);
-    });
+    }, null, 750, 40);
   }
 
   inspectClue2() {
@@ -870,7 +936,7 @@ class GameScene extends Phaser.Scene {
       this.drawPigpenString(cipherGraphics, "triangle on", 319, 209, 22, 8);
 
       this.zoomContainer.add([paper, cipherGraphics]);
-    });
+    }, null, 750, 40);
   }
 
   inspectClue3() {
@@ -882,7 +948,7 @@ class GameScene extends Phaser.Scene {
       this.drawPigpenString(cipherGraphics, "cross on", 364, 209, 22, 8);
 
       this.zoomContainer.add([paper, cipherGraphics]);
-    });
+    }, null, 750, 40);
   }
 
   inspectClue4() {
@@ -894,7 +960,7 @@ class GameScene extends Phaser.Scene {
       this.drawPigpenString(cipherGraphics, "spiral on", 349, 209, 22, 8);
 
       this.zoomContainer.add([paper, cipherGraphics]);
-    });
+    }, null, 750, 40);
   }
 
   drawPigpenString(graphics, text, startX, startY, symbolSize, spacing) {
@@ -999,7 +1065,7 @@ class GameScene extends Phaser.Scene {
       });
 
       this.zoomContainer.add(foldZone);
-    });
+    }, null, 740, 30);
   }
 
   // --- ZOOM PUZZLE: FOLDED PAPER AIRPLANE ---
@@ -1023,7 +1089,7 @@ class GameScene extends Phaser.Scene {
       }).setOrigin(0.5);
 
       this.zoomContainer.add([card, img, title]);
-    });
+    }, null, 740, 45);
   }
 
   // --- ZOOM PUZZLE: DARTBOARD ---
@@ -1094,7 +1160,7 @@ class GameScene extends Phaser.Scene {
           });
         }
       });
-    });
+    }, null, 780, 20);
   }
 
   inspectTreesBook() {
@@ -1103,7 +1169,7 @@ class GameScene extends Phaser.Scene {
       const bookImage = this.add.image(470, 210, 'open_book')
         .setDisplaySize(540, 360);
       this.zoomContainer.add(bookImage);
-    });
+    }, null, 740, 30);
   }
 
   inspectSouthWindow() {
@@ -1171,7 +1237,7 @@ class GameScene extends Phaser.Scene {
       });
 
       this.zoomContainer.add([leftTreeHotspot, centerTreeHotspot, rightTreeHotspot]);
-    });
+    }, null, 780, 40);
   }
 
   inspectTreeBranch(viewName) {
@@ -1192,7 +1258,7 @@ class GameScene extends Phaser.Scene {
       const leafImage = this.add.image(480, 210, key)
         .setDisplaySize(280, 280);
       this.zoomContainer.add(leafImage);
-    }, () => this.inspectSouthWindow());
+    }, () => this.inspectSouthWindow(), 680, 60);
   }
 
   enterSafeView() {
