@@ -1384,14 +1384,6 @@ class GameScene extends Phaser.Scene {
       card.strokeRoundedRect(320, 45, 320, 350, 10);
       this.zoomContainer.add(card);
 
-      const title = this.add.text(480, 75, lampTitle, {
-        fontFamily: 'Playfair Display',
-        fontSize: '20px',
-        fill: '#3d2b1f',
-        fontWeight: 'bold'
-      }).setOrigin(0.5);
-      this.zoomContainer.add(title);
-
       // Base lamp image
       const lampImage = this.add.image(480, 210, assetKey);
       lampImage.setDisplaySize(220, 220);

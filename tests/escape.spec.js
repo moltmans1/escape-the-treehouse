@@ -724,14 +724,6 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.locator('canvas').click({ position: { x: 440, y: 57 } });
     await page.waitForFunction(() => window.__gameState.zoomView === 'triangle_lamp_zoom_view');
 
-    // Verify it is North Lamp (Triangle)
-    let titleText = await page.evaluate(() => {
-      const gameScene = window.__game.scene.keys.GameScene;
-      const titleObj = gameScene.zoomContainer.list.find(c => c.text && c.text.includes('Lamp'));
-      return titleObj ? titleObj.text : '';
-    });
-    expect(titleText).toContain('North Lamp (Triangle)');
-
     // Toggle North Lamp ON
     await page.locator('canvas').click({ position: { x: 480, y: 210 } });
     expect(await hasFlag(page, 'lamp_north_on')).toBe(true);
