@@ -695,12 +695,12 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.waitForFunction(() => window.__gameState.zoomView === 'clue_3_zoom');
     await page.locator('canvas').click({ position: { x: 900, y: 30 } }); // close
 
-    // 3. North View: books stack is at (474, 395)
+    // 3. North View: books stack is at (464, 340)
     await page.locator('canvas').click({ position: { x: 920, y: 220 } });
     await page.waitForFunction(() => window.__gameState.currentView === 'north');
 
     // Click books stack to get clue 4
-    await page.locator('canvas').click({ position: { x: 474, y: 395 } });
+    await page.locator('canvas').click({ position: { x: 464, y: 340 } });
     await page.locator('canvas').click({ position: { x: 500, y: 100 } }); // dismiss dialogue
 
     const hasClue4 = await page.evaluate(() => window.__gameState.inventory.includes('clue_4'));

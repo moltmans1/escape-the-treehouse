@@ -8,7 +8,7 @@ export const TreehouseConfig = {
       hotspots: [
         {
           name: "hammock",
-          rect: [260, 290, 370, 180],
+          rect: [242, 260, 335, 120],
           interactions: [
             {
               if_flag: "!found_paper",
@@ -66,7 +66,7 @@ export const TreehouseConfig = {
         },
         {
           name: "books_stack",
-          rect: [474, 395, 84, 69],
+          rect: [464, 340, 84, 69],
           interactions: [
             {
               if_flag: "!found_clue_4",
