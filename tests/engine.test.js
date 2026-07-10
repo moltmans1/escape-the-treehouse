@@ -118,4 +118,26 @@ describe('Escape Room Headless Core Engine', () => {
     expect(state.hasFlag('lamp_puzzle_solved')).toBe(false);
     expect(state.state.inventory).not.toContain('brass_key');
   });
+
+  it('should find clue 1 behind the painting and add it to the inventory', () => {
+    expect(state.hasFlag('found_clue_1')).toBe(false);
+    expect(state.state.inventory).not.toContain('clue_1');
+
+    const interactions = [
+      {
+        if_flag: "!found_clue_1",
+        then: [
+          "SET_FLAG: found_clue_1",
+          "ADD_INVENTORY: clue_1",
+          "SHOW_DIALOG: You look behind the painting and find a torn slip of paper with strange markings."
+        ]
+      }
+    ];
+
+    const actions = interpreter.evaluateInteraction(interactions);
+    state.executeActions(actions);
+
+    expect(state.hasFlag('found_clue_1')).toBe(true);
+    expect(state.state.inventory).toContain('clue_1');
+  });
 });

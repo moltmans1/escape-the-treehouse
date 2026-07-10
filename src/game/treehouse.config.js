@@ -118,6 +118,25 @@ export const TreehouseConfig = {
               else: ["OPEN_ZOOM_VIEW: circle_lamp_zoom_view"]
             }
           ]
+        },
+        {
+          name: "painting",
+          rect: [195, 214, 61, 99],
+          interactions: [
+            {
+              if_flag: "!found_clue_1",
+              then: [
+                "SET_FLAG: found_clue_1",
+                "ADD_INVENTORY: clue_1",
+                "SHOW_DIALOG: You look behind the painting and find a torn slip of paper with strange markings."
+              ]
+            },
+            {
+              else: [
+                "SHOW_DIALOG: Just a painting of a peaceful forest path."
+              ]
+            }
+          ]
         }
       ]
     },
@@ -268,6 +287,7 @@ export const TreehouseConfig = {
     paper_airplane: { title: "Folded Paper Airplane", asset: "paper_airplane_clue" },
     trees_book: { title: "Trees of North America", asset: "open_book" },
     cipher_key_zoom: { title: "Cipher Key", asset: "cipher_key_zoom" },
+    clue_1_zoom: { title: "Torn Slip of Paper", asset: "clue_paper" },
     triangle_lamp_zoom_view: { title: "North Lamp (Triangle)", asset: "triangle_lamp_zoom_view" },
     circle_lamp_zoom_view: { title: "East Lamp (Circle)", asset: "circle_lamp_zoom_view" },
     cross_lamp_zoom_view: { title: "South Lamp (Cross)", asset: "cross_lamp" },

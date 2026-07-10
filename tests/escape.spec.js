@@ -617,6 +617,45 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     expect(isActive).toBe(false);
   });
 
+  test('Test Case 5b: Clue 1 Collection & Inspection', async ({ page }) => {
+    // Rotate to East View
+    await page.locator('canvas').click({ position: { x: 920, y: 220 } });
+    await page.waitForFunction(() => window.__gameState.currentView === 'east');
+
+    // Click the painting (195, 214) to find the clue
+    await page.locator('canvas').click({ position: { x: 195, y: 214 } });
+
+    // Verify dialogue is active and clue_1 added to inventory
+    let isActive = await page.evaluate(() => window.__gameState.dialogActive);
+    expect(isActive).toBe(true);
+    let dialogText = await page.evaluate(() => window.__gameState.dialogText);
+    expect(dialogText).toBe('You look behind the painting and find a torn slip of paper with strange markings.');
+
+    // Dismiss dialogue
+    await page.locator('canvas').click({ position: { x: 500, y: 100 } });
+    isActive = await page.evaluate(() => window.__gameState.dialogActive);
+    expect(isActive).toBe(false);
+
+    // Verify inventory has clue_1
+    const hasClue1 = await page.evaluate(() => window.__gameState.inventory.includes('clue_1'));
+    expect(hasClue1).toBe(true);
+
+    // Click the clue_1 slot in inventory to inspect (select then inspect)
+    const clueIndex = await page.evaluate(() => window.__gameState.inventory.indexOf('clue_1'));
+    const slotX = 120 + clueIndex * 80;
+    const slotY = 490;
+
+    await page.locator('canvas').click({ position: { x: slotX, y: slotY } });
+    await page.locator('canvas').click({ position: { x: slotX, y: slotY } });
+
+    // Verify zoomView is clue_1_zoom
+    await page.waitForFunction(() => window.__gameState.zoomView === 'clue_1_zoom');
+
+    // Close zoom view
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
+  });
+
   test('Test Case 6: Lamp Puzzle Toggling & Solving', async ({ page }) => {
     // 1. Open the North Lamp zoom view in the North View (440, 57)
     await page.locator('canvas').click({ position: { x: 440, y: 57 } });

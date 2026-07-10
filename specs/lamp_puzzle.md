@@ -21,6 +21,8 @@ The player must discover and configure the correct ON/OFF state for the four lam
 
 ### Combination Clues (Slips of Paper)
 
+The locations can be found by using the model to find the location in the background image of that room.  Follow the usual rules for scaling the location in the background to the right position for hotspots on the screen.
+
 *   **Clue 1 (East View - Painting):**
     *   *Location:* Hidden behind the painting in the East View. Clicking the painting adds `'clue_1'` to the inventory and sets `'found_clue_1'`.
     *   *Zoom View (`clue_1_zoom`):* Shows a slip of paper with "circle off" written in the Pigpen cipher.

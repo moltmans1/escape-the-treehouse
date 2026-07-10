@@ -35,6 +35,36 @@ const gameState = {
   dartboardSequence: []
 };
 
+// Pigpen Cipher Mapping for drawing symbols
+const pigpenMap = {
+  A: { type: 'grid', lines: ['right', 'bottom'], dot: false },
+  B: { type: 'grid', lines: ['right', 'bottom'], dot: true },
+  C: { type: 'grid', lines: ['left', 'bottom', 'right'], dot: false },
+  D: { type: 'grid', lines: ['left', 'bottom', 'right'], dot: true },
+  E: { type: 'grid', lines: ['left', 'bottom'], dot: false },
+  F: { type: 'grid', lines: ['left', 'bottom'], dot: true },
+  G: { type: 'grid', lines: ['top', 'right', 'bottom'], dot: false },
+  H: { type: 'grid', lines: ['top', 'right', 'bottom'], dot: true },
+  I: { type: 'grid', lines: ['top', 'right', 'bottom', 'left'], dot: false },
+  J: { type: 'grid', lines: ['top', 'right', 'bottom', 'left'], dot: true },
+  K: { type: 'grid', lines: ['top', 'left', 'bottom'], dot: false },
+  L: { type: 'grid', lines: ['top', 'left', 'bottom'], dot: true },
+  M: { type: 'grid', lines: ['top', 'right'], dot: false },
+  N: { type: 'grid', lines: ['top', 'right'], dot: true },
+  O: { type: 'grid', lines: ['left', 'top', 'right'], dot: false },
+  P: { type: 'grid', lines: ['left', 'top', 'right'], dot: true },
+  Q: { type: 'grid', lines: ['left', 'top'], dot: false },
+  R: { type: 'grid', lines: ['left', 'top'], dot: true },
+  S: { type: 'cross_top', dot: false },
+  T: { type: 'cross_top', dot: true },
+  U: { type: 'cross_right', dot: false },
+  V: { type: 'cross_right', dot: true },
+  W: { type: 'cross_bottom', dot: false },
+  X: { type: 'cross_bottom', dot: true },
+  Y: { type: 'cross_left', dot: false },
+  Z: { type: 'cross_left', dot: true }
+};
+
 // --- BOOT SCENE ---
 class BootScene extends Phaser.Scene {
   constructor() {
@@ -104,6 +134,7 @@ class PreloadScene extends Phaser.Scene {
     this.load.image('circle_lamp_off', 'assets/circle_lamp_off.png');
     this.load.image('spiral_lamp_zoom_view', 'assets/spiral_lamp_zoom_view.png');
     this.load.image('spiral_lamp_off', 'assets/spiral_lamp_off.png');
+    this.load.image('clue_paper', 'assets/clue_paper.jpg');
     
     // Load navigation arrow
     this.createArrowTexture();
@@ -466,6 +497,8 @@ class GameScene extends Phaser.Scene {
                 this.inspectTreesBook();
               } else if (item === 'cipher_key') {
                 this.inspectCipherKey();
+              } else if (item === 'clue_1') {
+                this.inspectClue1();
               }
             }
           }
@@ -721,6 +754,7 @@ class GameScene extends Phaser.Scene {
           else if (arg === 'safe_view') this.enterSafeView();
           else if (arg === 'dartboard_view') this.enterDartboardView();
           else if (arg === 'cipher_key_zoom') this.inspectCipherKey();
+          else if (arg === 'clue_1_zoom') this.inspectClue1();
           else if (arg === 'lamp_zoom' || arg === 'triangle_lamp_zoom_view' || arg === 'circle_lamp_zoom_view' || arg === 'cross_lamp_zoom_view' || arg === 'spiral_lamp_zoom_view') this.inspectLamp();
           break;
         case 'LAUNCH_MINIGAME':
@@ -803,6 +837,96 @@ class GameScene extends Phaser.Scene {
 
       this.zoomContainer.add([card, img]);
     });
+  }
+
+  inspectClue1() {
+    this.enterZoomView('clue_1_zoom', () => {
+      const card = this.add.graphics();
+      card.fillStyle(0x2a241f, 1);
+      card.fillRoundedRect(220, 45, 520, 330, 10);
+      card.lineStyle(2, 0xd4a373, 1);
+      card.strokeRoundedRect(220, 45, 520, 330, 10);
+
+      const paper = this.add.image(480, 210, 'clue_paper');
+      paper.setDisplaySize(480, 270);
+
+      const cipherGraphics = this.add.graphics();
+      this.drawPigpenString(cipherGraphics, "circle off", 295, 196, 28, 10);
+
+      this.zoomContainer.add([card, paper, cipherGraphics]);
+    });
+  }
+
+  drawPigpenString(graphics, text, startX, startY, symbolSize, spacing) {
+    let cx = startX;
+    let cy = startY;
+    
+    graphics.lineStyle(3.5, 0x36281e, 0.95);
+    graphics.fillStyle(0x36281e, 0.95);
+    
+    const textUpper = text.toUpperCase();
+    for (let i = 0; i < textUpper.length; i++) {
+      const char = textUpper[i];
+      if (char === ' ') {
+        cx += symbolSize + spacing;
+        continue;
+      }
+      
+      const info = pigpenMap[char];
+      if (!info) {
+        cx += symbolSize + spacing;
+        continue;
+      }
+      
+      const s = symbolSize;
+      const s2 = s / 2;
+      
+      if (info.type === 'grid') {
+        if (info.lines.includes('top')) {
+          graphics.lineBetween(cx, cy, cx + s, cy);
+        }
+        if (info.lines.includes('right')) {
+          graphics.lineBetween(cx + s, cy, cx + s, cy + s);
+        }
+        if (info.lines.includes('bottom')) {
+          graphics.lineBetween(cx, cy + s, cx + s, cy + s);
+        }
+        if (info.lines.includes('left')) {
+          graphics.lineBetween(cx, cy, cx, cy + s);
+        }
+        if (info.dot) {
+          graphics.fillCircle(cx + s2, cy + s2, 3.5);
+        }
+      } else {
+        if (info.type === 'cross_top') {
+          graphics.lineBetween(cx, cy, cx + s2, cy + s2);
+          graphics.lineBetween(cx + s, cy, cx + s2, cy + s2);
+          if (info.dot) {
+            graphics.fillCircle(cx + s2, cy + s / 4, 3.5);
+          }
+        } else if (info.type === 'cross_right') {
+          graphics.lineBetween(cx + s, cy, cx + s2, cy + s2);
+          graphics.lineBetween(cx + s, cy + s, cx + s2, cy + s2);
+          if (info.dot) {
+            graphics.fillCircle(cx + 3 * s / 4, cy + s2, 3.5);
+          }
+        } else if (info.type === 'cross_bottom') {
+          graphics.lineBetween(cx, cy + s, cx + s2, cy + s2);
+          graphics.lineBetween(cx + s, cy + s, cx + s2, cy + s2);
+          if (info.dot) {
+            graphics.fillCircle(cx + s2, cy + 3 * s / 4, 3.5);
+          }
+        } else if (info.type === 'cross_left') {
+          graphics.lineBetween(cx, cy, cx + s2, cy + s2);
+          graphics.lineBetween(cx, cy + s, cx + s2, cy + s2);
+          if (info.dot) {
+            graphics.fillCircle(cx + s / 4, cy + s2, 3.5);
+          }
+        }
+      }
+      
+      cx += s + spacing;
+    }
   }
 
   // --- ZOOM PUZZLE: ORIGAMI BOOK ---
