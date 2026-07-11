@@ -414,7 +414,7 @@ class GameScene extends Phaser.Scene {
     titleText.setDepth(21);
 
     this.inventorySlots = [];
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 11; i++) {
       const x = 120 + i * 80;
       const y = yStart + 50;
       
