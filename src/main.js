@@ -1201,7 +1201,7 @@ class GameScene extends Phaser.Scene {
         .setInteractive({ useHandCursor: true });
       const centerTreeHotspot = this.add.rectangle(502, 190, 60, 140, 0xffffff, 0.0)
         .setInteractive({ useHandCursor: true });
-      const rightTreeHotspot = this.add.rectangle(590, 200, 60, 140, 0xffffff, 0.0)
+      const rightTreeHotspot = this.add.rectangle(566, 200, 60, 140, 0xffffff, 0.0)
         .setInteractive({ useHandCursor: true });
 
       [leftTreeHotspot, centerTreeHotspot, rightTreeHotspot].forEach(hot => {
