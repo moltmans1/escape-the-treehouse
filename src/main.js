@@ -1425,6 +1425,7 @@ class GameScene extends Phaser.Scene {
     // If the zoom view is already open, just update the image texture and return
     if (this.activeLampImage && this.activeLampImage.active) {
       this.activeLampImage.setTexture(assetKey);
+      this.activeLampImage.setDisplaySize(220, 220);
       return;
     }
 
