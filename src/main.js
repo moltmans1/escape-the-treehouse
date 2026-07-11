@@ -1541,6 +1541,20 @@ class GameScene extends Phaser.Scene {
   }
 }
 
+// Hide the debug container immediately if not running locally (e.g. in production on GitHub Pages)
+const isLocalEnv = import.meta.env.DEV || ['localhost', '127.0.0.1'].includes(window.location.hostname);
+if (!isLocalEnv) {
+  const debugBtn = document.getElementById('toggle-debug-btn');
+  if (debugBtn) {
+    const container = debugBtn.closest('.debug-container');
+    if (container) {
+      container.style.display = 'none';
+    } else {
+      debugBtn.style.display = 'none';
+    }
+  }
+}
+
 // --- GAME CONFIGURATION ---
 const config = {
   type: Phaser.AUTO,
