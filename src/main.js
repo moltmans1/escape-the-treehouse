@@ -327,6 +327,17 @@ class GameScene extends Phaser.Scene {
     this.debugModeActive = false;
     const debugBtn = document.getElementById('toggle-debug-btn');
     if (debugBtn) {
+      // Hide the debug container if not running locally (e.g. in production on GitHub Pages)
+      const isLocal = import.meta.env.DEV || ['localhost', '127.0.0.1'].includes(window.location.hostname);
+      if (!isLocal) {
+        const container = debugBtn.closest('.debug-container');
+        if (container) {
+          container.style.display = 'none';
+        } else {
+          debugBtn.style.display = 'none';
+        }
+      }
+
       const newDebugBtn = debugBtn.cloneNode(true);
       if (debugBtn.parentNode) {
         debugBtn.parentNode.replaceChild(newDebugBtn, debugBtn);
