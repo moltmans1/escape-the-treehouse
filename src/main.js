@@ -1494,7 +1494,7 @@ class GameScene extends Phaser.Scene {
       fill: '#d4a373'
     }).setOrigin(0.5);
 
-    const subText = this.add.text(width / 2, height / 2, 'You unlocked the door and made your way down to the forest floor.', {
+    const subText = this.add.text(width / 2, height / 2, 'You put on the harness clip into the zipline and zoom your way down to the forest floor.', {
       fontFamily: 'Outfit',
       fontSize: '18px',
       fill: '#c8b7a6'

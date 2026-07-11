@@ -216,7 +216,7 @@ describe('Escape Room Headless Core Engine', () => {
     let actions = interpreter.evaluateInteraction(trunkHotspot.interactions);
     expect(actions).toContain("SHOW_DIALOG: It's a heavy iron-banded trunk. It is locked and you don't have a key.");
 
-    // 3. Select brass_key and click -> should unlock and remove key
+    // 3. Select brass_key and click -> should unlock, find harness, and remove key
     state.addItem('brass_key');
     state.selectItem('brass_key');
     expect(state.state.selectedItem).toBe('brass_key');
@@ -225,17 +225,12 @@ describe('Escape Room Headless Core Engine', () => {
     state.executeActions(actions);
 
     expect(state.hasFlag('trunk_unlocked')).toBe(true);
+    expect(state.hasFlag('found_harness')).toBe(true);
+    expect(state.state.inventory).toContain('harness');
     expect(state.state.inventory).not.toContain('brass_key');
     state.state.selectedItem = null; // evaluateInteraction doesn't clear selectedItem directly, StateManager does
 
-    // 4. Click again -> should find harness
-    actions = interpreter.evaluateInteraction(trunkHotspot.interactions);
-    state.executeActions(actions);
-
-    expect(state.hasFlag('found_harness')).toBe(true);
-    expect(state.state.inventory).toContain('harness');
-
-    // 5. Click again -> trunk is empty
+    // 4. Click again -> trunk is empty
     actions = interpreter.evaluateInteraction(trunkHotspot.interactions);
     expect(actions).toContain("SHOW_DIALOG: The trunk is empty.");
   });

@@ -638,16 +638,11 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.locator('canvas').click({ position: { x: 360, y: 490 } });
     expect(await page.evaluate(() => window.__gameState.selectedItem)).toBe('brass_key');
 
-    // Click trunk (800, 360) to unlock it
+    // Click trunk (800, 360) to unlock it and collect the harness immediately
     await page.locator('canvas').click({ position: { x: 800, y: 360 } });
-    expect(await page.evaluate(() => window.__gameState.dialogText)).toBe('You insert the brass key into the lock and turn it. With a loud click, the trunk swings open.');
+    expect(await page.evaluate(() => window.__gameState.dialogText)).toBe('You insert the brass key into the lock and turn it. With a loud click, the trunk swings open. Inside, you find a zipline harness! It has been added to your inventory.');
     await dismissDialog(page);
     expect(await hasFlag(page, 'trunk_unlocked')).toBe(true);
-
-    // 12. Click trunk again to retrieve the harness
-    await page.locator('canvas').click({ position: { x: 800, y: 360 } });
-    expect(await page.evaluate(() => window.__gameState.dialogText)).toBe('You found a zipline harness inside the trunk! It has been added to your inventory.');
-    await dismissDialog(page);
     expect(await hasFlag(page, 'found_harness')).toBe(true);
 
     // 13. Go back to Balcony view

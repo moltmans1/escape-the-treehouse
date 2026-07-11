@@ -64,19 +64,13 @@ export const TreehouseConfig = {
               ]
             },
             {
-              if_flag: "trunk_unlocked",
-              then: [
-                "SET_FLAG: found_harness",
-                "ADD_INVENTORY: harness",
-                "SHOW_DIALOG: You found a zipline harness inside the trunk! It has been added to your inventory."
-              ]
-            },
-            {
               if_selected_item: "brass_key",
               then: [
                 "SET_FLAG: trunk_unlocked",
+                "SET_FLAG: found_harness",
                 "REMOVE_INVENTORY: brass_key",
-                "SHOW_DIALOG: You insert the brass key into the lock and turn it. With a loud click, the trunk swings open."
+                "ADD_INVENTORY: harness",
+                "SHOW_DIALOG: You insert the brass key into the lock and turn it. With a loud click, the trunk swings open. Inside, you find a zipline harness! It has been added to your inventory."
               ]
             },
             {
