@@ -14,10 +14,10 @@ The player must discover and configure the correct ON/OFF state for the four lam
 
 ### Room Lamps
 
-1.  **North Lamp (North View):** Located on the bookshelf. Has a carved **Spiral** pattern on its base.
-2.  **East Lamp (East View):** Located next to the window. Has a carved **Triangle** pattern on its base.
-3.  **South Lamp (South View):** Located near the writing desk. Has a carved **Circle** pattern on its base.
-4.  **Balcony Lamp (Balcony View):** Located on the balcony rail. Has a carved **Cross** pattern on its base.
+1.  **North Lamp (North View):** Located on the bookshelf. Has a carved **Triangle** pattern on its base.
+2.  **East Lamp (East View):** Located next to the window. Has a carved **Circle** pattern on its base.
+3.  **South Lamp (South View):** Located near the writing desk. Has a carved **Cross** pattern on its base.
+4.  **Balcony Lamp (Balcony View):** Located on the balcony rail. Has a carved **Spiral** pattern on its base.
 
 ### Combination Clues (Slips of Paper)
 
@@ -66,15 +66,18 @@ The locations can be found by using the model to find the location in the backgr
 
 ### Solution Configuration
 *   The correct configuration of the four lamps is:
-    *   **North Lamp (Spiral):** ON (`lamp_north_on`)
-    *   **East Lamp (Triangle):** ON (`lamp_east_on`)
-    *   **South Lamp (Circle):** OFF (`!lamp_south_on`)
-    *   **Balcony Lamp (Cross):** ON (`lamp_balcony_on`)
+    *   **North Lamp (Triangle):** ON (`lamp_north_on`)
+    *   **East Lamp (Circle):** OFF (`!lamp_east_on`)
+    *   **South Lamp (Cross):** ON (`lamp_south_on`)
+    *   **Balcony Lamp (Spiral):** ON (`lamp_balcony_on`)
 *   When the player toggles any lamp, the system checks if the current state of all four lamps matches the solution.
-*   As soon as the states match:
-    *   `solvedPuzzles` receives `'lamp_puzzle_solved'`.
-    *   `brass_key` is added to `inventory`.
-    *   A dialog is displayed: *"A hidden compartment in the bottom of the lamp popped open and revealed a brass key! It has been added to your inventory."*
+*   **One-Time Solution Logic:**
+    *   The check logic first verifies if `'lamp_puzzle_solved'` is already set. If so, it immediately returns to ensure the puzzle is solved only once.
+    *   As soon as the states match for the first time:
+        *   `solvedPuzzles` receives `'lamp_puzzle_solved'`.
+        *   `brass_key` is added to `inventory`.
+        *   A dialog is displayed: *"A hidden compartment in the bottom of the lamp popped open and revealed a brass key! It has been added to your inventory."*
+        *   The inventory UI immediately displays the `brass_key` with explicit rendering depth (rendering above the inventory bar) as `BRASS KEY` so that it is visible and selectable.
 
 ---
 

@@ -402,14 +402,16 @@ class GameScene extends Phaser.Scene {
     bar.fillRect(0, yStart, 960, barHeight);
     bar.lineStyle(2, 0x8f7155, 0.5);
     bar.lineBetween(0, yStart, 960, yStart);
+    bar.setDepth(20);
 
-    this.add.text(15, yStart + 10, 'INVENTORY', {
+    const titleText = this.add.text(15, yStart + 10, 'INVENTORY', {
       fontFamily: 'Outfit',
       fontSize: '12px',
       fontWeight: '600',
       fill: '#8f7155',
       letterSpacing: 1.5
     });
+    titleText.setDepth(21);
 
     this.inventorySlots = [];
     for (let i = 0; i < 8; i++) {
@@ -419,6 +421,7 @@ class GameScene extends Phaser.Scene {
       const slotBox = this.add.graphics();
       slotBox.lineStyle(1, 0x8f7155, 0.3);
       slotBox.strokeRect(x - 30, y - 30, 60, 60);
+      slotBox.setDepth(21);
 
       this.inventorySlots.push({ x, y, item: null, sprite: null });
     }
@@ -460,7 +463,7 @@ class GameScene extends Phaser.Scene {
           align: 'center',
           padding: { x: 5, y: 5 },
           wordWrap: { width: 50 }
-        }).setOrigin(0.5);
+        }).setOrigin(0.5).setDepth(22);
 
         itemText.setInteractive({ useHandCursor: true });
         

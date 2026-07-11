@@ -106,6 +106,27 @@ describe('Escape Room Headless Core Engine', () => {
     expect(state.hasFlag('lamp_puzzle_solved')).toBe(true);
     expect(state.state.inventory).toContain('brass_key');
 
+    // Once solved, test that breaking and re-solving does NOT trigger solving again or re-add key
+    // Remove the key first (simulate using it)
+    state.removeItem('brass_key');
+    expect(state.state.inventory).not.toContain('brass_key');
+
+    // Toggle south lamp OFF (which breaks the combination)
+    state.executeActions([
+      'CLEAR_FLAG: lamp_south_on',
+      'CHECK_LAMP_PUZZLE'
+    ]);
+    expect(state.hasFlag('lamp_south_on')).toBe(false);
+
+    // Toggle south lamp back ON (re-establishes the correct combination)
+    state.executeActions([
+      'SET_FLAG: lamp_south_on',
+      'CHECK_LAMP_PUZZLE'
+    ]);
+    // The flag should remain solved, but the brass key should NOT have been re-added!
+    expect(state.hasFlag('lamp_puzzle_solved')).toBe(true);
+    expect(state.state.inventory).not.toContain('brass_key');
+
     // Reset and test incorrect state: e.g. east lamp ON
     state.reset();
     state.executeActions([

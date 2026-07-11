@@ -808,6 +808,46 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     // Close zoom view
     await page.locator('canvas').click({ position: { x: 900, y: 30 } });
     await page.waitForFunction(() => window.__gameState.zoomView === null);
+
+    // Verify brass key is selectable in the inventory UI (Slot 0 at x=120, y=490)
+    await page.locator('canvas').click({ position: { x: 120, y: 490 } });
+    let selectedItem = await page.evaluate(() => window.__gameState.selectedItem);
+    expect(selectedItem).toBe('brass_key');
+
+    // Deselect it
+    await page.locator('canvas').click({ position: { x: 120, y: 490 } });
+    selectedItem = await page.evaluate(() => window.__gameState.selectedItem);
+    expect(selectedItem).toBe(null);
+
+    // Test that the puzzle cannot be solved again:
+    // Remove brass_key programmatically (simulating it being used on the trunk)
+    await page.evaluate(() => window.__stateManager.removeItem('brass_key'));
+    inventory = await page.evaluate(() => window.__gameState.inventory);
+    expect(inventory).not.toContain('brass_key');
+
+    // Open Balcony Lamp zoom view again (904, 291)
+    await page.locator('canvas').click({ position: { x: 904, y: 291 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'spiral_lamp_zoom_view');
+
+    // Toggle Balcony Lamp OFF (breaks correct combination)
+    await page.locator('canvas').click({ position: { x: 480, y: 210 } });
+    expect(await hasFlag(page, 'lamp_balcony_on')).toBe(false);
+
+    // Toggle Balcony Lamp ON again (re-establishes correct combination)
+    await page.locator('canvas').click({ position: { x: 480, y: 210 } });
+    expect(await hasFlag(page, 'lamp_balcony_on')).toBe(true);
+
+    // The key should NOT be re-added to inventory
+    inventory = await page.evaluate(() => window.__gameState.inventory);
+    expect(inventory).not.toContain('brass_key');
+
+    // The dialog should NOT be active
+    let dialogActive = await page.evaluate(() => window.__gameState.dialogActive);
+    expect(dialogActive).toBe(false);
+
+    // Close zoom view
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
   });
 
   test('Test Case 7: Hotspot Debug Mode Toggle', async ({ page }) => {

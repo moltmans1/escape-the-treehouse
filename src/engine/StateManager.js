@@ -169,6 +169,9 @@ export class StateManager {
   }
 
   checkLampPuzzle() {
+    if (this.hasFlag('lamp_puzzle_solved')) {
+      return;
+    }
     const northOn = this.state.solvedPuzzles.has('lamp_north_on');
     const eastOn = this.state.solvedPuzzles.has('lamp_east_on');
     const southOn = this.state.solvedPuzzles.has('lamp_south_on');
