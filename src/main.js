@@ -1401,6 +1401,15 @@ class GameScene extends Phaser.Scene {
   }
 
   inspectLamp() {
+    const adjustDisplaySize = (img) => {
+      const maxDim = 220;
+      if (img.width > img.height) {
+        img.setDisplaySize(maxDim, maxDim * (img.height / img.width));
+      } else {
+        img.setDisplaySize(maxDim * (img.width / img.height), maxDim);
+      }
+    };
+
     const currentView = stateManager.state.currentView;
     let zoomViewKey = 'lamp_zoom';
     if (currentView === 'north') zoomViewKey = 'triangle_lamp_zoom_view';
@@ -1425,7 +1434,7 @@ class GameScene extends Phaser.Scene {
     // If the zoom view is already open, just update the image texture and return
     if (this.activeLampImage && this.activeLampImage.active) {
       this.activeLampImage.setTexture(assetKey);
-      this.activeLampImage.setDisplaySize(220, 220);
+      adjustDisplaySize(this.activeLampImage);
       return;
     }
 
@@ -1440,7 +1449,7 @@ class GameScene extends Phaser.Scene {
 
       // Base lamp image
       this.activeLampImage = this.add.image(480, 210, assetKey);
-      this.activeLampImage.setDisplaySize(220, 220);
+      adjustDisplaySize(this.activeLampImage);
       this.zoomContainer.add(this.activeLampImage);
 
       // Toggle interaction hotspot over the lamp
