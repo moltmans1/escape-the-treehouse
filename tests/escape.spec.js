@@ -577,6 +577,100 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     // 9. Click the door on the balcony (781, 246) to go back inside
     await page.locator('canvas').click({ position: { x: 781, y: 246 } });
     await page.waitForFunction(() => window.__gameState.currentView === 'south');
+
+    // 10. Solve the Lamp Puzzle to get the brass key
+    // A. East Lamp (Circle) - Rotate to East, open lamp zoom, toggle ON/OFF, close zoom
+    await page.locator('canvas').click({ position: { x: 40, y: 220 } });
+    await page.waitForFunction(() => window.__gameState.currentView === 'east');
+    await page.locator('canvas').click({ position: { x: 42, y: 292 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'circle_lamp_zoom_view');
+    await page.locator('canvas').click({ position: { x: 480, y: 210 } }); // Toggle ON
+    expect(await hasFlag(page, 'lamp_east_on')).toBe(true);
+    await page.locator('canvas').click({ position: { x: 480, y: 210 } }); // Toggle OFF
+    expect(await hasFlag(page, 'lamp_east_on')).toBe(false);
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
+
+    // B. South Lamp (Cross) - Rotate to South, open lamp zoom, toggle ON, close zoom
+    await page.locator('canvas').click({ position: { x: 920, y: 220 } });
+    await page.waitForFunction(() => window.__gameState.currentView === 'south');
+    await page.locator('canvas').click({ position: { x: 495, y: 66 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'cross_lamp_zoom_view');
+    await page.locator('canvas').click({ position: { x: 480, y: 210 } }); // Toggle ON
+    expect(await hasFlag(page, 'lamp_south_on')).toBe(true);
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
+
+    // C. North Lamp (Triangle) - Rotate to North, open lamp zoom, toggle ON, close zoom
+    await page.locator('canvas').click({ position: { x: 920, y: 220 } });
+    await page.waitForFunction(() => window.__gameState.currentView === 'north');
+    await page.locator('canvas').click({ position: { x: 440, y: 57 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'triangle_lamp_zoom_view');
+    await page.locator('canvas').click({ position: { x: 480, y: 210 } }); // Toggle ON
+    expect(await hasFlag(page, 'lamp_north_on')).toBe(true);
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
+
+    // D. Balcony Lamp (Spiral) - Go to Balcony, open lamp zoom, toggle ON, solve puzzle
+    await page.locator('canvas').click({ position: { x: 920, y: 220 } }); // Rotate to East
+    await page.waitForFunction(() => window.__gameState.currentView === 'east');
+    await page.locator('canvas').click({ position: { x: 920, y: 220 } }); // Rotate to South
+    await page.waitForFunction(() => window.__gameState.currentView === 'south');
+    await page.locator('canvas').click({ position: { x: 185, y: 270 } }); // Exit door to Balcony
+    await page.waitForFunction(() => window.__gameState.currentView === 'balcony');
+    await page.locator('canvas').click({ position: { x: 904, y: 291 } }); // Open balcony lamp zoom
+    await page.waitForFunction(() => window.__gameState.zoomView === 'spiral_lamp_zoom_view');
+    await page.locator('canvas').click({ position: { x: 480, y: 210 } }); // Toggle ON -> Solves puzzle
+    expect(await hasFlag(page, 'lamp_puzzle_solved')).toBe(true);
+    await dismissDialog(page);
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
+
+    // 11. Go back inside to North view, select brass_key, and unlock the trunk
+    await page.locator('canvas').click({ position: { x: 781, y: 246 } }); // Balcony door to South view
+    await page.waitForFunction(() => window.__gameState.currentView === 'south');
+    await page.locator('canvas').click({ position: { x: 40, y: 220 } }); // Rotate to East
+    await page.waitForFunction(() => window.__gameState.currentView === 'east');
+    await page.locator('canvas').click({ position: { x: 40, y: 220 } }); // Rotate to North
+    await page.waitForFunction(() => window.__gameState.currentView === 'north');
+
+    // Click slot 3 (x=360, y=490) to select brass_key
+    await page.locator('canvas').click({ position: { x: 360, y: 490 } });
+    expect(await page.evaluate(() => window.__gameState.selectedItem)).toBe('brass_key');
+
+    // Click trunk (800, 360) to unlock it
+    await page.locator('canvas').click({ position: { x: 800, y: 360 } });
+    expect(await page.evaluate(() => window.__gameState.dialogText)).toBe('You insert the brass key into the lock and turn it. With a loud click, the trunk swings open.');
+    await dismissDialog(page);
+    expect(await hasFlag(page, 'trunk_unlocked')).toBe(true);
+
+    // 12. Click trunk again to retrieve the harness
+    await page.locator('canvas').click({ position: { x: 800, y: 360 } });
+    expect(await page.evaluate(() => window.__gameState.dialogText)).toBe('You found a zipline harness inside the trunk! It has been added to your inventory.');
+    await dismissDialog(page);
+    expect(await hasFlag(page, 'found_harness')).toBe(true);
+
+    // 13. Go back to Balcony view
+    await page.locator('canvas').click({ position: { x: 920, y: 220 } }); // Rotate to East
+    await page.waitForFunction(() => window.__gameState.currentView === 'east');
+    await page.locator('canvas').click({ position: { x: 920, y: 220 } }); // Rotate to South
+    await page.waitForFunction(() => window.__gameState.currentView === 'south');
+    await page.locator('canvas').click({ position: { x: 185, y: 270 } }); // Exit door to Balcony
+    await page.waitForFunction(() => window.__gameState.currentView === 'balcony');
+
+    // Select harness by clicking slot 3 (x=360, y=490) (since brass_key was removed, harness shifted left to slot 3)
+    await page.locator('canvas').click({ position: { x: 360, y: 490 } });
+    expect(await page.evaluate(() => window.__gameState.selectedItem)).toBe('harness');
+
+    // Click zipline (530, 123) to escape and win the game
+    await page.locator('canvas').click({ position: { x: 530, y: 123 } });
+
+    // Verify victory win sequence is triggered and displays "YOU ESCAPED!"
+    await page.waitForFunction(() => {
+      const scene = window.__game.scene.keys.GameScene;
+      if (!scene || !scene.zoomContainer) return false;
+      return scene.zoomContainer.list.some(obj => obj.text === 'YOU ESCAPED!');
+    });
   });
 
   test('Test Case 5: Dialogue Blocking & Dismissal Behavior', async ({ page }) => {

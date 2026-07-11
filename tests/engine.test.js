@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { StateManager } from '../src/engine/StateManager';
 import { Interpreter } from '../src/engine/Interpreter';
+import { TreehouseConfig } from '../src/game/treehouse.config';
 
 describe('Escape Room Headless Core Engine', () => {
   let state;
@@ -199,5 +200,61 @@ describe('Escape Room Headless Core Engine', () => {
 
     expect(state.hasFlag('found_clue_4')).toBe(true);
     expect(state.state.inventory).toContain('clue_4');
+  });
+
+  it('should handle the trunk puzzle interactions correctly', () => {
+    // 1. Initially trunk is locked and harness is not found
+    expect(state.hasFlag('trunk_unlocked')).toBe(false);
+    expect(state.hasFlag('found_harness')).toBe(false);
+    expect(state.state.inventory).not.toContain('harness');
+
+    // Retrieve trunk interactions config
+    const trunkHotspot = TreehouseConfig.views.north.hotspots.find(h => h.name === 'trunk');
+    expect(trunkHotspot).toBeDefined();
+
+    // 2. Click without key -> should show locked dialog
+    let actions = interpreter.evaluateInteraction(trunkHotspot.interactions);
+    expect(actions).toContain("SHOW_DIALOG: It's a heavy iron-banded trunk. It is locked and you don't have a key.");
+
+    // 3. Select brass_key and click -> should unlock and remove key
+    state.addItem('brass_key');
+    state.selectItem('brass_key');
+    expect(state.state.selectedItem).toBe('brass_key');
+
+    actions = interpreter.evaluateInteraction(trunkHotspot.interactions);
+    state.executeActions(actions);
+
+    expect(state.hasFlag('trunk_unlocked')).toBe(true);
+    expect(state.state.inventory).not.toContain('brass_key');
+    state.state.selectedItem = null; // evaluateInteraction doesn't clear selectedItem directly, StateManager does
+
+    // 4. Click again -> should find harness
+    actions = interpreter.evaluateInteraction(trunkHotspot.interactions);
+    state.executeActions(actions);
+
+    expect(state.hasFlag('found_harness')).toBe(true);
+    expect(state.state.inventory).toContain('harness');
+
+    // 5. Click again -> trunk is empty
+    actions = interpreter.evaluateInteraction(trunkHotspot.interactions);
+    expect(actions).toContain("SHOW_DIALOG: The trunk is empty.");
+  });
+
+  it('should handle the zipline interactions correctly', () => {
+    const ziplineHotspot = TreehouseConfig.views.balcony.hotspots.find(h => h.name === 'zipline');
+    expect(ziplineHotspot).toBeDefined();
+
+    // 1. Without harness -> show need harness dialog
+    state.state.selectedItem = null;
+    let actions = interpreter.evaluateInteraction(ziplineHotspot.interactions);
+    expect(actions).toContain("SHOW_DIALOG: A zipline overlooking the forest. It looks like a fast way down, but I need a harness to use it safely.");
+
+    // 2. With harness selected -> trigger win
+    state.addItem('harness');
+    state.selectItem('harness');
+    expect(state.state.selectedItem).toBe('harness');
+
+    actions = interpreter.evaluateInteraction(ziplineHotspot.interactions);
+    expect(actions).toContain("TRIGGER_WIN");
   });
 });

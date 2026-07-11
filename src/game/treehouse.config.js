@@ -58,6 +58,28 @@ export const TreehouseConfig = {
           rect: [800, 360, 240, 160],
           interactions: [
             {
+              if_flag: "found_harness",
+              then: [
+                "SHOW_DIALOG: The trunk is empty."
+              ]
+            },
+            {
+              if_flag: "trunk_unlocked",
+              then: [
+                "SET_FLAG: found_harness",
+                "ADD_INVENTORY: harness",
+                "SHOW_DIALOG: You found a zipline harness inside the trunk! It has been added to your inventory."
+              ]
+            },
+            {
+              if_selected_item: "brass_key",
+              then: [
+                "SET_FLAG: trunk_unlocked",
+                "REMOVE_INVENTORY: brass_key",
+                "SHOW_DIALOG: You insert the brass key into the lock and turn it. With a loud click, the trunk swings open."
+              ]
+            },
+            {
               else: [
                 "SHOW_DIALOG: It's a heavy iron-banded trunk. It is locked and you don't have a key."
               ]
@@ -307,6 +329,12 @@ export const TreehouseConfig = {
           name: "zipline",
           rect: [530, 123, 60, 60],
           interactions: [
+            {
+              if_selected_item: "harness",
+              then: [
+                "TRIGGER_WIN"
+              ]
+            },
             {
               else: [
                 "SHOW_DIALOG: A zipline overlooking the forest. It looks like a fast way down, but I need a harness to use it safely."
