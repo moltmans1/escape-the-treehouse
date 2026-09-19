@@ -990,4 +990,93 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     expect(textLabelsCount).toBe(0);
   });
 
+  test('Test Case 8: Custom Inventory Item Cursors', async ({ page }) => {
+    // Collect origami paper from Hammock in North view (260, 290)
+    await page.locator('canvas').click({ position: { x: 260, y: 290 } });
+    await dismissDialog(page);
+
+    // Initial check: cursor sprite should not be visible when no item is selected
+    let cursorState = await page.evaluate(() => {
+      const scene = window.__game.scene.keys.GameScene;
+      return scene && scene.cursorSprite ? {
+        visible: scene.cursorSprite.visible,
+        texture: scene.cursorSprite.texture.key,
+        selectedItem: window.__gameState.selectedItem
+      } : null;
+    });
+    expect(cursorState.visible).toBe(false);
+    expect(cursorState.selectedItem).toBeNull();
+
+    // Click slot 0 (origami paper at x: 120, y: 490)
+    await page.locator('canvas').click({ position: { x: 120, y: 490 } });
+    await dismissDialog(page);
+
+    // Verify paper cursor is active
+    cursorState = await page.evaluate(() => {
+      const scene = window.__game.scene.keys.GameScene;
+      return scene && scene.cursorSprite ? {
+        visible: scene.cursorSprite.visible,
+        texture: scene.cursorSprite.texture.key,
+        selectedItem: window.__gameState.selectedItem
+      } : null;
+    });
+    expect(cursorState.selectedItem).toBe('origami_paper');
+    expect(cursorState.visible).toBe(true);
+    expect(cursorState.texture).toBe('cursor_paper');
+
+    // Deselect paper by clicking slot 0 again
+    await page.locator('canvas').click({ position: { x: 120, y: 490 } });
+    await dismissDialog(page);
+
+    cursorState = await page.evaluate(() => {
+      const scene = window.__game.scene.keys.GameScene;
+      return scene && scene.cursorSprite ? {
+        visible: scene.cursorSprite.visible,
+        selectedItem: window.__gameState.selectedItem
+      } : null;
+    });
+    // Close origami paper zoom view (900, 30)
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
+
+    // Rotate to East view (right arrow at 920, 220)
+    await page.locator('canvas').click({ position: { x: 920, y: 220 } });
+    await page.waitForFunction(() => window.__gameState.currentView === 'east');
+
+    // Collect binoculars from Window Sill (592, 282)
+    await page.locator('canvas').click({ position: { x: 592, y: 282 } });
+    await dismissDialog(page);
+
+    // Binoculars are in slot 1 (x: 200, y: 490)
+    await page.locator('canvas').click({ position: { x: 200, y: 490 } });
+    await dismissDialog(page);
+
+    // Verify binoculars cursor is active
+    cursorState = await page.evaluate(() => {
+      const scene = window.__game.scene.keys.GameScene;
+      return scene && scene.cursorSprite ? {
+        visible: scene.cursorSprite.visible,
+        texture: scene.cursorSprite.texture.key,
+        selectedItem: window.__gameState.selectedItem
+      } : null;
+    });
+    expect(cursorState.selectedItem).toBe('binoculars');
+    expect(cursorState.visible).toBe(true);
+    expect(cursorState.texture).toBe('cursor_binoculars');
+
+    // Deselect binoculars by clicking slot 1 again
+    await page.locator('canvas').click({ position: { x: 200, y: 490 } });
+    await dismissDialog(page);
+
+    cursorState = await page.evaluate(() => {
+      const scene = window.__game.scene.keys.GameScene;
+      return scene && scene.cursorSprite ? {
+        visible: scene.cursorSprite.visible,
+        selectedItem: window.__gameState.selectedItem
+      } : null;
+    });
+    expect(cursorState.selectedItem).toBeNull();
+    expect(cursorState.visible).toBe(false);
+  });
+
 });

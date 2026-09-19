@@ -1,0 +1,3 @@
+We want to replace the cursor with an image of the selected item from the inventory for several scenarios. This will make it look like that item is being draged around the screen which may help the user understand how to solve the puzzles better. For example when the paper is selected from the inventory a small image of a paper should replace the cursor. I would also like to do this for the binoculars when they are selected.
+
+To do this we will need to generate an image of a paper and of a pair of binoculars to replace the cursor with.

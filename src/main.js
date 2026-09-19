@@ -135,6 +135,8 @@ class PreloadScene extends Phaser.Scene {
     this.load.image('spiral_lamp_zoom_view', 'assets/spiral_lamp_zoom_view.png');
     this.load.image('spiral_lamp_off', 'assets/spiral_lamp_off.png');
     this.load.image('clue_paper', 'assets/clue_paper.jpg');
+    this.load.image('cursor_paper', 'assets/cursor_paper.png');
+    this.load.image('cursor_binoculars', 'assets/cursor_binoculars.png');
     
     // Load navigation arrow
     this.createArrowTexture();
@@ -226,6 +228,29 @@ class GameScene extends Phaser.Scene {
 
     // Set the default cursor state initially
     this.input.setDefaultCursor('default');
+
+    // Custom cursor follower sprite (depth 9999, non-interactive)
+    this.cursorSprite = this.add.image(0, 0, 'cursor_paper')
+      .setDisplaySize(40, 40)
+      .setOrigin(0.5, 0.5)
+      .setDepth(9999)
+      .setVisible(false);
+
+    this.input.on('pointermove', (pointer) => {
+      if (this.cursorSprite && this.cursorSprite.visible) {
+        this.cursorSprite.setPosition(pointer.x, pointer.y);
+      }
+    });
+
+    this.input.on('gameout', () => {
+      if (this.cursorSprite) {
+        this.cursorSprite.setVisible(false);
+      }
+    });
+
+    this.input.on('gameover', () => {
+      this.updateCanvasCursor();
+    });
 
     // Main room background
     this.bg = this.add.sprite(0, 0, `bg_${gameState.currentView}`).setOrigin(0, 0);
@@ -795,6 +820,7 @@ class GameScene extends Phaser.Scene {
       }
     }
     this.updateDynamicGraphics();
+    this.updateCanvasCursor();
   }
 
   handleActionsExecuted(actions) {
@@ -1460,12 +1486,54 @@ class GameScene extends Phaser.Scene {
   }
 
   updateCanvasCursor() {
-    // Custom cursor styling disabled
+    const selectedItem = stateManager.state.selectedItem;
+    if (selectedItem === 'origami_paper') {
+      if (this.cursorSprite) {
+        this.cursorSprite.setTexture('cursor_paper');
+        this.cursorSprite.setDisplaySize(36, 36);
+        this.cursorSprite.setVisible(true);
+        if (this.input.activePointer) {
+          this.cursorSprite.setPosition(this.input.activePointer.x, this.input.activePointer.y);
+        }
+      }
+      this.input.setDefaultCursor("url('assets/cursor_paper.png') 16 16, pointer");
+      if (this.game && this.game.canvas) {
+        this.game.canvas.style.cursor = "url('assets/cursor_paper.png') 16 16, pointer";
+      }
+    } else if (selectedItem === 'binoculars') {
+      if (this.cursorSprite) {
+        this.cursorSprite.setTexture('cursor_binoculars');
+        this.cursorSprite.setDisplaySize(36, 36);
+        this.cursorSprite.setVisible(true);
+        if (this.input.activePointer) {
+          this.cursorSprite.setPosition(this.input.activePointer.x, this.input.activePointer.y);
+        }
+      }
+      this.input.setDefaultCursor("url('assets/cursor_binoculars.png') 16 16, pointer");
+      if (this.game && this.game.canvas) {
+        this.game.canvas.style.cursor = "url('assets/cursor_binoculars.png') 16 16, pointer";
+      }
+    } else {
+      if (this.cursorSprite) {
+        this.cursorSprite.setVisible(false);
+      }
+      this.input.setDefaultCursor('default');
+      if (this.game && this.game.canvas) {
+        this.game.canvas.style.cursor = 'default';
+      }
+    }
   }
 
   // --- DYNAMIC GRAPHICS ---
   // --- VICTORY ---
   triggerVictory() {
+    if (this.cursorSprite) {
+      this.cursorSprite.setVisible(false);
+    }
+    this.input.setDefaultCursor('default');
+    if (this.game && this.game.canvas) {
+      this.game.canvas.style.cursor = 'default';
+    }
     this.leftArrow.setVisible(false);
     this.rightArrow.setVisible(false);
     this.zoomContainer.removeAll(true);

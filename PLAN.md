@@ -89,7 +89,7 @@ The game is a point-and-click escape room containing multiple navigation angles 
 ---
 
 ## 🖱️ Selected Item Cursors
-Custom cursor overrides have been removed to ensure maximum compatibility in headless testing environments. The game uses standard browser pointers and hand cursors.
+When items with custom cursors (such as the origami paper `origami_paper` or binoculars `binoculars`) are selected in the inventory, a custom visual cursor follower sprite tracks the pointer and the canvas cursor updates to represent the held item. When deselected or consumed, the cursor seamlessly reverts to the default pointer.
 
 ---
 
