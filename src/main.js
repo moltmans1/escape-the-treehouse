@@ -65,6 +65,30 @@ const pigpenMap = {
   Z: { type: 'cross_left', dot: true }
 };
 
+// Item zoom view mapping
+const ITEM_INSPECT_MAP = {
+  origami_paper: 'origami_paper',
+  origami_book: 'origami_book',
+  paper_airplane: 'paper_airplane',
+  trees_book: 'trees_book',
+  cipher_key: 'cipher_key_zoom',
+  clue_1: 'clue_1_zoom',
+  clue_2: 'clue_2_zoom',
+  clue_3: 'clue_3_zoom',
+  clue_4: 'clue_4_zoom'
+};
+
+// Set of item zoom views that allow direct switching without closing first
+const SWITCHABLE_INSPECT_VIEWS = new Set([
+  'paper_airplane',
+  'trees_book',
+  'cipher_key_zoom',
+  'clue_1_zoom',
+  'clue_2_zoom',
+  'clue_3_zoom',
+  'clue_4_zoom'
+]);
+
 // --- BOOT SCENE ---
 class BootScene extends Phaser.Scene {
   constructor() {
@@ -511,29 +535,17 @@ class GameScene extends Phaser.Scene {
         itemText.on('pointerdown', () => {
           stateManager.selectItem(item);
           
-          // Inspect item ONLY if no zoom view is currently active.
-          // If a zoom view (like the book) is open, clicking another item (like the paper)
-          // should ONLY select it to allow combining, and NOT trigger its own zoom view.
-          if (!stateManager.state.zoomView) {
-            if (stateManager.state.selectedItem === item) {
-              if (item === 'origami_paper') {
-                this.inspectOrigamiPaper();
-              } else if (item === 'origami_book') {
-                this.inspectOrigamiBook();
-              } else if (item === 'paper_airplane') {
-                this.inspectPaperAirplane();
-              } else if (item === 'trees_book') {
-                this.inspectTreesBook();
-              } else if (item === 'cipher_key') {
-                this.inspectCipherKey();
-              } else if (item === 'clue_1') {
-                this.inspectClue1();
-              } else if (item === 'clue_2') {
-                this.inspectClue2();
-              } else if (item === 'clue_3') {
-                this.inspectClue3();
-              } else if (item === 'clue_4') {
-                this.inspectClue4();
+          if (stateManager.state.selectedItem === item) {
+            const currentZoom = stateManager.state.zoomView;
+            const targetZoom = ITEM_INSPECT_MAP[item];
+            
+            if (targetZoom) {
+              // Open zoom view if:
+              // 1. No zoom view is currently open, OR
+              // 2. A switchable inspect view is active and the clicked item is also a switchable inspect view
+              const shouldInspect = !currentZoom || (SWITCHABLE_INSPECT_VIEWS.has(currentZoom) && SWITCHABLE_INSPECT_VIEWS.has(targetZoom));
+              if (shouldInspect) {
+                this.inspectInventoryItem(item);
               }
             }
           }
@@ -888,6 +900,20 @@ class GameScene extends Phaser.Scene {
           break;
       }
     });
+  }
+
+  inspectInventoryItem(item) {
+    switch (item) {
+      case 'origami_paper': this.inspectOrigamiPaper(); break;
+      case 'origami_book': this.inspectOrigamiBook(); break;
+      case 'paper_airplane': this.inspectPaperAirplane(); break;
+      case 'trees_book': this.inspectTreesBook(); break;
+      case 'cipher_key': this.inspectCipherKey(); break;
+      case 'clue_1': this.inspectClue1(); break;
+      case 'clue_2': this.inspectClue2(); break;
+      case 'clue_3': this.inspectClue3(); break;
+      case 'clue_4': this.inspectClue4(); break;
+    }
   }
 
   // --- ZOOM PUZZLE: UNFOLDED ORIGAMI PAPER ---

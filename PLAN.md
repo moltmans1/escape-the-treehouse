@@ -91,6 +91,9 @@ The game is a point-and-click escape room containing multiple navigation angles 
 ## 🖱️ Selected Item Cursors
 When items with custom cursors (such as the origami paper `origami_paper` or binoculars `binoculars`) are selected in the inventory, the browser canvas cursor updates to the custom item cursor image in the game scene (`y < 440`). Hovering over the inventory bar area (`y >= 440`) suppresses the custom item cursor, showing the standard default arrow over empty inventory space and the interactive hand pointer over item slots. Moving back into the game scene immediately restores the custom item cursor. Hovering over non-matching interactive objects in the scene displays the standard hand pointer, while hovering over matching interactive targets (the open Origami Book for the paper, and the South Window / 3 tree hotspots for the binoculars) displays a 50% larger version of the item cursor. When deselected or consumed, the cursor seamlessly reverts to the default pointer.
 
+## 🔍 Direct Inventory Item Zoom View Switching
+Players can seamlessly switch between inspectable item zoom views (`paper_airplane`, `trees_book`, `cipher_key_zoom`, `clue_1_zoom`, `clue_2_zoom`, `clue_3_zoom`, `clue_4_zoom`) by clicking another item in the inventory bar without having to manually close the current zoom view first. Clicking an item from the main room opens its zoom view directly. Items involved in puzzles or combinations (`origami_paper`, `origami_book`) and scene puzzle views (`dartboard`, `safe_view`, `lamp_zoom`) do not auto-switch, preserving puzzle item selection and folding mechanics.
+
 ---
 
 ## 🛠️ Technical Stack & Architecture

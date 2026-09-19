@@ -1118,4 +1118,80 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     expect(selectedItem).toBeNull();
   });
 
+  test('Test Case 9: Direct Inventory Item Zoom View Switching', async ({ page }) => {
+    // Add multiple inspectable items and origami items to inventory
+    await page.evaluate(() => {
+      const sm = window.__stateManager;
+      sm.addItem('clue_1');
+      sm.addItem('clue_2');
+      sm.addItem('cipher_key');
+      sm.addItem('trees_book');
+      sm.addItem('origami_book');
+      sm.addItem('origami_paper');
+    });
+
+    // Helper to get slot X position for an item
+    const getSlotX = async (itemId) => {
+      const idx = await page.evaluate((id) => window.__gameState.inventory.indexOf(id), itemId);
+      return 120 + idx * 80;
+    };
+
+    // 1. From main room (no zoom view open), click Clue 1
+    const clue1X = await getSlotX('clue_1');
+    await page.locator('canvas').click({ position: { x: clue1X, y: 490 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'clue_1_zoom');
+
+    // 2. Direct switch to Clue 2 without closing
+    const clue2X = await getSlotX('clue_2');
+    await page.locator('canvas').click({ position: { x: clue2X, y: 490 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'clue_2_zoom');
+
+    // 3. Direct switch to Cipher Key without closing
+    const cipherKeyX = await getSlotX('cipher_key');
+    await page.locator('canvas').click({ position: { x: cipherKeyX, y: 490 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'cipher_key_zoom');
+
+    // 4. Direct switch to Trees Book without closing
+    const treesBookX = await getSlotX('trees_book');
+    await page.locator('canvas').click({ position: { x: treesBookX, y: 490 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'trees_book');
+
+    // Close zoom view
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
+
+    // 5. Test Origami exception: Open Origami Book zoom view
+    const origamiBookX = await getSlotX('origami_book');
+    await page.locator('canvas').click({ position: { x: origamiBookX, y: 490 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'origami_book');
+
+    // Click Origami Paper -> should select paper, NOT switch zoom view
+    const origamiPaperX = await getSlotX('origami_paper');
+    await page.locator('canvas').click({ position: { x: origamiPaperX, y: 490 } });
+    await page.waitForFunction(() => window.__gameState.selectedItem === 'origami_paper');
+    const currentZoom = await page.evaluate(() => window.__gameState.zoomView);
+    expect(currentZoom).toBe('origami_book');
+
+    // Close Origami Book
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
+
+    // 6. Test Scene Puzzle exception: Rotate to South view and open Dartboard
+    await page.evaluate(() => window.__stateManager.setView('south'));
+    await page.waitForFunction(() => window.__gameState.currentView === 'south');
+
+    await page.locator('canvas').click({ position: { x: 366, y: 171 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'dartboard');
+
+    // Click Clue 1 while in dartboard view -> should select clue_1, NOT open clue_1_zoom
+    await page.locator('canvas').click({ position: { x: clue1X, y: 490 } });
+    await page.waitForFunction(() => window.__gameState.selectedItem === 'clue_1');
+    const dartboardZoom = await page.evaluate(() => window.__gameState.zoomView);
+    expect(dartboardZoom).toBe('dartboard');
+
+    // Close dartboard
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
+  });
+
 });
