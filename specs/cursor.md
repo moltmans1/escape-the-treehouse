@@ -1,3 +1,19 @@
-We want to replace the cursor with an image of the selected item from the inventory for several scenarios. This will make it look like that item is being draged around the screen which may help the user understand how to solve the puzzles better. For example when the paper is selected from the inventory a small image of a paper should replace the cursor. I would also like to do this for the binoculars when they are selected.
+# Cursor Specification
 
-To do this we will need to generate an image of a paper and of a pair of binoculars to replace the cursor with.
+We want to replace the cursor with an image of the selected item from the inventory.
+
+## 🖱️ Selected Item Cursors
+* When an item is selected from the inventory, a custom CSS/browser cursor image represents the active held item across the screen.
+* When the item is deselected or removed from inventory, the cursor reverts to the default pointer (`'default'`).
+
+## 🎯 Hover & Sizing Rules
+1. **Normal Scene Hover:**
+   * Over non-interactive background areas, the standard item cursor is shown (e.g. 32x32).
+2. **Standard Hotspots / UI Elements:**
+   * When hovering over non-matching interactive hotspots, buttons, or navigation arrows, the cursor displays the standard interactive hand pointer (`pointer`).
+3. **Matching Hotspots (50% Larger Highlight Cursor):**
+   * When hovering over the specific "matching hotspots" for the selected item, the cursor expands to a **50% larger version** (e.g. 48x48) to indicate an active valid target.
+   * **Origami Paper (`origami_paper`):**
+     * Matching target: The open Origami Book folding zone in `origami_book` zoom view.
+   * **Binoculars (`binoculars`):**
+     * Matching targets: The South Window in South view, and the 3 Tree Hotspots (Left, Center, Right) in the South Window zoom view.

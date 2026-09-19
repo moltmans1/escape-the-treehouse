@@ -136,7 +136,9 @@ class PreloadScene extends Phaser.Scene {
     this.load.image('spiral_lamp_off', 'assets/spiral_lamp_off.png');
     this.load.image('clue_paper', 'assets/clue_paper.jpg');
     this.load.image('cursor_paper', 'assets/cursor_paper.png');
+    this.load.image('cursor_paper_large', 'assets/cursor_paper_large.png');
     this.load.image('cursor_binoculars', 'assets/cursor_binoculars.png');
+    this.load.image('cursor_binoculars_large', 'assets/cursor_binoculars_large.png');
     
     // Load navigation arrow
     this.createArrowTexture();
@@ -228,29 +230,6 @@ class GameScene extends Phaser.Scene {
 
     // Set the default cursor state initially
     this.input.setDefaultCursor('default');
-
-    // Custom cursor follower sprite (depth 9999, non-interactive)
-    this.cursorSprite = this.add.image(0, 0, 'cursor_paper')
-      .setDisplaySize(40, 40)
-      .setOrigin(0.5, 0.5)
-      .setDepth(9999)
-      .setVisible(false);
-
-    this.input.on('pointermove', (pointer) => {
-      if (this.cursorSprite && this.cursorSprite.visible) {
-        this.cursorSprite.setPosition(pointer.x, pointer.y);
-      }
-    });
-
-    this.input.on('gameout', () => {
-      if (this.cursorSprite) {
-        this.cursorSprite.setVisible(false);
-      }
-    });
-
-    this.input.on('gameover', () => {
-      this.updateCanvasCursor();
-    });
 
     // Main room background
     this.bg = this.add.sprite(0, 0, `bg_${gameState.currentView}`).setOrigin(0, 0);
@@ -759,10 +738,15 @@ class GameScene extends Phaser.Scene {
 
     rect.on('pointerover', () => {
       if (!isDebug) rect.setFillStyle(0xffffff, 0.05);
-      this.updateCanvasCursor();
+      if (hotspotName === 'south_window' && stateManager.state.selectedItem === 'binoculars') {
+        if (this.game && this.game.canvas) {
+          this.game.canvas.style.cursor = "url('assets/cursor_binoculars_large.png') 24 24, pointer";
+        }
+      }
     });
     rect.on('pointerout', () => {
       if (!isDebug) rect.setFillStyle(0xffffff, 0.0);
+      this.updateCanvasCursor();
     });
     
     rect.on('pointerdown', () => {
@@ -1059,8 +1043,18 @@ class GameScene extends Phaser.Scene {
       const foldZone = this.add.rectangle(605, 210, 240, 280, 0xffffff, 0.0)
         .setInteractive({ useHandCursor: true });
 
-      foldZone.on('pointerover', () => foldZone.setFillStyle(0xd4a373, 0.05));
-      foldZone.on('pointerout', () => foldZone.setFillStyle(0xffffff, 0.0));
+      foldZone.on('pointerover', () => {
+        foldZone.setFillStyle(0xd4a373, 0.05);
+        if (stateManager.state.selectedItem === 'origami_paper') {
+          if (this.game && this.game.canvas) {
+            this.game.canvas.style.cursor = "url('assets/cursor_paper_large.png') 24 24, pointer";
+          }
+        }
+      });
+      foldZone.on('pointerout', () => {
+        foldZone.setFillStyle(0xffffff, 0.0);
+        this.updateCanvasCursor();
+      });
       
       foldZone.on('pointerdown', () => {
         if (stateManager.state.selectedItem === 'origami_paper') {
@@ -1219,9 +1213,16 @@ class GameScene extends Phaser.Scene {
       [leftTreeHotspot, centerTreeHotspot, rightTreeHotspot].forEach(hot => {
         hot.on('pointerover', () => {
           hot.setFillStyle(0xffffff, 0.05);
+          if (stateManager.state.selectedItem === 'binoculars') {
+            if (this.game && this.game.canvas) {
+              this.game.canvas.style.cursor = "url('assets/cursor_binoculars_large.png') 24 24, pointer";
+            }
+          }
+        });
+        hot.on('pointerout', () => {
+          hot.setFillStyle(0xffffff, 0.0);
           this.updateCanvasCursor();
         });
-        hot.on('pointerout', () => hot.setFillStyle(0xffffff, 0.0));
       });
 
       leftTreeHotspot.on('pointerdown', () => {
@@ -1488,35 +1489,18 @@ class GameScene extends Phaser.Scene {
   updateCanvasCursor() {
     const selectedItem = stateManager.state.selectedItem;
     if (selectedItem === 'origami_paper') {
-      if (this.cursorSprite) {
-        this.cursorSprite.setTexture('cursor_paper');
-        this.cursorSprite.setDisplaySize(36, 36);
-        this.cursorSprite.setVisible(true);
-        if (this.input.activePointer) {
-          this.cursorSprite.setPosition(this.input.activePointer.x, this.input.activePointer.y);
-        }
-      }
-      this.input.setDefaultCursor("url('assets/cursor_paper.png') 16 16, pointer");
+      const cursorVal = "url('assets/cursor_paper.png') 16 16, auto";
+      this.input.setDefaultCursor(cursorVal);
       if (this.game && this.game.canvas) {
-        this.game.canvas.style.cursor = "url('assets/cursor_paper.png') 16 16, pointer";
+        this.game.canvas.style.cursor = cursorVal;
       }
     } else if (selectedItem === 'binoculars') {
-      if (this.cursorSprite) {
-        this.cursorSprite.setTexture('cursor_binoculars');
-        this.cursorSprite.setDisplaySize(36, 36);
-        this.cursorSprite.setVisible(true);
-        if (this.input.activePointer) {
-          this.cursorSprite.setPosition(this.input.activePointer.x, this.input.activePointer.y);
-        }
-      }
-      this.input.setDefaultCursor("url('assets/cursor_binoculars.png') 16 16, pointer");
+      const cursorVal = "url('assets/cursor_binoculars.png') 16 16, auto";
+      this.input.setDefaultCursor(cursorVal);
       if (this.game && this.game.canvas) {
-        this.game.canvas.style.cursor = "url('assets/cursor_binoculars.png') 16 16, pointer";
+        this.game.canvas.style.cursor = cursorVal;
       }
     } else {
-      if (this.cursorSprite) {
-        this.cursorSprite.setVisible(false);
-      }
       this.input.setDefaultCursor('default');
       if (this.game && this.game.canvas) {
         this.game.canvas.style.cursor = 'default';
@@ -1527,9 +1511,6 @@ class GameScene extends Phaser.Scene {
   // --- DYNAMIC GRAPHICS ---
   // --- VICTORY ---
   triggerVictory() {
-    if (this.cursorSprite) {
-      this.cursorSprite.setVisible(false);
-    }
     this.input.setDefaultCursor('default');
     if (this.game && this.game.canvas) {
       this.game.canvas.style.cursor = 'default';

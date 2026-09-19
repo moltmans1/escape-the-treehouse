@@ -990,53 +990,58 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     expect(textLabelsCount).toBe(0);
   });
 
-  test('Test Case 8: Custom Inventory Item Cursors', async ({ page }) => {
-    // Collect origami paper from Hammock in North view (260, 290)
+  test('Test Case 8: Custom Inventory Item Cursors & Matching Target Scaling', async ({ page }) => {
+    // Initial check: cursor should be default
+    let canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
+    expect(canvasCursor).toBe('default');
+
+    // Collect origami paper from Hammock (260, 290) and origami book from Bookshelves (860, 180)
     await page.locator('canvas').click({ position: { x: 260, y: 290 } });
     await dismissDialog(page);
-
-    // Initial check: cursor sprite should not be visible when no item is selected
-    let cursorState = await page.evaluate(() => {
-      const scene = window.__game.scene.keys.GameScene;
-      return scene && scene.cursorSprite ? {
-        visible: scene.cursorSprite.visible,
-        texture: scene.cursorSprite.texture.key,
-        selectedItem: window.__gameState.selectedItem
-      } : null;
-    });
-    expect(cursorState.visible).toBe(false);
-    expect(cursorState.selectedItem).toBeNull();
+    await page.locator('canvas').click({ position: { x: 860, y: 180 } });
+    await dismissDialog(page);
 
     // Click slot 0 (origami paper at x: 120, y: 490)
     await page.locator('canvas').click({ position: { x: 120, y: 490 } });
     await dismissDialog(page);
 
-    // Verify paper cursor is active
-    cursorState = await page.evaluate(() => {
-      const scene = window.__game.scene.keys.GameScene;
-      return scene && scene.cursorSprite ? {
-        visible: scene.cursorSprite.visible,
-        texture: scene.cursorSprite.texture.key,
-        selectedItem: window.__gameState.selectedItem
-      } : null;
-    });
-    expect(cursorState.selectedItem).toBe('origami_paper');
-    expect(cursorState.visible).toBe(true);
-    expect(cursorState.texture).toBe('cursor_paper');
+    // Verify standard paper cursor is active
+    let selectedItem = await page.evaluate(() => window.__gameState.selectedItem);
+    canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
+    expect(selectedItem).toBe('origami_paper');
+    expect(canvasCursor).toContain('cursor_paper.png');
+
+    // Close paper zoom view (900, 30)
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
+
+    // Open Origami Book zoom view (slot 1 at x: 200, y: 490)
+    await page.locator('canvas').click({ position: { x: 200, y: 490 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'origami_book');
+
+    // Select origami paper (slot 0 at x: 120, y: 490)
+    await page.locator('canvas').click({ position: { x: 120, y: 490 } });
+    expect(await page.evaluate(() => window.__gameState.selectedItem)).toBe('origami_paper');
+
+    // Hover over the matching folding zone (605, 210)
+    await page.locator('canvas').hover({ position: { x: 605, y: 210 } });
+    await page.waitForTimeout(100);
+    canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
+    expect(canvasCursor).toContain('cursor_paper_large.png');
+
+    // Move mouse away to neutral area (400, 50)
+    await page.locator('canvas').hover({ position: { x: 400, y: 50 } });
+    await page.waitForTimeout(100);
+    canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
+    expect(canvasCursor).toContain('cursor_paper.png');
+
+    // Close zoom view (900, 30)
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
 
     // Deselect paper by clicking slot 0 again
     await page.locator('canvas').click({ position: { x: 120, y: 490 } });
-    await dismissDialog(page);
-
-    cursorState = await page.evaluate(() => {
-      const scene = window.__game.scene.keys.GameScene;
-      return scene && scene.cursorSprite ? {
-        visible: scene.cursorSprite.visible,
-        selectedItem: window.__gameState.selectedItem
-      } : null;
-    });
-    // Close origami paper zoom view (900, 30)
-    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } }); // dismiss if zoom
     await page.waitForFunction(() => window.__gameState.zoomView === null);
 
     // Rotate to East view (right arrow at 920, 220)
@@ -1047,36 +1052,43 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.locator('canvas').click({ position: { x: 592, y: 282 } });
     await dismissDialog(page);
 
-    // Binoculars are in slot 1 (x: 200, y: 490)
-    await page.locator('canvas').click({ position: { x: 200, y: 490 } });
+    // Rotate to South view (right arrow at 920, 220)
+    await page.locator('canvas').click({ position: { x: 920, y: 220 } });
+    await page.waitForFunction(() => window.__gameState.currentView === 'south');
+
+    // Binoculars are in slot 2 (x: 280, y: 490)
+    await page.locator('canvas').click({ position: { x: 280, y: 490 } });
     await dismissDialog(page);
 
     // Verify binoculars cursor is active
-    cursorState = await page.evaluate(() => {
-      const scene = window.__game.scene.keys.GameScene;
-      return scene && scene.cursorSprite ? {
-        visible: scene.cursorSprite.visible,
-        texture: scene.cursorSprite.texture.key,
-        selectedItem: window.__gameState.selectedItem
-      } : null;
-    });
-    expect(cursorState.selectedItem).toBe('binoculars');
-    expect(cursorState.visible).toBe(true);
-    expect(cursorState.texture).toBe('cursor_binoculars');
+    selectedItem = await page.evaluate(() => window.__gameState.selectedItem);
+    canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
+    expect(selectedItem).toBe('binoculars');
+    expect(canvasCursor).toContain('cursor_binoculars.png');
 
-    // Deselect binoculars by clicking slot 1 again
-    await page.locator('canvas').click({ position: { x: 200, y: 490 } });
-    await dismissDialog(page);
+    // Hover over South Window matching hotspot in South view (715, 190)
+    await page.locator('canvas').hover({ position: { x: 715, y: 190 } });
+    await page.waitForTimeout(100);
+    canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
+    expect(canvasCursor).toContain('cursor_binoculars_large.png');
 
-    cursorState = await page.evaluate(() => {
-      const scene = window.__game.scene.keys.GameScene;
-      return scene && scene.cursorSprite ? {
-        visible: scene.cursorSprite.visible,
-        selectedItem: window.__gameState.selectedItem
-      } : null;
-    });
-    expect(cursorState.selectedItem).toBeNull();
-    expect(cursorState.visible).toBe(false);
+    // Click South Window (715, 190) to open South Window View
+    await page.locator('canvas').click({ position: { x: 715, y: 190 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'south_window_zoom');
+
+    // Verify binoculars remains selected in south_window_zoom
+    expect(await page.evaluate(() => window.__gameState.selectedItem)).toBe('binoculars');
+
+    // Hover over center tree matching hotspot (502, 190)
+    await page.locator('canvas').hover({ position: { x: 502, y: 190 } });
+    await page.waitForTimeout(100);
+    canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
+    expect(canvasCursor).toContain('cursor_binoculars_large.png');
+
+    // Deselect binoculars by clicking slot 2 again
+    await page.locator('canvas').click({ position: { x: 280, y: 490 } });
+    selectedItem = await page.evaluate(() => window.__gameState.selectedItem);
+    expect(selectedItem).toBeNull();
   });
 
 });
