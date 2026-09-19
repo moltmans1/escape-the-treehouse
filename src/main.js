@@ -155,6 +155,10 @@ class PreloadScene extends Phaser.Scene {
     this.load.image('cursor_paper_large', 'assets/cursor_paper_large.png');
     this.load.image('cursor_binoculars', 'assets/cursor_binoculars.png');
     this.load.image('cursor_binoculars_large', 'assets/cursor_binoculars_large.png');
+    this.load.image('cursor_key', 'assets/cursor_key.png');
+    this.load.image('cursor_key_large', 'assets/cursor_key_large.png');
+    this.load.image('cursor_harness', 'assets/cursor_harness.png');
+    this.load.image('cursor_harness_large', 'assets/cursor_harness_large.png');
     
     // Load navigation arrow
     this.createArrowTexture();
@@ -305,8 +309,13 @@ class GameScene extends Phaser.Scene {
             this.game.canvas.style.cursor = 'default';
           }
         } else {
-          if (this.game && this.game.canvas && (this.game.canvas.style.cursor === 'default' || this.game.canvas.style.cursor === 'auto' || this.game.canvas.style.cursor === '')) {
-            this.updateCanvasCursor();
+          const currentCursor = this.game && this.game.canvas ? this.game.canvas.style.cursor : '';
+          if (!currentCursor.includes('_large.png')) {
+            const hits = this.input.hitTestPointer(pointer);
+            const hasInteractiveHit = hits.some(obj => obj.input && (obj.input.cursor === 'pointer' || obj.input.useHandCursor) && obj.y < 440);
+            if (!hasInteractiveHit) {
+              this.updateCanvasCursor();
+            }
           }
         }
       }
@@ -788,6 +797,18 @@ class GameScene extends Phaser.Scene {
       if (hotspotName === 'south_window' && stateManager.state.selectedItem === 'binoculars') {
         if (this.game && this.game.canvas) {
           this.game.canvas.style.cursor = "url('assets/cursor_binoculars_large.png') 24 24, pointer";
+        }
+      } else if (hotspotName === 'trunk' && stateManager.state.selectedItem === 'brass_key' && !stateManager.hasFlag('trunk_unlocked')) {
+        if (this.game && this.game.canvas) {
+          this.game.canvas.style.cursor = "url('assets/cursor_key_large.png') 24 24, pointer";
+        }
+      } else if (hotspotName === 'exit_door' && stateManager.state.selectedItem === 'rusty_key' && !stateManager.hasFlag('door_unlocked')) {
+        if (this.game && this.game.canvas) {
+          this.game.canvas.style.cursor = "url('assets/cursor_key_large.png') 24 24, pointer";
+        }
+      } else if (hotspotName === 'zipline' && stateManager.state.selectedItem === 'harness') {
+        if (this.game && this.game.canvas) {
+          this.game.canvas.style.cursor = "url('assets/cursor_harness_large.png') 24 24, pointer";
         }
       }
     });
@@ -1552,23 +1573,20 @@ class GameScene extends Phaser.Scene {
     const pointer = this.input.activePointer;
     const isOverInventory = pointer && pointer.y >= 440;
 
+    let cursorVal = 'default';
     if (selectedItem === 'origami_paper') {
-      const cursorVal = "url('assets/cursor_paper.png') 16 16, auto";
-      this.input.setDefaultCursor(cursorVal);
-      if (this.game && this.game.canvas) {
-        this.game.canvas.style.cursor = isOverInventory ? 'default' : cursorVal;
-      }
+      cursorVal = "url('assets/cursor_paper.png') 16 16, auto";
     } else if (selectedItem === 'binoculars') {
-      const cursorVal = "url('assets/cursor_binoculars.png') 16 16, auto";
-      this.input.setDefaultCursor(cursorVal);
-      if (this.game && this.game.canvas) {
-        this.game.canvas.style.cursor = isOverInventory ? 'default' : cursorVal;
-      }
-    } else {
-      this.input.setDefaultCursor('default');
-      if (this.game && this.game.canvas) {
-        this.game.canvas.style.cursor = 'default';
-      }
+      cursorVal = "url('assets/cursor_binoculars.png') 16 16, auto";
+    } else if (selectedItem === 'brass_key' || selectedItem === 'rusty_key') {
+      cursorVal = "url('assets/cursor_key.png') 16 16, auto";
+    } else if (selectedItem === 'harness') {
+      cursorVal = "url('assets/cursor_harness.png') 16 16, auto";
+    }
+
+    this.input.setDefaultCursor(cursorVal);
+    if (this.game && this.game.canvas) {
+      this.game.canvas.style.cursor = isOverInventory ? 'default' : cursorVal;
     }
   }
 

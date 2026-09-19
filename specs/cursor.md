@@ -22,3 +22,9 @@ We want to replace the cursor with an image of the selected item from the invent
      * Matching target: The entire open Origami Book in `origami_book` zoom view.
    * **Binoculars (`binoculars`):**
      * Matching targets: The South Window in South view, and the 3 Tree Hotspots (Left, Center, Right) in the South Window zoom view.
+   * **Brass Key (`brass_key`):**
+     * Matching target: The locked Trunk in North view (`trunk`).
+   * **Rusty Key (`rusty_key`):**
+     * Matching target: The locked Exit Door in South view (`exit_door`).
+   * **Harness (`harness`):**
+     * Matching target: The Zipline in Balcony view (`zipline`).

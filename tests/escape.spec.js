@@ -1116,6 +1116,104 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.locator('canvas').click({ position: { x: 280, y: 490 } });
     selectedItem = await page.evaluate(() => window.__gameState.selectedItem);
     expect(selectedItem).toBeNull();
+
+    // Close south window zoom view
+    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === null);
+
+    // --- BRASS KEY CURSOR & TRUNK HIGHLIGHT ---
+    await page.evaluate(() => {
+      window.__stateManager.addItem('brass_key');
+      window.__stateManager.setView('north');
+    });
+    await page.waitForFunction(() => window.__gameState.currentView === 'north');
+    await page.waitForTimeout(400);
+
+    const brassKeyIdx = await page.evaluate(() => window.__gameState.inventory.indexOf('brass_key'));
+    const brassKeySlotX = 120 + brassKeyIdx * 80;
+
+    // Click brass_key slot
+    await page.locator('canvas').click({ position: { x: brassKeySlotX, y: 490 } });
+    expect(await page.evaluate(() => window.__gameState.selectedItem)).toBe('brass_key');
+
+    // Hover neutral North area (550, 200) -> cursor_key.png
+    await page.locator('canvas').hover({ position: { x: 550, y: 200 } });
+    await page.waitForTimeout(100);
+    canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
+    expect(canvasCursor).toContain('cursor_key.png');
+
+    // Hover over Trunk matching hotspot in North view (800, 360) -> cursor_key_large.png
+    await page.locator('canvas').hover({ position: { x: 800, y: 360 } });
+    await page.waitForTimeout(100);
+    canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
+    expect(canvasCursor).toContain('cursor_key_large.png');
+
+    // Deselect brass_key
+    await page.locator('canvas').click({ position: { x: brassKeySlotX, y: 490 } });
+    expect(await page.evaluate(() => window.__gameState.selectedItem)).toBeNull();
+
+    // --- RUSTY KEY CURSOR & EXIT DOOR HIGHLIGHT ---
+    await page.evaluate(() => {
+      window.__stateManager.addItem('rusty_key');
+      window.__stateManager.setView('south');
+    });
+    await page.waitForFunction(() => window.__gameState.currentView === 'south');
+    await page.waitForTimeout(400);
+
+    const rustyKeyIdx = await page.evaluate(() => window.__gameState.inventory.indexOf('rusty_key'));
+    const rustyKeySlotX = 120 + rustyKeyIdx * 80;
+
+    // Click rusty_key slot
+    await page.locator('canvas').click({ position: { x: rustyKeySlotX, y: 490 } });
+    expect(await page.evaluate(() => window.__gameState.selectedItem)).toBe('rusty_key');
+
+    // Hover neutral South area (400, 50) -> cursor_key.png
+    await page.locator('canvas').hover({ position: { x: 400, y: 50 } });
+    await page.waitForTimeout(100);
+    canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
+    expect(canvasCursor).toContain('cursor_key.png');
+
+    // Hover over Exit Door matching hotspot in South view (185, 270) -> cursor_key_large.png
+    await page.locator('canvas').hover({ position: { x: 185, y: 270 } });
+    await page.waitForTimeout(100);
+    canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
+    expect(canvasCursor).toContain('cursor_key_large.png');
+
+    // Deselect rusty_key
+    await page.locator('canvas').click({ position: { x: rustyKeySlotX, y: 490 } });
+    expect(await page.evaluate(() => window.__gameState.selectedItem)).toBeNull();
+
+    // --- HARNESS CURSOR & ZIPLINE HIGHLIGHT ---
+    await page.evaluate(() => {
+      window.__stateManager.addItem('harness');
+      window.__stateManager.setFlag('door_unlocked');
+      window.__stateManager.setView('balcony');
+    });
+    await page.waitForFunction(() => window.__gameState.currentView === 'balcony');
+    await page.waitForTimeout(400);
+
+    const harnessIdx = await page.evaluate(() => window.__gameState.inventory.indexOf('harness'));
+    const harnessSlotX = 120 + harnessIdx * 80;
+
+    // Click harness slot
+    await page.locator('canvas').click({ position: { x: harnessSlotX, y: 490 } });
+    expect(await page.evaluate(() => window.__gameState.selectedItem)).toBe('harness');
+
+    // Hover neutral Balcony area (300, 100) -> cursor_harness.png
+    await page.locator('canvas').hover({ position: { x: 300, y: 100 } });
+    await page.waitForTimeout(100);
+    canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
+    expect(canvasCursor).toContain('cursor_harness.png');
+
+    // Hover over Zipline matching hotspot in Balcony view (530, 123) -> cursor_harness_large.png
+    await page.locator('canvas').hover({ position: { x: 530, y: 123 } });
+    await page.waitForTimeout(100);
+    canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
+    expect(canvasCursor).toContain('cursor_harness_large.png');
+
+    // Deselect harness
+    await page.locator('canvas').click({ position: { x: harnessSlotX, y: 490 } });
+    expect(await page.evaluate(() => window.__gameState.selectedItem)).toBeNull();
   });
 
   test('Test Case 9: Direct Inventory Item Zoom View Switching', async ({ page }) => {
