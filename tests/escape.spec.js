@@ -1005,15 +1005,32 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.locator('canvas').click({ position: { x: 120, y: 490 } });
     await dismissDialog(page);
 
-    // Verify standard paper cursor is active
+    // Verify paper is selected, but cursor over inventory slot is pointer / default
     let selectedItem = await page.evaluate(() => window.__gameState.selectedItem);
-    canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
     expect(selectedItem).toBe('origami_paper');
-    expect(canvasCursor).toContain('cursor_paper.png');
 
     // Close paper zoom view (900, 30)
     await page.locator('canvas').click({ position: { x: 900, y: 30 } });
     await page.waitForFunction(() => window.__gameState.zoomView === null);
+
+    // Verify cursor behavior over inventory bar:
+    // 1. Over empty inventory area (x: 50, y: 490), cursor should be default
+    await page.locator('canvas').hover({ position: { x: 50, y: 490 } });
+    await page.waitForTimeout(100);
+    canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
+    expect(canvasCursor).toBe('default');
+
+    // 2. Over clickable item slot (x: 120, y: 490), cursor should be pointer
+    await page.locator('canvas').hover({ position: { x: 120, y: 490 } });
+    await page.waitForTimeout(100);
+    canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
+    expect(canvasCursor).toBe('pointer');
+
+    // 3. Moving back up into neutral scene background (x: 550, y: 200), cursor restores to cursor_paper.png
+    await page.locator('canvas').hover({ position: { x: 550, y: 200 } });
+    await page.waitForTimeout(100);
+    canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
+    expect(canvasCursor).toContain('cursor_paper.png');
 
     // Open Origami Book zoom view (slot 1 at x: 200, y: 490)
     await page.locator('canvas').click({ position: { x: 200, y: 490 } });
@@ -1060,10 +1077,14 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.locator('canvas').click({ position: { x: 280, y: 490 } });
     await dismissDialog(page);
 
-    // Verify binoculars cursor is active
+    // Verify binoculars is selected
     selectedItem = await page.evaluate(() => window.__gameState.selectedItem);
-    canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
     expect(selectedItem).toBe('binoculars');
+
+    // Move into scene area (400, 50) and verify standard binoculars cursor is active
+    await page.locator('canvas').hover({ position: { x: 400, y: 50 } });
+    await page.waitForTimeout(100);
+    canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
     expect(canvasCursor).toContain('cursor_binoculars.png');
 
     // Hover over South Window matching hotspot in South view (715, 190)

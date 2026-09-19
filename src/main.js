@@ -280,6 +280,22 @@ class GameScene extends Phaser.Scene {
       .setDepth(2);
 
 
+    // Pointer move listener for dynamically updating cursor between scene and inventory bar
+    this.input.on('pointermove', (pointer) => {
+      const selectedItem = stateManager.state.selectedItem;
+      if (selectedItem) {
+        if (pointer.y >= 440) {
+          if (this.game && this.game.canvas && this.game.canvas.style.cursor.includes('cursor_')) {
+            this.game.canvas.style.cursor = 'default';
+          }
+        } else {
+          if (this.game && this.game.canvas && (this.game.canvas.style.cursor === 'default' || this.game.canvas.style.cursor === 'auto' || this.game.canvas.style.cursor === '')) {
+            this.updateCanvasCursor();
+          }
+        }
+      }
+    });
+
     // Clear previous listeners to avoid duplicates on restart
     stateManager.listeners = {};
 
@@ -400,6 +416,22 @@ class GameScene extends Phaser.Scene {
     });
     titleText.setDepth(21);
 
+    this.inventoryBarZone = this.add.rectangle(480, 490, 960, barHeight, 0x000000, 0)
+      .setInteractive()
+      .setDepth(20);
+
+    this.inventoryBarZone.on('pointerover', () => {
+      if (this.game && this.game.canvas) {
+        this.game.canvas.style.cursor = 'default';
+      }
+    });
+
+    this.inventoryBarZone.on('pointerout', () => {
+      if (this.input.activePointer && this.input.activePointer.y < 440) {
+        this.updateCanvasCursor();
+      }
+    });
+
     this.inventorySlots = [];
     for (let i = 0; i < 11; i++) {
       const x = 120 + i * 80;
@@ -467,6 +499,13 @@ class GameScene extends Phaser.Scene {
             scale: 1.0,
             duration: 100
           });
+          if (this.input.activePointer && this.input.activePointer.y >= 440) {
+            if (this.game && this.game.canvas) {
+              this.game.canvas.style.cursor = 'default';
+            }
+          } else {
+            this.updateCanvasCursor();
+          }
         });
         
         itemText.on('pointerdown', () => {
@@ -1488,17 +1527,20 @@ class GameScene extends Phaser.Scene {
 
   updateCanvasCursor() {
     const selectedItem = stateManager.state.selectedItem;
+    const pointer = this.input.activePointer;
+    const isOverInventory = pointer && pointer.y >= 440;
+
     if (selectedItem === 'origami_paper') {
       const cursorVal = "url('assets/cursor_paper.png') 16 16, auto";
       this.input.setDefaultCursor(cursorVal);
       if (this.game && this.game.canvas) {
-        this.game.canvas.style.cursor = cursorVal;
+        this.game.canvas.style.cursor = isOverInventory ? 'default' : cursorVal;
       }
     } else if (selectedItem === 'binoculars') {
       const cursorVal = "url('assets/cursor_binoculars.png') 16 16, auto";
       this.input.setDefaultCursor(cursorVal);
       if (this.game && this.game.canvas) {
-        this.game.canvas.style.cursor = cursorVal;
+        this.game.canvas.style.cursor = isOverInventory ? 'default' : cursorVal;
       }
     } else {
       this.input.setDefaultCursor('default');
