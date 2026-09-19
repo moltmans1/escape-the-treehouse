@@ -1040,14 +1040,20 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.locator('canvas').click({ position: { x: 120, y: 490 } });
     expect(await page.evaluate(() => window.__gameState.selectedItem)).toBe('origami_paper');
 
-    // Hover over the matching folding zone (605, 210)
+    // Hover over the matching right page of the origami book (605, 210)
     await page.locator('canvas').hover({ position: { x: 605, y: 210 } });
     await page.waitForTimeout(100);
     canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
     expect(canvasCursor).toContain('cursor_paper_large.png');
 
-    // Move mouse away to neutral area (400, 50)
-    await page.locator('canvas').hover({ position: { x: 400, y: 50 } });
+    // Hover over the matching left page of the origami book (350, 210)
+    await page.locator('canvas').hover({ position: { x: 350, y: 210 } });
+    await page.waitForTimeout(100);
+    canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
+    expect(canvasCursor).toContain('cursor_paper_large.png');
+
+    // Move mouse away to neutral area outside the book (100, 200)
+    await page.locator('canvas').hover({ position: { x: 100, y: 200 } });
     await page.waitForTimeout(100);
     canvasCursor = await page.evaluate(() => window.__game.canvas.style.cursor);
     expect(canvasCursor).toContain('cursor_paper.png');

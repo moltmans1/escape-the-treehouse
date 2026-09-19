@@ -19,6 +19,6 @@ We want to replace the cursor with an image of the selected item from the invent
 4. **Matching Hotspots (50% Larger Highlight Cursor):**
    * When hovering over the specific "matching hotspots" for the selected item, the cursor expands to a **50% larger version** (e.g. 48x48) to indicate an active valid target.
    * **Origami Paper (`origami_paper`):**
-     * Matching target: The open Origami Book folding zone in `origami_book` zoom view.
+     * Matching target: The entire open Origami Book in `origami_book` zoom view.
    * **Binoculars (`binoculars`):**
      * Matching targets: The South Window in South view, and the 3 Tree Hotspots (Left, Center, Right) in the South Window zoom view.

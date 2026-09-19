@@ -1078,8 +1078,8 @@ class GameScene extends Phaser.Scene {
         .setDisplaySize(540, 360);
       this.zoomContainer.add(bookImage);
 
-      // Interactive folding zone on the right page
-      const foldZone = this.add.rectangle(605, 210, 240, 280, 0xffffff, 0.0)
+      // Interactive folding zone covering the entire open book
+      const foldZone = this.add.rectangle(470, 210, 540, 360, 0xffffff, 0.0)
         .setInteractive({ useHandCursor: true });
 
       foldZone.on('pointerover', () => {
