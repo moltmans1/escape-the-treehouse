@@ -120,12 +120,12 @@ class PreloadScene extends Phaser.Scene {
     this.load.image('oak_leaf', 'assets/oak_leaf.jpg');
     this.load.image('white_pine_needles', 'assets/white_pine_needles.jpg');
     this.load.image('sugar_maple_leaf', 'assets/sugar_maple_leaf.jpg');
-    this.load.image('binoculars', 'assets/binoculars.png');
+    this.load.image('binoculars', 'assets/binoculars.jpg');
     this.load.image('open_origami_book', 'assets/open_origami_book.jpg');
     this.load.image('south_window_view', 'assets/south_window_view.jpg');
     this.load.image('safe_bg', 'assets/safe.png');
     this.load.image('safe_open', 'assets/safe_open.jpg');
-    this.load.image('dart', 'assets/dart.jpg');
+    this.load.image('dart', 'assets/dart.png');
     this.load.image('cross_lamp', 'assets/cross_lamp.jpg');
     this.load.image('cross_lamp_off', 'assets/cross_lamp_off.png');
     this.load.image('triangle_lamp_zoom_view', 'assets/Triangle lamp zoom view.png');
@@ -141,35 +141,7 @@ class PreloadScene extends Phaser.Scene {
   }
 
   create() {
-    this.createTransparentDartTexture();
     this.scene.start('MainMenuScene');
-  }
-
-  createTransparentDartTexture() {
-    const dartSource = this.textures.get('dart').getSourceImage();
-    const width = dartSource.width;
-    const height = dartSource.height;
-    const dartCanvas = this.textures.createCanvas('dart_transparent', width, height);
-    const ctx = dartCanvas.context;
-    
-    ctx.drawImage(dartSource, 0, 0);
-    
-    const imgData = ctx.getImageData(0, 0, width, height);
-    const data = imgData.data;
-    
-    const tolerance = 30;
-    for (let i = 0; i < data.length; i += 4) {
-      const r = data[i];
-      const g = data[i+1];
-      const b = data[i+2];
-      
-      if (r > 255 - tolerance && g > 255 - tolerance && b > 255 - tolerance) {
-        data[i+3] = 0;
-      }
-    }
-    
-    ctx.putImageData(imgData, 0, 0);
-    dartCanvas.refresh();
   }
 
   createArrowTexture() {
@@ -1135,7 +1107,7 @@ class GameScene extends Phaser.Scene {
         const clickY = pointer.worldY;
 
         // Spawn a non-interactive dart at the click coordinates
-        const dart = this.add.image(clickX, clickY, 'dart_transparent')
+        const dart = this.add.image(clickX, clickY, 'dart')
           .setOrigin(0.06, 0.5) // align the steel tip (about 6% from left) with clickX, clickY
           .setRotation(-0.26)   // tilted 15 degrees downward (points left-down)
           .setDisplaySize(110, 110);
