@@ -1156,23 +1156,27 @@ test.describe('Escape the Treehouse E2E Tests', () => {
     await page.locator('canvas').click({ position: { x: treesBookX, y: 490 } });
     await page.waitForFunction(() => window.__gameState.zoomView === 'trees_book');
 
-    // Close zoom view
-    await page.locator('canvas').click({ position: { x: 900, y: 30 } });
-    await page.waitForFunction(() => window.__gameState.zoomView === null);
+    // 5. Direct switch from Trees Book to Origami Paper without closing
+    const origamiPaperX = await getSlotX('origami_paper');
+    await page.locator('canvas').click({ position: { x: origamiPaperX, y: 490 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'origami_paper');
 
-    // 5. Test Origami exception: Open Origami Book zoom view
+    // 6. Direct switch from Origami Paper to Origami Book without closing
     const origamiBookX = await getSlotX('origami_book');
     await page.locator('canvas').click({ position: { x: origamiBookX, y: 490 } });
     await page.waitForFunction(() => window.__gameState.zoomView === 'origami_book');
 
-    // Click Origami Paper -> should select paper, NOT switch zoom view
-    const origamiPaperX = await getSlotX('origami_paper');
+    // 7. Test Origami exception: While Origami Book is open, click Origami Paper -> should select paper, NOT switch zoom view
     await page.locator('canvas').click({ position: { x: origamiPaperX, y: 490 } });
     await page.waitForFunction(() => window.__gameState.selectedItem === 'origami_paper');
-    const currentZoom = await page.evaluate(() => window.__gameState.zoomView);
+    let currentZoom = await page.evaluate(() => window.__gameState.zoomView);
     expect(currentZoom).toBe('origami_book');
 
-    // Close Origami Book
+    // 8. While Origami Book is open, click Trees Book -> should switch to Trees Book
+    await page.locator('canvas').click({ position: { x: treesBookX, y: 490 } });
+    await page.waitForFunction(() => window.__gameState.zoomView === 'trees_book');
+
+    // Close zoom view
     await page.locator('canvas').click({ position: { x: 900, y: 30 } });
     await page.waitForFunction(() => window.__gameState.zoomView === null);
 

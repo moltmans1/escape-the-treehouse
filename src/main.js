@@ -78,16 +78,8 @@ const ITEM_INSPECT_MAP = {
   clue_4: 'clue_4_zoom'
 };
 
-// Set of item zoom views that allow direct switching without closing first
-const SWITCHABLE_INSPECT_VIEWS = new Set([
-  'paper_airplane',
-  'trees_book',
-  'cipher_key_zoom',
-  'clue_1_zoom',
-  'clue_2_zoom',
-  'clue_3_zoom',
-  'clue_4_zoom'
-]);
+// Set of all item inspection zoom views
+const ITEM_INSPECT_ZOOM_VIEWS = new Set(Object.values(ITEM_INSPECT_MAP));
 
 // --- BOOT SCENE ---
 class BootScene extends Phaser.Scene {
@@ -540,10 +532,14 @@ class GameScene extends Phaser.Scene {
             const targetZoom = ITEM_INSPECT_MAP[item];
             
             if (targetZoom) {
-              // Open zoom view if:
-              // 1. No zoom view is currently open, OR
-              // 2. A switchable inspect view is active and the clicked item is also a switchable inspect view
-              const shouldInspect = !currentZoom || (SWITCHABLE_INSPECT_VIEWS.has(currentZoom) && SWITCHABLE_INSPECT_VIEWS.has(targetZoom));
+              // Special exception: If Origami Book is currently open and Origami Paper is clicked,
+              // do NOT switch zoom view — keep the book open so the player can fold the paper.
+              const isOrigamiFoldingCombo = (currentZoom === 'origami_book' && item === 'origami_paper');
+              
+              // Open/switch zoom view if:
+              // 1. No zoom view is currently open (inspecting from room), OR
+              // 2. An item inspection view is already open, EXCEPT for the origami book + paper folding combo.
+              const shouldInspect = (!currentZoom || ITEM_INSPECT_ZOOM_VIEWS.has(currentZoom)) && !isOrigamiFoldingCombo;
               if (shouldInspect) {
                 this.inspectInventoryItem(item);
               }
